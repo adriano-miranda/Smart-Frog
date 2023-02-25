@@ -1,0 +1,35 @@
+/*
+ Las posiciones están dadas como pares (x, y)
+ ¿Qué es cada cosa?
+    - level_name ->     Nombre del nivel
+    - log_pos ->        Posiciones de los troncos
+    - t_log_pos ->      Posiciones de los troncos efímeros
+    - nenufar_pos ->    Posiciones de los nenúfares
+    - t_nenufar_pos ->  Posiciones de los nenúfares efímeros
+    - fly_pos ->        Posiciones de las moscas
+    - dragonfly_pos ->  Posiciones de las libélulas
+    - a_bird_pos ->     Posiciones de los pájaros de tipo A
+    - b_bird_pos ->     Posiciones de los pájaros de tipo B
+    - a_fish_pos ->     Posiciones de los peces de tipo A
+    - b_fish_pos ->     Posiciones de los peces de tipo B
+    - frog_pos ->       Posición inicial de la rana
+*/
+
+{
+    "level_name": "",
+    "log_pos": 
+        [
+            ["x0", "y0"],
+            ["x1", "y1"]
+        ],
+    "t_log_pos": [],
+    "t_nenufar_pos": [],
+    "nenufar_pos": [],
+    "fly_pos": [],
+    "dragonfly_pos": [],
+    "a_bird_pos": [],
+    "b_bird_pos": [],
+    "a_fish_pos": [],
+    "b_fish_pos": [],
+    "frog_pos": []
+}
