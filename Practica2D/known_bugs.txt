@@ -1,0 +1,2 @@
+BUG #1 La rana queda orientada hacia la dirección de la última tecla pulsada, pase lo que pase
+BUG #2
