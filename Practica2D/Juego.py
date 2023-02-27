@@ -26,6 +26,18 @@ BAND_HEIGHT = 100
 # Cargar la imagen de la rana
 frog_image = pygame.image.load("frog.png")
 
+# Cargar imagen de fondo
+background_image = pygame.image.load('water_tile.jpg')
+
+# Crear capa de fondo
+background_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+background_surface = background_surface.convert()
+
+# Rellenar capa de fondo con la imagen
+for x in range(0, SCREEN_WIDTH, background_image.get_width()):
+    for y in range(0, SCREEN_HEIGHT, background_image.get_height()):
+        background_surface.blit(background_image, (x, y))
+
 #Tamaño de la rana
 FROG_SIZE = (int(BAND_HEIGHT * 0.4), int(BAND_HEIGHT * 0.4))
 frog_image = pygame.transform.scale(frog_image, FROG_SIZE)
@@ -102,6 +114,9 @@ while True:
         FROG_Y = BAND_TOP
     elif FROG_Y > SCREEN_HEIGHT - FROG_SIZE[1]:
         FROG_Y = SCREEN_HEIGHT - FROG_SIZE[1]
+
+    # Dibujar capa de fondo
+    screen.blit(background_surface, (0, 0))
 
     # Dibujar la banda horizontal
     pygame.draw.rect(screen, BAND_COLOR, (BAND_LEFT, BAND_TOP, BAND_WIDTH, BAND_HEIGHT))
