@@ -1,15 +1,11 @@
 import pygame
 import sys
 import sprite_sheet
-import random
-import time as t
 
 from pygame import *
 
 # Inicializar Pygame
 pygame.init()
-
-random.seed(t.time)
 
 # Constantes para una mejor legibilidad
 
@@ -113,9 +109,9 @@ def posicionSalto(distance, direction):
     if direction == ABAJO:
         return ((FROG_X, min(SCREEN_HEIGHT, FROG_Y+distance)), (0, avance))
     if direction == DERECHA:
-        return ((min(FROG_X, FROG_X + distance), FROG_Y), (avance, 0))
+        return ((min(SCREEN_WIDTH, FROG_X + distance), FROG_Y), (avance, 0))
     if direction == IZQUIERDA:
-        return ((max(FROG_X, FROG_X - distance), FROG_Y), (-avance, 0))
+        return ((max(0, FROG_X - distance), FROG_Y), (-avance, 0))
 
 def reachedPosition(actual_pos, final_pos, direction):
     if direction == ARRIBA:
