@@ -1,2 +1,5 @@
 BUG #1 La rana queda orientada hacia la dirección de la última tecla pulsada, pase lo que pase
-BUG #2
+BUG #2 No hay sprite de salto
+    FUNCIONALIDADES DE SALTO
+BUG #3 Hay un avance fantasma, aunque el resultado final sea satisfactorio, en el momento que la rana, saltando, colisiona con el objeto "band". No se como se comportará con demás objetos
+BUG #4 Si saltamos, comprometiendo el avance, hacia el borde derecho de la pantalla, el juego se congela y hay que "matar" el juego

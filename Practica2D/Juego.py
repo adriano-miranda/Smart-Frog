@@ -20,10 +20,10 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 # Definir las coordenadas y dimensiones del rectángulo de la banda horizontal
-BAND_LEFT = 0
-BAND_TOP = SCREEN_HEIGHT - 100
+BAND_HEIGHT = 400
 BAND_WIDTH = SCREEN_WIDTH
-BAND_HEIGHT = 100
+BAND_TOP = SCREEN_HEIGHT - BAND_HEIGHT
+BAND_LEFT = 0
 
 # Definir el color de la banda horizontal
 BAND_COLOR = (0, 255, 0)  # verde
@@ -35,7 +35,7 @@ FROG_SPEED = 10
 FROG_SPEEDS = [0, 0, 0, 0]
 
 #Tamaño de la rana
-FROG_SIZE = (int(BAND_HEIGHT * 0.4), int(BAND_HEIGHT * 0.4))
+FROG_SIZE = (int(SCREEN_WIDTH * 0.04), int(SCREEN_WIDTH * 0.04))
 #frog_image = pygame.transform.scale(frog_image, FROG_SIZE)
 
 # Obtener las coordenadas iniciales de la rana
@@ -48,7 +48,7 @@ lookingAt = ARRIBA
 # Mecanica de salto
 
 MAX_TIME = 2    # Tiempo[s] tras el cual seguir cargando el salto, no tiene efecto
-MAX_JUMP_DISTANCE = FROG_SIZE[0] * 2
+MAX_JUMP_DISTANCE = FROG_SIZE[0] * 4
 JUMP_VELOCITY = 10
 isJumping = False
 isLoadingJump = False
