@@ -14,8 +14,8 @@ from pygame.locals import *
 VELOCIDAD_SOL = 0.1 # Pixeles por milisegundo
 
 # Los bordes de la pantalla para hacer scroll horizontal
-MINIMO_X_JUGADOR = 50
-MAXIMO_X_JUGADOR = ANCHO_PANTALLA - MINIMO_X_JUGADOR
+MINIMO_Y_JUGADOR = 50
+MAXIMO_Y_JUGADOR = ALTO_PANTALLA - MINIMO_Y_JUGADOR
 
 # -------------------------------------------------
 # Clase Fase
@@ -38,29 +38,28 @@ class Fase(Escena):
 
         # Creamos el decorado y el fondo
         self.decorado = Decorado()
-        self.fondo = Cielo()
+        self.fondo = Agua()
 
         # Que parte del decorado estamos visualizando
         self.scrollx = 0
+        self.scrolly = 0
         #  En ese caso solo hay scroll horizontal
         #  Si ademas lo hubiese vertical, seria self.scroll = (0, 0)
 
         # Creamos los sprites de los jugadores
-        self.jugador1 = Jugador()
-        self.jugador2 = Jugador()
-        self.grupoJugadores = pygame.sprite.Group( self.jugador1, self.jugador2 )
+        self.jugador = Jugador()
+        self.grupoJugadores = pygame.sprite.Group(self.jugador)
 
         # Ponemos a los jugadores en sus posiciones iniciales
-        self.jugador1.establecerPosicion((200, 551))
-        self.jugador2.establecerPosicion((400, 551))
+        self.jugador.establecerPosicion((200, 551))
 
         # Creamos las plataformas del decorado
         # La plataforma que conforma todo el suelo
         plataformaSuelo = Plataforma(pygame.Rect(0, 550, 1200, 15))
         # La plataforma del techo del edificio
-        plataformaCasa = Plataforma(pygame.Rect(870, 417, 200, 10))
+        #plataformaCasa = Plataforma(pygame.Rect(870, 417, 200, 10))
         # y el grupo con las mismas
-        self.grupoPlataformas = pygame.sprite.Group( plataformaSuelo, plataformaCasa )
+        self.grupoPlataformas = pygame.sprite.Group(plataformaSuelo)
 
         # Y los enemigos que tendran en este decorado
         enemigo1 = Sniper()
@@ -71,76 +70,49 @@ class Fase(Escena):
 
         # Creamos un grupo con los Sprites que se mueven
         #  En este caso, solo los personajes, pero podría haber más (proyectiles, etc.)
-        self.grupoSpritesDinamicos = pygame.sprite.Group( self.jugador1, self.jugador2, enemigo1 )
+        self.grupoSpritesDinamicos = pygame.sprite.Group(self.jugador, enemigo1)
         # Creamos otro grupo con todos los Sprites
-        self.grupoSprites = pygame.sprite.Group( self.jugador1, self.jugador2, enemigo1, plataformaSuelo, plataformaCasa )
+        self.grupoSprites = pygame.sprite.Group(self.jugador, enemigo1, plataformaSuelo)
 
 
 
         
     # Devuelve True o False según se ha tenido que desplazar el scroll
-    def actualizarScrollOrdenados(self, jugadorIzq, jugadorDcha):
-        # Si ambos jugadores se han ido por ambos lados de los dos bordes
-        if (jugadorIzq.rect.left<MINIMO_X_JUGADOR) and (jugadorDcha.rect.right>MAXIMO_X_JUGADOR):
+    def actualizarScrollOrdenados(self, jugador):
+        
+        # Si el jugador se encuentra más allá del borde bajo
+        if (jugador.rect.bottom<MINIMO_Y_JUGADOR):
+            desplazamiento = MINIMO_Y_JUGADOR - jugador.rect.bottom
 
-            # Colocamos al jugador que esté a la izquierda a la izquierda de todo
-            jugadorIzq.establecerPosicion((self.scrollx+MINIMO_X_JUGADOR, jugadorIzq.posicion[1]))
-            # Colocamos al jugador que esté a la derecha a la derecha de todo
-            jugadorDcha.establecerPosicion((self.scrollx+MAXIMO_X_JUGADOR-jugadorDcha.rect.width, jugadorDcha.posicion[1]))
-            
-            return False; # No se ha actualizado el scroll
+            # Si el escenario ya está a la abajo del todo, no lo movemos mas
+            if self.scrolly <= 0:
+                self.scrolly = 0
 
-        # Si el jugador de la izquierda se encuentra más allá del borde izquierdo
-        if (jugadorIzq.rect.left<MINIMO_X_JUGADOR):
-            desplazamiento = MINIMO_X_JUGADOR - jugadorIzq.rect.left
-
-            # Si el escenario ya está a la izquierda del todo, no lo movemos mas
-            if self.scrollx <= 0:
-                self.scrollx = 0
-
-                # En su lugar, colocamos al jugador que esté más a la izquierda a la izquierda de todo
-                jugadorIzq.establecerPosicion((MINIMO_X_JUGADOR, jugadorIzq.posicion[1]))
+                # En su lugar, colocamos al jugador abajo de todo
+                jugador.establecerPosicion((MINIMO_Y_JUGADOR, jugador.posicion[1]))
 
                 return False; # No se ha actualizado el scroll
 
-            # Si no, es posible que el jugador de la derecha no se pueda desplazar
-            #  tantos pixeles a la derecha por estar muy cerca del borde derecho
-            elif ((MAXIMO_X_JUGADOR-jugadorDcha.rect.right)<desplazamiento):
-                
-                # En este caso, ponemos el jugador de la izquierda en el lado izquierdo
-                jugadorIzq.establecerPosicion((jugadorIzq.posicion[0]+desplazamiento, jugadorIzq.posicion[1]))
-
-                return False; # No se ha actualizado el scroll
-
-            # Si se puede hacer scroll a la izquierda
+            # Si se puede hacer scroll abajo
             else:
                 # Calculamos el nivel de scroll actual: el anterior - desplazamiento
-                #  (desplazamos a la izquierda)
-                self.scrollx = self.scrollx - desplazamiento;
+                #  (desplazamos abajo)
+                self.scrolly = self.scrolly - desplazamiento;
 
                 return True; # Se ha actualizado el scroll
 
-        # Si el jugador de la derecha se encuentra más allá del borde derecho
-        if (jugadorDcha.rect.right>MAXIMO_X_JUGADOR):
+        # Si el jugador se encuentra más allá del borde alto
+        if (jugador.rect.top>MAXIMO_Y_JUGADOR):
 
             # Se calcula cuantos pixeles esta fuera del borde
-            desplazamiento = jugadorDcha.rect.right - MAXIMO_X_JUGADOR
+            desplazamiento = jugador.rect.top - MAXIMO_Y_JUGADOR
 
-            # Si el escenario ya está a la derecha del todo, no lo movemos mas
-            if self.scrollx + ANCHO_PANTALLA >= self.decorado.rect.right:
-                self.scrollx = self.decorado.rect.right - ANCHO_PANTALLA
+            # Si el escenario ya está arriba del todo, no lo movemos mas
+            if self.scrolly + ANCHO_PANTALLA >= self.decorado.rect.top:
+                self.scrolly = self.decorado.rect.top - ALTO_PANTALLA
 
-                # En su lugar, colocamos al jugador que esté más a la derecha a la derecha de todo
-                jugadorDcha.establecerPosicion((self.scrollx+MAXIMO_X_JUGADOR-jugadorDcha.rect.width, jugadorDcha.posicion[1]))
-
-                return False; # No se ha actualizado el scroll
-
-            # Si no, es posible que el jugador de la izquierda no se pueda desplazar
-            #  tantos pixeles a la izquierda por estar muy cerca del borde izquierdo
-            elif ((jugadorIzq.rect.left-MINIMO_X_JUGADOR)<desplazamiento):
-
-                # En este caso, ponemos el jugador de la derecha en el lado derecho
-                jugadorDcha.establecerPosicion((jugadorDcha.posicion[0]-desplazamiento, jugadorDcha.posicion[1]))
+                # En su lugar, colocamos al jugador arriba de todo
+                jugador.establecerPosicion((self.scrolly+MAXIMO_Y_JUGADOR-jugador.rect.top, jugador.posicion[1]))
 
                 return False; # No se ha actualizado el scroll
 
@@ -149,29 +121,26 @@ class Fase(Escena):
 
                 # Calculamos el nivel de scroll actual: el anterior + desplazamiento
                 #  (desplazamos a la derecha)
-                self.scrollx = self.scrollx + desplazamiento;
+                self.scrolly = self.scrolly + desplazamiento;
 
                 return True; # Se ha actualizado el scroll
 
-        # Si ambos jugadores están entre los dos límites de la pantalla, no se hace nada
+        # Si el jugador está entre los dos límites de la pantalla, no se hace nada
         return False;
 
 
-    def actualizarScroll(self, jugador1, jugador2):
+    def actualizarScroll(self, jugador):
         # Se ordenan los jugadores según el eje x, y se mira si hay que actualizar el scroll
-        if (jugador1.posicion[0]<jugador2.posicion[0]):
-            cambioScroll = self.actualizarScrollOrdenados(jugador1, jugador2)
-        else:
-            cambioScroll = self.actualizarScrollOrdenados(jugador2, jugador1)
+        cambioScroll = self.actualizarScrollOrdenados(jugador)
 
         # Si se cambio el scroll, se desplazan todos los Sprites y el decorado
         if cambioScroll:
             # Actualizamos la posición en pantalla de todos los Sprites según el scroll actual
             for sprite in iter(self.grupoSprites):
-                sprite.establecerPosicionPantalla((self.scrollx, 0))
+                sprite.establecerPosicionPantalla((self.scrolly, 0))
 
             # Ademas, actualizamos el decorado para que se muestre una parte distinta
-            self.decorado.update(self.scrollx)
+            self.decorado.update(self.scrolly)
 
 
 
@@ -186,7 +155,7 @@ class Fase(Escena):
 
         # Primero, se indican las acciones que van a hacer los enemigos segun como esten los jugadores
         for enemigo in iter(self.grupoEnemigos):
-            enemigo.mover_cpu(self.jugador1, self.jugador2)
+            enemigo.mover_cpu(self.jugador)
         # Esta operación es aplicable también a cualquier Sprite que tenga algún tipo de IA
         # En el caso de los jugadores, esto ya se ha realizado
 
@@ -211,7 +180,7 @@ class Fase(Escena):
             self.director.salirEscena()
 
         # Actualizamos el scroll
-        self.actualizarScroll(self.jugador1, self.jugador2)
+        self.actualizarScroll(self.jugador)
   
         # Actualizamos el fondo:
         #  la posicion del sol y el color del cielo
@@ -236,8 +205,8 @@ class Fase(Escena):
 
         # Indicamos la acción a realizar segun la tecla pulsada para cada jugador
         teclasPulsadas = pygame.key.get_pressed()
-        self.jugador1.mover(teclasPulsadas, K_UP, K_DOWN, K_LEFT, K_RIGHT)
-        self.jugador2.mover(teclasPulsadas, K_w,  K_s,    K_a,    K_d)
+        self.jugador.mover(teclasPulsadas, K_UP, K_DOWN, K_LEFT, K_RIGHT)
+        #self.jugador2.mover(teclasPulsadas, K_w,  K_s,    K_a,    K_d)
 
 # -------------------------------------------------
 # Clase Plataforma
@@ -291,11 +260,11 @@ class Cielo:
 
 class Decorado:
     def __init__(self):
-        self.imagen = GestorRecursos.CargarImagen('decorado.png', -1)
-        self.imagen = pygame.transform.scale(self.imagen, (1200, 300))
+        self.imagen = GestorRecursos.CargarImagen('decorado0.png', -1)
+        self.imagen = pygame.transform.scale(self.imagen, (1200, 600))
 
         self.rect = self.imagen.get_rect()
-        self.rect.bottom = ALTO_PANTALLA
+        self.rect.left = ANCHO_PANTALLA
 
         # La subimagen que estamos viendo
         self.rectSubimagen = pygame.Rect(0, 0, ANCHO_PANTALLA, ALTO_PANTALLA)
@@ -307,3 +276,24 @@ class Decorado:
     def dibujar(self, pantalla):
         pantalla.blit(self.imagen, self.rect, self.rectSubimagen)
 
+# -------------------------------------------------
+# Clase Agua
+
+class Agua:
+    def __init__(self):
+        self.tile = GestorRecursos.CargarImagen('water_tile.jpg', 0) # Cargar textura de fondo
+        self.imagen = pygame.Surface((1400, 800)) # Crear capa de fondo
+        self.imagen = self.imagen.convert()
+
+        # Rellenar capa de fondo con la imagen
+        for x in range(0, 800, self.tile.get_width()):
+            for y in range(0, 1400, self.tile.get_height()):
+                self.imagen.blit(self.tile, (x, y))
+
+        self.rect = self.imagen.get_rect()
+
+    def update(self, tiempo):
+        return
+
+    def dibujar(self, pantalla):
+       pantalla.blit(self.imagen, self.rect)
