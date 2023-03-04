@@ -245,10 +245,12 @@ while True:
         last_update = current_time
         if sprite >= len(spritelist):
             sprite = 0
-    
+    #sprite cuando está quieto    
     if (quieto==1):
         sprite = len(spritelist)-1
-
+    #sprite cuando está saltando
+    if(isJumping==True):
+        sprite = 0
     # Dibujar la imagen de la rana en la pantalla
     screen.blit(spritelist[sprite], (FROG_X, FROG_Y))
 
