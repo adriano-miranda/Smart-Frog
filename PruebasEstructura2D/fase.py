@@ -13,8 +13,10 @@ from pygame.locals import *
 
 VELOCIDAD_SOL = 0.1 # Pixeles por milisegundo
 
-# Los bordes de la pantalla para hacer scroll horizontal
-MINIMO_Y_JUGADOR = 50
+# Los bordes de la pantalla para hacer scroll
+MINIMO_X_JUGADOR = 5
+MAXIMO_X_JUGADOR = ANCHO_PANTALLA - MINIMO_X_JUGADOR
+MINIMO_Y_JUGADOR = 5
 MAXIMO_Y_JUGADOR = ALTO_PANTALLA - MINIMO_Y_JUGADOR
 
 # -------------------------------------------------
@@ -79,53 +81,106 @@ class Fase(Escena):
         
     # Devuelve True o False según se ha tenido que desplazar el scroll
     def actualizarScrollOrdenados(self, jugador):
-        
-        # Si el jugador se encuentra más allá del borde bajo
-        if (jugador.rect.bottom<MINIMO_Y_JUGADOR):
-            desplazamiento = MINIMO_Y_JUGADOR - jugador.rect.bottom
 
-            # Si el escenario ya está a la abajo del todo, no lo movemos mas
+        # Si el jugador se encuentra más allá del borde superior
+        if (jugador.rect.top<MINIMO_Y_JUGADOR):
+            print("ARRIBA: ", jugador.posicion)
+
+            # Se calcula cuantos pixeles esta fuera del borde
+            desplazamiento = MINIMO_Y_JUGADOR - jugador.rect.top
+
+            # Si el escenario ya está a la izquierda del todo, no lo movemos mas
             if self.scrolly <= 0:
                 self.scrolly = 0
 
-                # En su lugar, colocamos al jugador abajo de todo
-                jugador.establecerPosicion((MINIMO_Y_JUGADOR, jugador.posicion[1]))
+                # En su lugar, colocamos al jugador que esté más a la izquierda a la izquierda de todo
+                jugador.establecerPosicion((jugador.posicion[1], MINIMO_Y_JUGADOR))
 
                 return False; # No se ha actualizado el scroll
 
-            # Si se puede hacer scroll abajo
+            # Si se puede hacer scroll a la izquierda
             else:
                 # Calculamos el nivel de scroll actual: el anterior - desplazamiento
-                #  (desplazamos abajo)
+                #  (desplazamos a la izquierda)
                 self.scrolly = self.scrolly - desplazamiento;
 
                 return True; # Se ha actualizado el scroll
 
-        # Si el jugador se encuentra más allá del borde alto
-        if (jugador.rect.top>MAXIMO_Y_JUGADOR):
+        # Si el jugador se encuentra más allá del borde inferior
+        if (jugador.rect.bottom>MAXIMO_Y_JUGADOR):
+            print("ABAJO: ", jugador.posicion)
 
             # Se calcula cuantos pixeles esta fuera del borde
-            desplazamiento = jugador.rect.top - MAXIMO_Y_JUGADOR
+            desplazamiento = jugador.rect.bottom - MAXIMO_Y_JUGADOR
 
-            # Si el escenario ya está arriba del todo, no lo movemos mas
-            if self.scrolly + ANCHO_PANTALLA >= self.decorado.rect.top:
-                self.scrolly = self.decorado.rect.top - ALTO_PANTALLA
+            # Si el escenario ya está abajo del todo, no lo movemos mas
+            if self.scrolly + ALTO_PANTALLA >= self.fondo.rect.bottom:
+                self.scrolly = self.fondo.rect.bottom - ALTO_PANTALLA
 
-                # En su lugar, colocamos al jugador arriba de todo
-                jugador.establecerPosicion((self.scrolly+MAXIMO_Y_JUGADOR-jugador.rect.top, jugador.posicion[1]))
+                # En su lugar, colocamos al jugador que esté más a la derecha a la derecha de todo
+                jugador.establecerPosicion((jugador.posicion[1], self.scrolly+MAXIMO_Y_JUGADOR-jugador.rect.height))
 
                 return False; # No se ha actualizado el scroll
+
+
+            # Si se puede hacer scroll abajo
+            else:
+
+                # Calculamos el nivel de scroll actual: el anterior + desplazamiento
+                #  (desplazamos abajo)
+                self.scrolly = self.scrolly + desplazamiento;
+
+                return True; # Se ha actualizado el scroll
+
+        # Si el jugador se encuentra más allá del borde izquierdo
+        if (jugador.rect.left<MINIMO_X_JUGADOR):
+
+            # Se calcula cuantos pixeles esta fuera del borde
+            desplazamiento = MINIMO_X_JUGADOR - jugador.rect.left
+
+            # Si el escenario ya está a la izquierda del todo, no lo movemos mas
+            if self.scrollx <= 0:
+                self.scrollx = 0
+
+                # En su lugar, colocamos al jugador que esté más a la izquierda a la izquierda de todo
+                jugador.establecerPosicion((MINIMO_X_JUGADOR, jugador.posicion[1]))
+
+                return False; # No se ha actualizado el scroll
+
+            # Si se puede hacer scroll a la izquierda
+            else:
+                # Calculamos el nivel de scroll actual: el anterior - desplazamiento
+                #  (desplazamos a la izquierda)
+                self.scrollx = self.scrollx - desplazamiento;
+
+                return True; # Se ha actualizado el scroll
+
+        # Si el jugador se encuentra más allá del borde derecho
+        if (jugador.rect.right>MAXIMO_X_JUGADOR):
+
+            # Se calcula cuantos pixeles esta fuera del borde
+            desplazamiento = jugador.rect.right - MAXIMO_X_JUGADOR
+
+            # Si el escenario ya está a la derecha del todo, no lo movemos mas
+            if self.scrollx + ANCHO_PANTALLA >= self.fondo.rect.right:
+                self.scrollx = self.fondo.rect.right - ANCHO_PANTALLA
+
+                # En su lugar, colocamos al jugador que esté más a la derecha a la derecha de todo
+                jugador.establecerPosicion((self.scrollx+MAXIMO_X_JUGADOR-jugador.rect.width, jugador.posicion[1]))
+
+                return False; # No se ha actualizado el scroll
+
 
             # Si se puede hacer scroll a la derecha
             else:
 
                 # Calculamos el nivel de scroll actual: el anterior + desplazamiento
                 #  (desplazamos a la derecha)
-                self.scrolly = self.scrolly + desplazamiento;
+                self.scrollx = self.scrollx + desplazamiento;
 
                 return True; # Se ha actualizado el scroll
 
-        # Si el jugador está entre los dos límites de la pantalla, no se hace nada
+        # Si el jugador está dentro los límites de la pantalla
         return False;
 
 

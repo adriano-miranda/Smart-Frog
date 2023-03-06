@@ -34,12 +34,12 @@ MOVING_SIDE_SPRITE = 5
 # Velocidades de los distintos personajes
 VELOCIDAD_JUGADOR = 0.2 # Pixeles por milisegundo
 VELOCIDAD_SALTO_JUGADOR = 0.3 # Pixeles por milisegundo
-RETARDO_ANIMACION_JUGADOR = 5 # updates que durará cada imagen del personaje
+RETARDO_ANIMACION_JUGADOR = [5, 5] # updates que durará cada imagen del personaje
                               # debería de ser un valor distinto para cada postura
 
 VELOCIDAD_SNIPER = 0.12 # Pixeles por milisegundo
 VELOCIDAD_SALTO_SNIPER = 0.27 # Pixeles por milisegundo
-RETARDO_ANIMACION_SNIPER = 5 # updates que durará cada imagen del personaje
+RETARDO_ANIMACION_SNIPER = [5, 5] # updates que durará cada imagen del personaje
                              # debería de ser un valor distinto para cada postura
 # El Sniper camina un poco más lento que el jugador, y salta menos
 
@@ -67,8 +67,8 @@ class MiSprite(pygame.sprite.Sprite):
         self.rect.left = self.posicion[0] - self.scroll[0]
         self.rect.bottom = self.posicion[1] - self.scroll[1]
 
-    def establecerPosicionPantalla(self, scrollDecorado):
-        self.scroll = scrollDecorado;
+    def establecerPosicionPantalla(self, scrollFondo):
+        self.scroll = scrollFondo;
         (scrollx, scrolly) = self.scroll;
         (posx, posy) = self.posicion;
         self.rect.left = posx - scrollx;
@@ -141,6 +141,7 @@ class Personaje(MiSprite):
 
         # El retardo en la animacion del personaje (podria y deberia ser distinto para cada postura)
         self.retardoAnimacion = retardoAnimacion
+        self.moviendose = 0
 
         # Y actualizamos la postura del Sprite inicial, llamando al metodo correspondiente
         self.actualizarPostura()
@@ -162,7 +163,7 @@ class Personaje(MiSprite):
         self.retardoMovimiento -= 1
         # Miramos si ha pasado el retardo para dibujar una nueva postura
         if (self.retardoMovimiento < 0):
-            self.retardoMovimiento = self.retardoAnimacion
+            self.retardoMovimiento = self.retardoAnimacion[self.moviendose]
             # Si ha pasado, actualizamos la postura
             self.numImagenPostura += 1
             if self.numImagenPostura >= len(self.coordenadasHoja[self.numPostura]):
@@ -197,6 +198,7 @@ class Personaje(MiSprite):
                 velocidadx = self.velocidadCarrera
 
             self.numPostura = MOVING_SIDE_SPRITE
+            self.moviendose = 1
 
         # Si queremos subir
         elif self.movimiento == ARRIBA:
@@ -204,6 +206,7 @@ class Personaje(MiSprite):
             self.numPostura = MOVING_UP_SPRITE
             # Le imprimimos una velocidad en el eje y
             velocidady = -self.velocidadCarrera
+            self.moviendose = 1
 
         # Si queremos bajar
         elif self.movimiento == ABAJO:
@@ -211,6 +214,7 @@ class Personaje(MiSprite):
             self.numPostura = MOVING_DOWN_SPRITE
             # Le imprimimos una velocidad en el eje y
             velocidady = +self.velocidadCarrera
+            self.moviendose = 1
 
         # Si no se ha pulsado ninguna tecla
         elif self.movimiento == QUIETO:
@@ -226,6 +230,7 @@ class Personaje(MiSprite):
 
             velocidadx = 0
             velocidady = 0
+            self.moviendose = 0
 
         # Actualizamos la imagen a mostrar
         self.actualizarPostura()
