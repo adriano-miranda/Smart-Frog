@@ -1,0 +1,7 @@
+idle up
+idle down
+idle left
+
+jump up
+jump down
+jump left
