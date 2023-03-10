@@ -82,52 +82,50 @@ class Fase(Escena):
     # Devuelve True o False según se ha tenido que desplazar el scroll
     def actualizarScrollOrdenados(self, jugador):
 
-        # Si el jugador se encuentra más allá del borde superior
-        if (jugador.rect.top<MINIMO_Y_JUGADOR):
-            print("ARRIBA: ", jugador.posicion)
+        # Si el jugador se encuentra más allá del borde inferior
+        if (jugador.rect.bottom<MINIMO_Y_JUGADOR):
 
             # Se calcula cuantos pixeles esta fuera del borde
-            desplazamiento = MINIMO_Y_JUGADOR - jugador.rect.top
+            desplazamiento = MINIMO_Y_JUGADOR - jugador.rect.bottom
 
-            # Si el escenario ya está a la izquierda del todo, no lo movemos mas
+            # Si el escenario ya está abajo del todo, no lo movemos mas
             if self.scrolly <= 0:
                 self.scrolly = 0
 
-                # En su lugar, colocamos al jugador que esté más a la izquierda a la izquierda de todo
-                jugador.establecerPosicion((jugador.posicion[1], MINIMO_Y_JUGADOR))
+                # En su lugar, colocamos al jugador abajo de todo
+                jugador.establecerPosicion((jugador.posicion[0], MAXIMO_Y_JUGADOR))
 
                 return False; # No se ha actualizado el scroll
 
-            # Si se puede hacer scroll a la izquierda
+            # Si se puede hacer scroll abajo
             else:
                 # Calculamos el nivel de scroll actual: el anterior - desplazamiento
-                #  (desplazamos a la izquierda)
+                #  (desplazamos abajo)
                 self.scrolly = self.scrolly - desplazamiento;
 
                 return True; # Se ha actualizado el scroll
 
-        # Si el jugador se encuentra más allá del borde inferior
-        if (jugador.rect.bottom>MAXIMO_Y_JUGADOR):
-            print("ABAJO: ", jugador.posicion)
+        # Si el jugador se encuentra más allá del borde superior
+        if (jugador.rect.top>MAXIMO_Y_JUGADOR):
 
             # Se calcula cuantos pixeles esta fuera del borde
-            desplazamiento = jugador.rect.bottom - MAXIMO_Y_JUGADOR
+            desplazamiento = jugador.rect.top - MAXIMO_Y_JUGADOR
 
-            # Si el escenario ya está abajo del todo, no lo movemos mas
-            if self.scrolly + ALTO_PANTALLA >= self.fondo.rect.bottom:
-                self.scrolly = self.fondo.rect.bottom - ALTO_PANTALLA
+            # Si el escenario ya está arriba del todo, no lo movemos mas
+            if self.scrolly + ALTO_PANTALLA >= self.fondo.rect.top:
+                self.scrolly = self.fondo.rect.top - ALTO_PANTALLA
 
-                # En su lugar, colocamos al jugador que esté más a la derecha a la derecha de todo
-                jugador.establecerPosicion((jugador.posicion[1], self.scrolly+MAXIMO_Y_JUGADOR-jugador.rect.height))
+                # En su lugar, colocamos al jugador arriba de todo
+                jugador.establecerPosicion((jugador.posicion[0], self.scrolly+MAXIMO_Y_JUGADOR-jugador.rect.height))
 
                 return False; # No se ha actualizado el scroll
 
 
-            # Si se puede hacer scroll abajo
+            # Si se puede hacer scroll arriba
             else:
 
                 # Calculamos el nivel de scroll actual: el anterior + desplazamiento
-                #  (desplazamos abajo)
+                #  (desplazamos arriba)
                 self.scrolly = self.scrolly + desplazamiento;
 
                 return True; # Se ha actualizado el scroll
@@ -192,10 +190,10 @@ class Fase(Escena):
         if cambioScroll:
             # Actualizamos la posición en pantalla de todos los Sprites según el scroll actual
             for sprite in iter(self.grupoSprites):
-                sprite.establecerPosicionPantalla((self.scrolly, 0))
+                sprite.establecerPosicionPantalla((self.scrollx, self.scrolly))
 
             # Ademas, actualizamos el decorado para que se muestre una parte distinta
-            self.decorado.update(self.scrolly)
+            self.fondo.update(self.scrolly)
 
 
 
@@ -336,7 +334,7 @@ class Decorado:
 
 class Agua:
     def __init__(self):
-        self.tile = GestorRecursos.CargarImagen('water_tile.jpg', 0) # Cargar textura de fondo
+        self.tile = GestorRecursos.CargarImagen('water_tile.png', 0) # Cargar textura de fondo
         self.imagen = pygame.Surface((1400, 800)) # Crear capa de fondo
         self.imagen = self.imagen.convert()
 
