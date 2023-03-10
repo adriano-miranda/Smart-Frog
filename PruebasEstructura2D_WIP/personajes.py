@@ -4,7 +4,6 @@ import pygame, sys, os
 from pygame.locals import *
 from escena import *
 from gestorRecursos import *
-import queue
 
 # -------------------------------------------------
 # -------------------------------------------------
@@ -13,11 +12,19 @@ import queue
 # -------------------------------------------------
 
 # Movimientos
-QUIETO = 0
-IZQUIERDA = 1
-DERECHA = 2
-ARRIBA = 3
-ABAJO = 4
+IZQUIERDA = 0
+DERECHA = 1
+ARRIBA = 2
+ABAJO = 3
+SALTO = 4
+QUIETO = 5
+
+M_IZQUIERDA = [1, 0, 0, 0, 0]
+M_DERECHA   = [0, 1, 0, 0, 0]
+M_ARRIBA    = [0, 0, 1, 0, 0]
+M_ABAJO     = [0, 0, 0, 1, 0]
+M_SALTO     = [0, 0, 0, 0, 1]
+M_QUIETO    = [0, 0, 0, 0, 0]
 
 #Posturas
 SPRITE_QUIETO = 0
@@ -46,14 +53,6 @@ RETARDO_ANIMACION_SNIPER = [5, 5] # updates que durará cada imagen del personaj
 
 GRAVEDAD = 0.0003 # Píxeles / ms2
 
-# -------------------------------------------------
-# Clases para trabajar con la cola
-
-def isFullQueue(q: queue.SimpleQueue):
-    return q.qsize == 2
-
-def addToQueue(q: queue.SimpleQueue, e):
-    pass
 
 # -------------------------------------------------
 # -------------------------------------------------
@@ -117,10 +116,10 @@ class Personaje(MiSprite):
         # Se carga la hoja
         self.hoja = GestorRecursos.CargarImagen(archivoImagen,-1)
         self.hoja = self.hoja.convert_alpha()
-        # El movimiento que esta realizando
-        self.movimiento = queue.SimpleQueue()
-        self.movimiento.put(QUIETO)
-        self.movimiento.put(QUIETO)
+
+        # El movimiento que el usuario quiere realizar
+        self.movimiento       = [0, 0, 0, 0, 0]
+        self.movimientoPasado = [1, 1, 1, 1, 1]
         
         # Lado hacia el que esta mirando
         self.mirando = ARRIBA
@@ -143,7 +142,7 @@ class Personaje(MiSprite):
         self.retardoMovimiento = 0;
 
         # En que postura esta inicialmente
-        self.numPostura = QUIETO
+        self.numPostura = IDLE_UP_SPRITE
 
         # El rectangulo del Sprite
         self.rect = pygame.Rect(100,100,self.coordenadasHoja[self.numPostura][self.numImagenPostura][2],self.coordenadasHoja[self.numPostura][self.numImagenPostura][3])
@@ -161,7 +160,7 @@ class Personaje(MiSprite):
 
 
     # Metodo base para realizar el movimiento: simplemente se le indica cual va a hacer, y lo almacena
-    def mover(self, movimiento):
+    def mover(self, movimiento: list):
         # if movimiento == ARRIBA:
         #     # Si estamos en el aire y el personaje quiere saltar, ignoramos este movimiento
         #     if self.numPostura == SPRITE_SALTANDO:
@@ -169,8 +168,18 @@ class Personaje(MiSprite):
         #     else:
         #         self.movimiento = ARRIBA
         # else:
+        self.movimientoPasado = self.movimiento
         self.movimiento = movimiento
-        self.movimiento.put
+
+    def debug(self):
+        print("Movimiento:")
+        print(self.movimiento)
+
+        print("Velocidades:")
+        print(self.velocidad)
+
+        print("Postura:")
+        print(self.numPostura)
 
 
     def actualizarPostura(self):
@@ -193,45 +202,107 @@ class Personaje(MiSprite):
             elif self.mirando == DERECHA:
                 self.image = pygame.transform.flip(self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura]), 1, 0)
 
-
+    def sumav(self, a: list, b: list):
+        c = b.copy()
+        for n in range(b.__len__()):
+            c[n] = a[n] + b[n]
+        return c
+    
     def update(self, grupoPlataformas, tiempo):
+
+        self.debug()
 
         # Las velocidades a las que iba hasta este momento
         (velocidadx, velocidady) = self.velocidad
 
-        # Si vamos a la izquierda o a la derecha        
-        if (self.movimiento == IZQUIERDA) or (self.movimiento == DERECHA):
-            # Esta mirando hacia ese lado
-            self.mirando = self.movimiento
+        ##  self.movimiento and self.movimientoPasado
+        
+        if (self.movimiento == self.sumav(M_IZQUIERDA, M_ARRIBA)):
+            self.movimiento = self.movimientoPasado
+            print("DIAGONAL")
 
-            # Si vamos a la izquierda, le ponemos velocidad en esa dirección
-            if self.movimiento == IZQUIERDA:
-                velocidadx = -self.velocidadCarrera
-            # Si vamos a la derecha, le ponemos velocidad en esa dirección
-            else:
-                velocidadx = self.velocidadCarrera
+        elif (self.movimiento == self.sumav(M_IZQUIERDA, M_ABAJO)):
+            self.movimiento = self.movimientoPasado
+            print("DIAGONAL")
 
-            self.numPostura = MOVING_SIDE_SPRITE
-            self.moviendose = 1
+        elif (self.movimiento == self.sumav(M_DERECHA, M_ARRIBA)):
+            self.movimiento = self.movimientoPasado
+            print("DIAGONAL")
+            
+        elif (self.movimiento == self.sumav(M_DERECHA, M_ABAJO)):
+            self.movimiento = self.movimientoPasado
+            print("DIAGONAL")
 
-        # Si queremos subir
-        elif self.movimiento == ARRIBA:
+        elif (self.movimiento == M_ARRIBA):
+            print("ARRIBA")
             # La postura actual sera estar saltando
             self.numPostura = MOVING_UP_SPRITE
+            self.mirando = ARRIBA
             # Le imprimimos una velocidad en el eje y
             velocidady = -self.velocidadCarrera
+            velocidadx = 0
             self.moviendose = 1
 
-        # Si queremos bajar
-        elif self.movimiento == ABAJO:
+        elif (self.movimiento == M_ABAJO):
+            print("ABAJO")
             # La postura actual sera estar saltando
             self.numPostura = MOVING_DOWN_SPRITE
+            self.mirando = ABAJO
             # Le imprimimos una velocidad en el eje y
             velocidady = +self.velocidadCarrera
+            velocidadx = 0
             self.moviendose = 1
 
-        # Si no se ha pulsado ninguna tecla
-        elif self.movimiento == QUIETO:
+        elif (self.movimiento == self.sumav(M_ARRIBA, M_ABAJO)):
+            print("ABAJO Y ARRIBA")
+            # Si no estamos saltando, la postura actual será estar quieto
+            if self.numPostura == MOVING_UP_SPRITE:
+                self.numPostura = IDLE_UP_SPRITE
+
+            elif self.numPostura == MOVING_DOWN_SPRITE:
+                self.numPostura = IDLE_DOWN_SPRITE
+
+            elif self.numPostura == MOVING_SIDE_SPRITE:
+                self.numPostura = IDLE_SIDE_SPRITE
+
+            velocidadx = 0
+            velocidady = 0
+            self.moviendose = 0
+
+        elif (self.movimiento == M_DERECHA):
+            print("DERECHA")
+            velocidadx = self.velocidadCarrera
+            velocidady = 0
+            self.numPostura = MOVING_SIDE_SPRITE
+            self.mirando = DERECHA
+            self.moviendose = 1
+
+        elif (self.movimiento == M_IZQUIERDA):
+            print("IZQUIERDA")
+            velocidadx = -self.velocidadCarrera
+            velocidady = 0
+            self.numPostura = MOVING_SIDE_SPRITE
+            self.mirando = IZQUIERDA
+            self.moviendose = 1
+
+        elif (self.movimiento == self.sumav(M_DERECHA, M_IZQUIERDA)):
+            print("DERECHA E IZQUIERDA")
+            # Si no estamos saltando, la postura actual será estar quieto
+            if self.numPostura == MOVING_UP_SPRITE:
+                self.numPostura = IDLE_UP_SPRITE
+
+            elif self.numPostura == MOVING_DOWN_SPRITE:
+                self.numPostura = IDLE_DOWN_SPRITE
+
+            elif self.numPostura == MOVING_SIDE_SPRITE:
+                self.numPostura = IDLE_SIDE_SPRITE
+
+            velocidadx = 0
+            velocidady = 0
+            self.moviendose = 0
+
+        else:   # M_QUIETO
+            print("QUIETO")
             # Si no estamos saltando, la postura actual será estar quieto
             if self.numPostura == MOVING_UP_SPRITE:
                 self.numPostura = IDLE_UP_SPRITE
@@ -271,69 +342,20 @@ class Jugador(Personaje):
         # Invocamos al constructor de la clase padre con la configuracion de este personaje concreto
         Personaje.__init__(self,'frog_sprites.png','coordRana.txt', [1, 2, 2, 2, 2, 2], VELOCIDAD_JUGADOR, VELOCIDAD_SALTO_JUGADOR, RETARDO_ANIMACION_JUGADOR);
 
-
-    def moverAlter(self, evento, arriba, abajo, izquierda, derecha, salto):
-        if evento.type == pygame.KEYDOWN:
-            if evento.key == salto:
-                self.isLoadingJump = True
-                #clock.tick()
-            elif evento.key == izquierda:
-                # La rana se queda mirando hacia la izquierda
-                self.mirando = IZQUIERDA
-                if not self.isLoadingJump:
-                    Personaje.mover(self,IZQUIERDA)
-                #añado sprite de la columna 0 y fila 1 y otro de columna 1 y fila 1 
-                #para hacer la animación cuando se mueve a la izquierda 
-            elif evento.key == derecha:
-                # La rana se queda mirando hacia la derecha
-                self.mirando = DERECHA
-                if not self.isLoadingJump:
-                    Personaje.mover(self, DERECHA)
-            elif evento.key == arriba:
-                # La rana se queda mirando hacia arriba
-                self.mirando = ARRIBA
-                if not self.isLoadingJump:
-                    Personaje.mover(self, ARRIBA)
-            elif evento.key == abajo:
-                # La rana se queda mirando hacia abajo
-                self.mirando = ABAJO
-                if not self.isLoadingJump:
-                    Personaje.mover(self, ABAJO)
-        # Detectar las teclas de dirección liberadas y establecer la velocidad en la dirección correspondiente a cero
-        elif evento.type == pygame.KEYUP:
-            if evento.key == salto:
-                #t1_jump = clock.tick()
-                ## Math: \min (max_{jump\ distance}, \frac{t_1 - t_0}{max_{time}} \times max_{jumpeable\ distance})
-                #jump_distance = ((t1_jump / 1000) / MAX_TIME) * MAX_JUMP_DISTANCE
-                #jump_distance = min(MAX_JUMP_DISTANCE, jump_distance)
-                #print("Space up")
-                #print("t1: " + (t1_jump / 1000).__str__())
-                #print("Frog size: " + FROG_SIZE.__str__())
-                #print("Distance to jump: " + jump_distance.__str__())
-                self.isJumping = True
-                self.isLoadingJump = False
-                #pos_final, avance = posicionSalto(jump_distance, self.mirando)
-            elif evento.key == izquierda:
-                Personaje.mover(self, QUIETO)
-            elif evento.key == derecha:
-                Personaje.mover(self, QUIETO)
-            elif evento.key == arriba:
-                Personaje.mover(self, QUIETO)
-            elif evento.key == abajo:
-                Personaje.mover(self, QUIETO)
-
-    def mover(self, teclasPulsadas, arriba, abajo, izquierda, derecha):
+    def mover(self, teclasPulsadas, arriba, abajo, izquierda, derecha, salto):
         # Indicamos la acción a realizar segun la tecla pulsada para el jugador
+        mov = [0, 0, 0, 0, 0]
         if teclasPulsadas[arriba]:
-            Personaje.mover(self,ARRIBA)
-        elif teclasPulsadas[izquierda]:
-            Personaje.mover(self,IZQUIERDA)
-        elif teclasPulsadas[derecha]:
-            Personaje.mover(self,DERECHA)
-        elif teclasPulsadas[abajo]:
-            Personaje.mover(self,ABAJO)
-        else:
-            Personaje.mover(self,QUIETO)
+            mov[ARRIBA] = 1
+        if teclasPulsadas[izquierda]:
+            mov[IZQUIERDA] = 1
+        if teclasPulsadas[derecha]:
+            mov[DERECHA] = 1
+        if teclasPulsadas[abajo]:
+            mov[ABAJO] = 1
+        if teclasPulsadas[salto]:
+            mov[SALTO] = 1
+        Personaje.mover(self, mov)
 
 
 # -------------------------------------------------
@@ -377,12 +399,12 @@ class Sniper(NoJugador):
             #    jugadorMasCercano = jugador2
             # Y nos movemos andando hacia el
             if jugador.posicion[0]<self.posicion[0]:
-                Personaje.mover(self,IZQUIERDA)
+                Personaje.mover(self, M_IZQUIERDA)
             else:
-                Personaje.mover(self,DERECHA)
+                Personaje.mover(self, M_DERECHA)
 
         # Si este personaje no esta en pantalla, no hara nada
         else:
-            Personaje.mover(self,QUIETO)
+            Personaje.mover(self, M_QUIETO)
 
 

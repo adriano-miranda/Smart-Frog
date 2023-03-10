@@ -64,17 +64,17 @@ class Fase(Escena):
         self.grupoPlataformas = pygame.sprite.Group(plataformaSuelo)
 
         # Y los enemigos que tendran en este decorado
-        enemigo1 = Sniper()
-        enemigo1.establecerPosicion((1000, 418))
+        #enemigo1 = Sniper()
+        #enemigo1.establecerPosicion((1000, 418))
 
         # Creamos un grupo con los enemigos
-        self.grupoEnemigos = pygame.sprite.Group( enemigo1 )
+        self.grupoEnemigos = pygame.sprite.Group( ) #enemigo1 )
 
         # Creamos un grupo con los Sprites que se mueven
         #  En este caso, solo los personajes, pero podría haber más (proyectiles, etc.)
-        self.grupoSpritesDinamicos = pygame.sprite.Group(self.jugador, enemigo1)
+        self.grupoSpritesDinamicos = pygame.sprite.Group(self.jugador)
         # Creamos otro grupo con todos los Sprites
-        self.grupoSprites = pygame.sprite.Group(self.jugador, enemigo1, plataformaSuelo)
+        self.grupoSprites = pygame.sprite.Group(self.jugador, plataformaSuelo)
 
 
 
@@ -258,12 +258,9 @@ class Fase(Escena):
             if evento.type == pygame.QUIT:
                 self.director.salirPrograma()
 
-            self.jugador.moverAlter(evento, K_UP, K_DOWN, K_LEFT, K_RIGHT, K_SPACE)
-            break
-
         # Indicamos la acción a realizar segun la tecla pulsada para cada jugador
-        #teclasPulsadas = pygame.key.get_pressed()
-        #self.jugador.mover(teclasPulsadas, K_UP, K_DOWN, K_LEFT, K_RIGHT)
+        teclasPulsadas = pygame.key.get_pressed()
+        self.jugador.mover(teclasPulsadas, K_UP, K_DOWN, K_LEFT, K_RIGHT, K_SPACE)
         #self.jugador2.mover(teclasPulsadas, K_w,  K_s,    K_a,    K_d)
 
 # -------------------------------------------------
