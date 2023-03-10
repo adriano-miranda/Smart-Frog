@@ -39,7 +39,7 @@ class Fase(Escena):
         Escena.__init__(self, director)
 
         # Creamos el decorado y el fondo
-        self.decorado = Decorado()
+        # self.decorado = Decorado()
         self.fondo = Agua()
 
         # Que parte del decorado estamos visualizando
@@ -53,7 +53,7 @@ class Fase(Escena):
         self.grupoJugadores = pygame.sprite.Group(self.jugador)
 
         # Ponemos a los jugadores en sus posiciones iniciales
-        self.jugador.establecerPosicion((200, 551))
+        self.jugador.establecerPosicion((380, 1350))
 
         # Creamos las plataformas del decorado
         # La plataforma que conforma todo el suelo
@@ -82,50 +82,53 @@ class Fase(Escena):
     # Devuelve True o False según se ha tenido que desplazar el scroll
     def actualizarScrollOrdenados(self, jugador):
 
-        # Si el jugador se encuentra más allá del borde inferior
-        if (jugador.rect.bottom<MINIMO_Y_JUGADOR):
+        # Si el jugador se encuentra más allá del borde superior
+        if (jugador.rect.top<MINIMO_Y_JUGADOR):
+            print("ARRIBA: ", jugador.posicion)
 
             # Se calcula cuantos pixeles esta fuera del borde
-            desplazamiento = MINIMO_Y_JUGADOR - jugador.rect.bottom
+            desplazamiento = MINIMO_Y_JUGADOR - jugador.rect.top
 
-            # Si el escenario ya está abajo del todo, no lo movemos mas
+            # Si el escenario ya está arriba del todo, no lo movemos mas
             if self.scrolly <= 0:
                 self.scrolly = 0
 
-                # En su lugar, colocamos al jugador abajo de todo
-                jugador.establecerPosicion((jugador.posicion[0], MAXIMO_Y_JUGADOR))
+                # En su lugar, colocamos al jugador arriba de todo
+                jugador.establecerPosicion((jugador.posicion[0], MINIMO_Y_JUGADOR+jugador.rect.height))
 
                 return False; # No se ha actualizado el scroll
 
-            # Si se puede hacer scroll abajo
+            # Si se puede hacer scroll arriba
             else:
                 # Calculamos el nivel de scroll actual: el anterior - desplazamiento
-                #  (desplazamos abajo)
+                #  (desplazamos arriba)
                 self.scrolly = self.scrolly - desplazamiento;
 
                 return True; # Se ha actualizado el scroll
 
-        # Si el jugador se encuentra más allá del borde superior
-        if (jugador.rect.top>MAXIMO_Y_JUGADOR):
+        # Si el jugador se encuentra más allá del borde inferior
+        if (jugador.rect.bottom>MAXIMO_Y_JUGADOR):
+
+            print("ABAJO: ", jugador.posicion)
 
             # Se calcula cuantos pixeles esta fuera del borde
-            desplazamiento = jugador.rect.top - MAXIMO_Y_JUGADOR
+            desplazamiento = jugador.rect.bottom - MAXIMO_Y_JUGADOR
 
-            # Si el escenario ya está arriba del todo, no lo movemos mas
-            if self.scrolly + ALTO_PANTALLA >= self.fondo.rect.top:
-                self.scrolly = self.fondo.rect.top - ALTO_PANTALLA
+            # Si el escenario ya está abajo del todo, no lo movemos mas
+            if self.scrolly + ALTO_PANTALLA >= self.fondo.rect.bottom:
+                self.scrolly = self.fondo.rect.bottom - ALTO_PANTALLA
 
-                # En su lugar, colocamos al jugador arriba de todo
-                jugador.establecerPosicion((jugador.posicion[0], self.scrolly+MAXIMO_Y_JUGADOR-jugador.rect.height))
+                # En su lugar, colocamos al jugador abajo de todo
+                jugador.establecerPosicion((jugador.posicion[0], self.scrolly+MAXIMO_Y_JUGADOR))
 
                 return False; # No se ha actualizado el scroll
 
 
-            # Si se puede hacer scroll arriba
+            # Si se puede hacer scroll abajo
             else:
 
                 # Calculamos el nivel de scroll actual: el anterior + desplazamiento
-                #  (desplazamos arriba)
+                #  (desplazamos abajo)
                 self.scrolly = self.scrolly + desplazamiento;
 
                 return True; # Se ha actualizado el scroll
@@ -193,7 +196,7 @@ class Fase(Escena):
                 sprite.establecerPosicionPantalla((self.scrollx, self.scrolly))
 
             # Ademas, actualizamos el decorado para que se muestre una parte distinta
-            self.fondo.update(self.scrolly)
+            self.fondo.update(self.scrollx)
 
 
 
@@ -244,7 +247,7 @@ class Fase(Escena):
         # Ponemos primero el fondo
         self.fondo.dibujar(pantalla)
         # Después el decorado
-        self.decorado.dibujar(pantalla)
+        # self.decorado.dibujar(pantalla)
         # Luego los Sprites
         self.grupoSprites.draw(pantalla)
 
@@ -278,37 +281,6 @@ class Plataforma(MiSprite):
 
 
 # -------------------------------------------------
-# Clase Cielo
-
-class Cielo:
-    def __init__(self):
-        self.sol = GestorRecursos.CargarImagen('sol.png', -1)
-        self.sol = pygame.transform.scale(self.sol, (300, 200))
-
-        self.rect = self.sol.get_rect()
-        self.posicionx = 0 # El lado izquierdo de la subimagen que se esta visualizando
-        self.update(0)
-
-    def update(self, tiempo):
-        self.posicionx += VELOCIDAD_SOL * tiempo
-        if (self.posicionx - self.rect.width >= ANCHO_PANTALLA):
-            self.posicionx = 0
-        self.rect.right = self.posicionx
-        # Calculamos el color del cielo
-        if self.posicionx >= ((self.rect.width + ANCHO_PANTALLA) / 2):
-            ratio = 2 * ((self.rect.width + ANCHO_PANTALLA) - self.posicionx) / (self.rect.width + ANCHO_PANTALLA)
-        else:
-            ratio = 2 * self.posicionx / (self.rect.width + ANCHO_PANTALLA)
-        self.colorCielo = (100*ratio, 200*ratio, 255)
-        
-    def dibujar(self,pantalla):
-        # Dibujamos el color del cielo
-        pantalla.fill(self.colorCielo)
-        # Y ponemos el sol
-        pantalla.blit(self.sol, self.rect)
-
-
-# -------------------------------------------------
 # Clase Decorado
 
 class Decorado:
@@ -334,8 +306,8 @@ class Decorado:
 
 class Agua:
     def __init__(self):
-        self.tile = GestorRecursos.CargarImagen('water_tile.png', 0) # Cargar textura de fondo
-        self.imagen = pygame.Surface((1400, 800)) # Crear capa de fondo
+        self.tile = GestorRecursos.CargarImagen('water_tileset.png', 0) # Cargar textura de fondo
+        self.imagen = pygame.Surface((800, 1400)) # Crear capa de fondo
         self.imagen = self.imagen.convert()
 
         # Rellenar capa de fondo con la imagen
