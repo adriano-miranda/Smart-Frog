@@ -11,8 +11,6 @@ from pygame.locals import *
 # -------------------------------------------------
 # -------------------------------------------------
 
-VELOCIDAD_SOL = 0.1 # Pixeles por milisegundo
-
 # Los bordes de la pantalla para hacer scroll
 MINIMO_X_JUGADOR = 5
 MAXIMO_X_JUGADOR = ANCHO_PANTALLA - MINIMO_X_JUGADOR
@@ -38,15 +36,12 @@ class Fase(Escena):
         # Primero invocamos al constructor de la clase padre
         Escena.__init__(self, director)
 
-        # Creamos el decorado y el fondo
-        # self.decorado = Decorado()
+        # Creamos el fondo
         self.fondo = Agua()
 
-        # Que parte del decorado estamos visualizando
+        # Que parte del fondo estamos visualizando
         self.scrollx = 0
         self.scrolly = 0
-        #  En ese caso solo hay scroll horizontal
-        #  Si ademas lo hubiese vertical, seria self.scroll = (0, 0)
 
         # Creamos los sprites de los jugadores
         self.jugador = Jugador()
@@ -64,18 +59,17 @@ class Fase(Escena):
         self.grupoPlataformas = pygame.sprite.Group(plataformaSuelo)
 
         # Y los enemigos que tendran en este decorado
-        enemigo1 = Sniper()
-        enemigo1.establecerPosicion((1000, 418))
+        #enemigo1 = Sniper()
+        #enemigo1.establecerPosicion((1000, 418))
 
         # Creamos un grupo con los enemigos
-        self.grupoEnemigos = pygame.sprite.Group( enemigo1 )
+        #self.grupoEnemigos = pygame.sprite.Group( enemigo1 )
 
         # Creamos un grupo con los Sprites que se mueven
         #  En este caso, solo los personajes, pero podría haber más (proyectiles, etc.)
-        self.grupoSpritesDinamicos = pygame.sprite.Group(self.jugador, enemigo1)
+        self.grupoSpritesDinamicos = pygame.sprite.Group(self.jugador)
         # Creamos otro grupo con todos los Sprites
-        self.grupoSprites = pygame.sprite.Group(self.jugador, enemigo1, plataformaSuelo)
-
+        self.grupoSprites = pygame.sprite.Group(self.jugador, plataformaSuelo)
 
 
         
@@ -108,7 +102,6 @@ class Fase(Escena):
 
         # Si el jugador se encuentra más allá del borde inferior
         if (jugador.rect.bottom>MAXIMO_Y_JUGADOR):
-
             print("ABAJO: ", jugador.posicion)
 
             # Se calcula cuantos pixeles esta fuera del borde
@@ -189,14 +182,14 @@ class Fase(Escena):
         # Se ordenan los jugadores según el eje x, y se mira si hay que actualizar el scroll
         cambioScroll = self.actualizarScrollOrdenados(jugador)
 
-        # Si se cambio el scroll, se desplazan todos los Sprites y el decorado
+        # Si se cambio el scroll, se desplazan todos los Sprites y el fondo
         if cambioScroll:
             # Actualizamos la posición en pantalla de todos los Sprites según el scroll actual
             for sprite in iter(self.grupoSprites):
                 sprite.establecerPosicionPantalla((self.scrollx, self.scrolly))
 
-            # Ademas, actualizamos el decorado para que se muestre una parte distinta
-            self.fondo.update(self.scrollx)
+            # Ademas, actualizamos el fondo para que se muestre una parte distinta
+            self.fondo.update(self.scrolly)
 
 
 
@@ -210,8 +203,8 @@ class Fase(Escena):
     def update(self, tiempo):
 
         # Primero, se indican las acciones que van a hacer los enemigos segun como esten los jugadores
-        for enemigo in iter(self.grupoEnemigos):
-            enemigo.mover_cpu(self.jugador)
+        #for enemigo in iter(self.grupoEnemigos):
+        #    enemigo.mover_cpu(self.jugador)
         # Esta operación es aplicable también a cualquier Sprite que tenga algún tipo de IA
         # En el caso de los jugadores, esto ya se ha realizado
 
@@ -231,23 +224,17 @@ class Fase(Escena):
         # Comprobamos si hay colision entre algun jugador y algun enemigo
         # Se comprueba la colision entre ambos grupos
         # Si la hay, indicamos que se ha finalizado la fase
-        if pygame.sprite.groupcollide(self.grupoJugadores, self.grupoEnemigos, False, False)!={}:
+        #if pygame.sprite.groupcollide(self.grupoJugadores, self.grupoEnemigos, False, False)!={}:
             # Se le dice al director que salga de esta escena y ejecute la siguiente en la pila
-            self.director.salirEscena()
+        #    self.director.salirEscena()
 
         # Actualizamos el scroll
         self.actualizarScroll(self.jugador)
-  
-        # Actualizamos el fondo:
-        #  la posicion del sol y el color del cielo
-        self.fondo.update(tiempo)
 
         
     def dibujar(self, pantalla):
         # Ponemos primero el fondo
         self.fondo.dibujar(pantalla)
-        # Después el decorado
-        # self.decorado.dibujar(pantalla)
         # Luego los Sprites
         self.grupoSprites.draw(pantalla)
 
@@ -261,7 +248,7 @@ class Fase(Escena):
 
         # Indicamos la acción a realizar segun la tecla pulsada para cada jugador
         teclasPulsadas = pygame.key.get_pressed()
-        self.jugador.mover(teclasPulsadas, K_UP, K_DOWN, K_LEFT, K_RIGHT)
+        self.jugador.mover(teclasPulsadas, K_UP, K_DOWN, K_LEFT, K_RIGHT, K_SPACE)
         #self.jugador2.mover(teclasPulsadas, K_w,  K_s,    K_a,    K_d)
 
 # -------------------------------------------------
@@ -281,44 +268,28 @@ class Plataforma(MiSprite):
 
 
 # -------------------------------------------------
-# Clase Decorado
-
-class Decorado:
-    def __init__(self):
-        self.imagen = GestorRecursos.CargarImagen('decorado0.png', -1)
-        self.imagen = pygame.transform.scale(self.imagen, (1200, 600))
-
-        self.rect = self.imagen.get_rect()
-        self.rect.left = ANCHO_PANTALLA
-
-        # La subimagen que estamos viendo
-        self.rectSubimagen = pygame.Rect(0, 0, ANCHO_PANTALLA, ALTO_PANTALLA)
-        self.rectSubimagen.left = 0 # El scroll horizontal empieza en la posicion 0 por defecto
-
-    def update(self, scrollx):
-        self.rectSubimagen.left = scrollx
-
-    def dibujar(self, pantalla):
-        pantalla.blit(self.imagen, self.rect, self.rectSubimagen)
-
-# -------------------------------------------------
 # Clase Agua
 
 class Agua:
     def __init__(self):
-        self.tile = GestorRecursos.CargarImagen('water_tileset.png', 0) # Cargar textura de fondo
+        self.tile = GestorRecursos.CargarImagen('water_tile.png', 0) # Cargar textura de fondo
         self.imagen = pygame.Surface((800, 1400)) # Crear capa de fondo
         self.imagen = self.imagen.convert()
 
         # Rellenar capa de fondo con la imagen
-        for x in range(0, 800, self.tile.get_width()):
-            for y in range(0, 1400, self.tile.get_height()):
+        for x in range(0, self.imagen.get_width(), self.tile.get_width()):
+            for y in range(0, self.imagen.get_height(), self.tile.get_height()):
                 self.imagen.blit(self.tile, (x, y))
 
         self.rect = self.imagen.get_rect()
+        self.rect.right = ANCHO_PANTALLA
 
-    def update(self, tiempo):
-        return
+        # La subimagen que estamos viendo
+        self.rectSubimagen = pygame.Rect(0, 0, ANCHO_PANTALLA, ALTO_PANTALLA)
+        self.rectSubimagen.top = 0 # El scroll vertical empieza en la posicion 0 por defecto
+
+    def update(self, scrolly):
+        self.rectSubimagen.top = scrolly
 
     def dibujar(self, pantalla):
-       pantalla.blit(self.imagen, self.rect)
+       pantalla.blit(self.imagen, self.rect, self.rectSubimagen)
