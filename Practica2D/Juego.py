@@ -59,6 +59,8 @@ clock = pygame.time.Clock()
 
 # Crear la ventana
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+time.delay(500)
+screen = pygame.display.set_mode((SCREEN_WIDTH+20, SCREEN_HEIGHT))
 
 # Establecer el título de la ventana
 pygame.display.set_caption("Smart Frog")

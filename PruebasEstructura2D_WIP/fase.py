@@ -4,6 +4,7 @@ import pygame, escena
 from escena import *
 from personajes import *
 from pygame.locals import *
+import HUD_related
 
 # -------------------------------------------------
 # -------------------------------------------------
@@ -11,12 +12,10 @@ from pygame.locals import *
 # -------------------------------------------------
 # -------------------------------------------------
 
-VELOCIDAD_SOL = 0.1 # Pixeles por milisegundo
-
 # Los bordes de la pantalla para hacer scroll
 MINIMO_X_JUGADOR = 5
 MAXIMO_X_JUGADOR = ANCHO_PANTALLA - MINIMO_X_JUGADOR
-MINIMO_Y_JUGADOR = 5
+MINIMO_Y_JUGADOR = 25
 MAXIMO_Y_JUGADOR = ALTO_PANTALLA - MINIMO_Y_JUGADOR
 
 # -------------------------------------------------
@@ -38,22 +37,22 @@ class Fase(Escena):
         # Primero invocamos al constructor de la clase padre
         Escena.__init__(self, director)
 
-        # Creamos el decorado y el fondo
-        self.decorado = Decorado()
+        # Creamos la barra de carga del salto
+        self.barra_carga = HUD_related.ElementoGUI(archivoImagen="Barra.png", position=(100,100))
+
+        # Creamos el fondo
         self.fondo = Agua()
 
-        # Que parte del decorado estamos visualizando
+        # Que parte del fondo estamos visualizando
         self.scrollx = 0
         self.scrolly = 0
-        #  En ese caso solo hay scroll horizontal
-        #  Si ademas lo hubiese vertical, seria self.scroll = (0, 0)
 
         # Creamos los sprites de los jugadores
         self.jugador = Jugador()
         self.grupoJugadores = pygame.sprite.Group(self.jugador)
 
         # Ponemos a los jugadores en sus posiciones iniciales
-        self.jugador.establecerPosicion((200, 551))
+        self.jugador.establecerPosicion((380, 1350))
 
         # Creamos las plataformas del decorado
         # La plataforma que conforma todo el suelo
@@ -68,7 +67,7 @@ class Fase(Escena):
         #enemigo1.establecerPosicion((1000, 418))
 
         # Creamos un grupo con los enemigos
-        self.grupoEnemigos = pygame.sprite.Group( ) #enemigo1 )
+        #self.grupoEnemigos = pygame.sprite.Group( enemigo1 )
 
         # Creamos un grupo con los Sprites que se mueven
         #  En este caso, solo los personajes, pero podría haber más (proyectiles, etc.)
@@ -77,8 +76,6 @@ class Fase(Escena):
         self.grupoSprites = pygame.sprite.Group(self.jugador, plataformaSuelo)
 
 
-
-        
     # Devuelve True o False según se ha tenido que desplazar el scroll
     def actualizarScrollOrdenados(self, jugador):
 
@@ -89,19 +86,19 @@ class Fase(Escena):
             # Se calcula cuantos pixeles esta fuera del borde
             desplazamiento = MINIMO_Y_JUGADOR - jugador.rect.top
 
-            # Si el escenario ya está a la izquierda del todo, no lo movemos mas
+            # Si el escenario ya está arriba del todo, no lo movemos mas
             if self.scrolly <= 0:
                 self.scrolly = 0
 
-                # En su lugar, colocamos al jugador que esté más a la izquierda a la izquierda de todo
-                jugador.establecerPosicion((jugador.posicion[1], MINIMO_Y_JUGADOR))
+                # En su lugar, colocamos al jugador arriba de todo
+                jugador.establecerPosicion((jugador.posicion[0], MINIMO_Y_JUGADOR+jugador.rect.height))
 
                 return False; # No se ha actualizado el scroll
 
-            # Si se puede hacer scroll a la izquierda
+            # Si se puede hacer scroll arriba
             else:
                 # Calculamos el nivel de scroll actual: el anterior - desplazamiento
-                #  (desplazamos a la izquierda)
+                #  (desplazamos arriba)
                 self.scrolly = self.scrolly - desplazamiento;
 
                 return True; # Se ha actualizado el scroll
@@ -117,8 +114,8 @@ class Fase(Escena):
             if self.scrolly + ALTO_PANTALLA >= self.fondo.rect.bottom:
                 self.scrolly = self.fondo.rect.bottom - ALTO_PANTALLA
 
-                # En su lugar, colocamos al jugador que esté más a la derecha a la derecha de todo
-                jugador.establecerPosicion((jugador.posicion[1], self.scrolly+MAXIMO_Y_JUGADOR-jugador.rect.height))
+                # En su lugar, colocamos al jugador abajo de todo
+                jugador.establecerPosicion((jugador.posicion[0], self.scrolly+MAXIMO_Y_JUGADOR))
 
                 return False; # No se ha actualizado el scroll
 
@@ -188,14 +185,14 @@ class Fase(Escena):
         # Se ordenan los jugadores según el eje x, y se mira si hay que actualizar el scroll
         cambioScroll = self.actualizarScrollOrdenados(jugador)
 
-        # Si se cambio el scroll, se desplazan todos los Sprites y el decorado
+        # Si se cambio el scroll, se desplazan todos los Sprites y el fondo
         if cambioScroll:
             # Actualizamos la posición en pantalla de todos los Sprites según el scroll actual
             for sprite in iter(self.grupoSprites):
-                sprite.establecerPosicionPantalla((self.scrolly, 0))
+                sprite.establecerPosicionPantalla((self.scrollx, self.scrolly))
 
-            # Ademas, actualizamos el decorado para que se muestre una parte distinta
-            self.decorado.update(self.scrolly)
+            # Ademas, actualizamos el fondo para que se muestre una parte distinta
+            self.fondo.update(self.scrolly)
 
 
 
@@ -209,8 +206,8 @@ class Fase(Escena):
     def update(self, tiempo):
 
         # Primero, se indican las acciones que van a hacer los enemigos segun como esten los jugadores
-        for enemigo in iter(self.grupoEnemigos):
-            enemigo.mover_cpu(self.jugador)
+        #for enemigo in iter(self.grupoEnemigos):
+        #    enemigo.mover_cpu(self.jugador)
         # Esta operación es aplicable también a cualquier Sprite que tenga algún tipo de IA
         # En el caso de los jugadores, esto ya se ha realizado
 
@@ -230,25 +227,20 @@ class Fase(Escena):
         # Comprobamos si hay colision entre algun jugador y algun enemigo
         # Se comprueba la colision entre ambos grupos
         # Si la hay, indicamos que se ha finalizado la fase
-        if pygame.sprite.groupcollide(self.grupoJugadores, self.grupoEnemigos, False, False)!={}:
+        #if pygame.sprite.groupcollide(self.grupoJugadores, self.grupoEnemigos, False, False)!={}:
             # Se le dice al director que salga de esta escena y ejecute la siguiente en la pila
-            self.director.salirEscena()
+        #    self.director.salirEscena()
 
         # Actualizamos el scroll
         self.actualizarScroll(self.jugador)
-  
-        # Actualizamos el fondo:
-        #  la posicion del sol y el color del cielo
-        self.fondo.update(tiempo)
 
         
     def dibujar(self, pantalla):
         # Ponemos primero el fondo
         self.fondo.dibujar(pantalla)
-        # Después el decorado
-        self.decorado.dibujar(pantalla)
         # Luego los Sprites
         self.grupoSprites.draw(pantalla)
+        self.barra_carga.draw(pantalla)
 
 
     def eventos(self, lista_eventos):
@@ -280,75 +272,28 @@ class Plataforma(MiSprite):
 
 
 # -------------------------------------------------
-# Clase Cielo
-
-class Cielo:
-    def __init__(self):
-        self.sol = GestorRecursos.CargarImagen('sol.png', -1)
-        self.sol = pygame.transform.scale(self.sol, (300, 200))
-
-        self.rect = self.sol.get_rect()
-        self.posicionx = 0 # El lado izquierdo de la subimagen que se esta visualizando
-        self.update(0)
-
-    def update(self, tiempo):
-        self.posicionx += VELOCIDAD_SOL * tiempo
-        if (self.posicionx - self.rect.width >= ANCHO_PANTALLA):
-            self.posicionx = 0
-        self.rect.right = self.posicionx
-        # Calculamos el color del cielo
-        if self.posicionx >= ((self.rect.width + ANCHO_PANTALLA) / 2):
-            ratio = 2 * ((self.rect.width + ANCHO_PANTALLA) - self.posicionx) / (self.rect.width + ANCHO_PANTALLA)
-        else:
-            ratio = 2 * self.posicionx / (self.rect.width + ANCHO_PANTALLA)
-        self.colorCielo = (100*ratio, 200*ratio, 255)
-        
-    def dibujar(self,pantalla):
-        # Dibujamos el color del cielo
-        pantalla.fill(self.colorCielo)
-        # Y ponemos el sol
-        pantalla.blit(self.sol, self.rect)
-
-
-# -------------------------------------------------
-# Clase Decorado
-
-class Decorado:
-    def __init__(self):
-        self.imagen = GestorRecursos.CargarImagen('decorado0.png', -1)
-        self.imagen = pygame.transform.scale(self.imagen, (1200, 600))
-
-        self.rect = self.imagen.get_rect()
-        self.rect.left = ANCHO_PANTALLA
-
-        # La subimagen que estamos viendo
-        self.rectSubimagen = pygame.Rect(0, 0, ANCHO_PANTALLA, ALTO_PANTALLA)
-        self.rectSubimagen.left = 0 # El scroll horizontal empieza en la posicion 0 por defecto
-
-    def update(self, scrollx):
-        self.rectSubimagen.left = scrollx
-
-    def dibujar(self, pantalla):
-        pantalla.blit(self.imagen, self.rect, self.rectSubimagen)
-
-# -------------------------------------------------
 # Clase Agua
 
 class Agua:
     def __init__(self):
-        self.tile = GestorRecursos.CargarImagen('water_tile.jpg', 0) # Cargar textura de fondo
-        self.imagen = pygame.Surface((1400, 800)) # Crear capa de fondo
+        self.tile = GestorRecursos.CargarImagen('water_tile.png', 0) # Cargar textura de fondo
+        self.imagen = pygame.Surface((800, 1400)) # Crear capa de fondo
         self.imagen = self.imagen.convert()
 
         # Rellenar capa de fondo con la imagen
-        for x in range(0, 800, self.tile.get_width()):
-            for y in range(0, 1400, self.tile.get_height()):
+        for x in range(0, self.imagen.get_width(), self.tile.get_width()):
+            for y in range(0, self.imagen.get_height(), self.tile.get_height()):
                 self.imagen.blit(self.tile, (x, y))
 
         self.rect = self.imagen.get_rect()
+        self.rect.right = ANCHO_PANTALLA
 
-    def update(self, tiempo):
-        return
+        # La subimagen que estamos viendo
+        self.rectSubimagen = pygame.Rect(0, 0, ANCHO_PANTALLA, ALTO_PANTALLA)
+        self.rectSubimagen.top = 0 # El scroll vertical empieza en la posicion 0 por defecto
+
+    def update(self, scrolly):
+        self.rectSubimagen.top = scrolly
 
     def dibujar(self, pantalla):
-       pantalla.blit(self.imagen, self.rect)
+       pantalla.blit(self.imagen, self.rect, self.rectSubimagen)

@@ -2,6 +2,10 @@ idle up
 idle down
 idle left
 
+move up
+move down
+move left
+
 jump up
 jump down
 jump left
