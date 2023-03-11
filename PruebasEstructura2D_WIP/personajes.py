@@ -39,6 +39,7 @@ MOVING_DOWN_SPRITE = 4
 MOVING_SIDE_SPRITE = 5
 
 
+
 # Velocidades de los distintos personajes
 VELOCIDAD_JUGADOR = 0.2 # Pixeles por milisegundo
 VELOCIDAD_SALTO_JUGADOR = 0.3 # Pixeles por milisegundo
@@ -202,6 +203,27 @@ class Personaje(MiSprite):
             elif self.mirando == DERECHA:
                 self.image = pygame.transform.flip(self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura]), 1, 0)
 
+    def salto(self, distance, velocidad):
+        if self.mirando == ARRIBA:
+            return ((self.posicion[0], max(0, self.posicion[1]-distance))), 0, -velocidad
+        if self.mirando == ABAJO:
+            return ((self.posicion[0], min(ALTO_PANTALLA, self.posicion[1]+distance))), 0, velocidad
+        if self.mirando == DERECHA:
+            return ((min(ANCHO_PANTALLA, self.posicion[0] + distance), self.posicion[1])), velocidad, 0
+        if self.mirando == IZQUIERDA:
+            return ((max(0, self.posicion[0] - distance), self.posicion[1])), -velocidad, 0
+
+    def reachedPosition(self):
+        if self.mirando == ARRIBA:
+            return self.posicion[1]<=self.pos_final[1]
+        if self.mirando == ABAJO:
+            return self.posicion[1]>=self.pos_final[1]
+        if self.mirando == DERECHA:
+            return self.posicion[0]>=self.pos_final[0]
+        if self.mirando == IZQUIERDA:
+            return self.posicion[0]<=self.pos_final[0]
+
+
     def sumav(self, a: list, b: list):
         c = b.copy()
         for n in range(b.__len__()):
@@ -210,14 +232,40 @@ class Personaje(MiSprite):
     
     def update(self, grupoPlataformas, tiempo):
 
-        self.debug()
+        MAX_TIME = 1
+        MAX_JUMP_DISTANCE = 160
+        JUMP_V = 0.15
+        
 
         # Las velocidades a las que iba hasta este momento
         (velocidadx, velocidady) = self.velocidad
 
         ##  self.movimiento and self.movimientoPasado
-        
-        if (self.movimiento == self.sumav(M_IZQUIERDA, M_ARRIBA)):
+        if (self.isJumping):
+            if (self.reachedPosition()):
+                self.isJumping = False
+        elif (not self.isLoadingJump and self.movimiento[4]): # Quiero cargar salto
+            self.isLoadingJump = True
+            self.t0 = tiempo
+        elif (self.isLoadingJump and self.movimiento[4]):
+            self.t0 += tiempo
+        elif (self.isLoadingJump and (not self.movimiento[4])): # Ahora si salto
+            self.isLoadingJump = False
+            self.isJumping = True
+            self.numPostura +=3
+            self.debug()
+            print(self.t0)
+            jump_distance = (((self.t0) / 1000) / MAX_TIME) * MAX_JUMP_DISTANCE
+            jump_distance = min(MAX_JUMP_DISTANCE, jump_distance)
+            self.pos_final, velocidadx, velocidady = self.salto(jump_distance, JUMP_V)
+            
+            print("Velocidad")
+            print(self.velocidad)
+
+            print("Final position")
+            print(self.pos_final)
+            
+        elif (self.movimiento == self.sumav(M_IZQUIERDA, M_ARRIBA)):
             self.movimiento = self.movimientoPasado
             print("DIAGONAL")
 
@@ -337,6 +385,7 @@ class Personaje(MiSprite):
 class Jugador(Personaje):
     "Cualquier personaje del juego"
     def __init__(self):
+        self.score = 0
         self.isLoadingJump = False
         self.isJumping = False
         # Invocamos al constructor de la clase padre con la configuracion de este personaje concreto
