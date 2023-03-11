@@ -37,6 +37,9 @@ IDLE_SIDE_SPRITE = 2
 MOVING_UP_SPRITE = 3
 MOVING_DOWN_SPRITE = 4
 MOVING_SIDE_SPRITE = 5
+JUMPING_UP_SPRITE = 6
+JUMPING_DOWN_SPRITE = 7
+JUMPING_SIDE_SPRITE = 8
 
 
 # Velocidades de los distintos personajes
@@ -129,7 +132,7 @@ class Personaje(MiSprite):
         self.numImagenPostura = 0;
         cont = 0;
         self.coordenadasHoja = [];
-        for linea in range(0, 6):
+        for linea in range(0, 9):
             self.coordenadasHoja.append([])
             tmp = self.coordenadasHoja[linea]
             for postura in range(1, numImagenes[linea]+1):
@@ -168,16 +171,6 @@ class Personaje(MiSprite):
         # else:
         self.movimientoPasado = self.movimiento
         self.movimiento = movimiento
-
-    def debug(self):
-        print("Movimiento:")
-        print(self.movimiento)
-
-        print("Velocidades:")
-        print(self.velocidad)
-
-        print("Postura:")
-        print(self.numPostura)
 
 
     def actualizarPostura(self):
@@ -249,37 +242,29 @@ class Personaje(MiSprite):
         elif (self.isLoadingJump and (not self.movimiento[4])): # Ahora si salto
             self.isLoadingJump = False
             self.isJumping = True
-            self.numPostura +=3
-            self.debug()
-            print(self.t0)
+            if(self.mirando == ARRIBA):
+                self.numPostura = JUMPING_UP_SPRITE
+            elif(self.mirando == ABAJO):
+                self.numPostura = JUMPING_DOWN_SPRITE
+            elif(self.mirando == IZQUIERDA) or (self.mirando == DERECHA):
+                self.numPostura = JUMPING_SIDE_SPRITE
             jump_distance = (((self.t0) / 1000) / MAX_TIME) * MAX_JUMP_DISTANCE
             jump_distance = min(MAX_JUMP_DISTANCE, jump_distance)
             self.pos_final, velocidadx, velocidady = self.salto(jump_distance, JUMP_V)
             
-            print("Velocidad")
-            print(self.velocidad)
-
-            print("Final position")
-            print(self.pos_final)
-            
         elif (self.movimiento == self.sumav(M_IZQUIERDA, M_ARRIBA)):
             self.movimiento = self.movimientoPasado
-            print("DIAGONAL")
 
         elif (self.movimiento == self.sumav(M_IZQUIERDA, M_ABAJO)):
             self.movimiento = self.movimientoPasado
-            print("DIAGONAL")
 
         elif (self.movimiento == self.sumav(M_DERECHA, M_ARRIBA)):
             self.movimiento = self.movimientoPasado
-            print("DIAGONAL")
             
         elif (self.movimiento == self.sumav(M_DERECHA, M_ABAJO)):
             self.movimiento = self.movimientoPasado
-            print("DIAGONAL")
 
         elif (self.movimiento == M_ARRIBA):
-            print("ARRIBA")
             # La postura actual sera estar saltando
             self.numPostura = MOVING_UP_SPRITE
             self.mirando = ARRIBA
@@ -289,7 +274,6 @@ class Personaje(MiSprite):
             self.moviendose = 1
 
         elif (self.movimiento == M_ABAJO):
-            print("ABAJO")
             # La postura actual sera estar saltando
             self.numPostura = MOVING_DOWN_SPRITE
             self.mirando = ABAJO
@@ -299,7 +283,6 @@ class Personaje(MiSprite):
             self.moviendose = 1
 
         elif (self.movimiento == self.sumav(M_ARRIBA, M_ABAJO)):
-            print("ABAJO Y ARRIBA")
             # Si no estamos saltando, la postura actual será estar quieto
             if self.numPostura == MOVING_UP_SPRITE:
                 self.numPostura = IDLE_UP_SPRITE
@@ -315,7 +298,6 @@ class Personaje(MiSprite):
             self.moviendose = 0
 
         elif (self.movimiento == M_DERECHA):
-            print("DERECHA")
             velocidadx = self.velocidadCarrera
             velocidady = 0
             self.numPostura = MOVING_SIDE_SPRITE
@@ -323,7 +305,6 @@ class Personaje(MiSprite):
             self.moviendose = 1
 
         elif (self.movimiento == M_IZQUIERDA):
-            print("IZQUIERDA")
             velocidadx = -self.velocidadCarrera
             velocidady = 0
             self.numPostura = MOVING_SIDE_SPRITE
@@ -331,7 +312,6 @@ class Personaje(MiSprite):
             self.moviendose = 1
 
         elif (self.movimiento == self.sumav(M_DERECHA, M_IZQUIERDA)):
-            print("DERECHA E IZQUIERDA")
             # Si no estamos saltando, la postura actual será estar quieto
             if self.numPostura == MOVING_UP_SPRITE:
                 self.numPostura = IDLE_UP_SPRITE
@@ -347,7 +327,6 @@ class Personaje(MiSprite):
             self.moviendose = 0
 
         else:   # M_QUIETO
-            print("QUIETO")
             # Si no estamos saltando, la postura actual será estar quieto
             if self.numPostura == MOVING_UP_SPRITE:
                 self.numPostura = IDLE_UP_SPRITE
@@ -386,7 +365,7 @@ class Jugador(Personaje):
         self.isLoadingJump = False
         self.isJumping = False
         # Invocamos al constructor de la clase padre con la configuracion de este personaje concreto
-        Personaje.__init__(self,'frog_sprites.png','coordRana.txt', [1, 2, 2, 2, 2, 2], VELOCIDAD_JUGADOR, VELOCIDAD_SALTO_JUGADOR, RETARDO_ANIMACION_JUGADOR);
+        Personaje.__init__(self,'frog_sprites.png','coordRana.txt', [1, 2, 2, 2, 2, 2, 1, 1, 1], VELOCIDAD_JUGADOR, VELOCIDAD_SALTO_JUGADOR, RETARDO_ANIMACION_JUGADOR);
 
     def mover(self, teclasPulsadas, arriba, abajo, izquierda, derecha, salto):
         # Indicamos la acción a realizar segun la tecla pulsada para el jugador
@@ -428,7 +407,7 @@ class Sniper(NoJugador):
     "El enemigo 'Sniper'"
     def __init__(self):
         # Invocamos al constructor de la clase padre con la configuracion de este personaje concreto
-        NoJugador.__init__(self,'Sniper.png','coordSniper.txt', [2, 3, 6, 3, 3, 3], VELOCIDAD_SNIPER, VELOCIDAD_SALTO_SNIPER, RETARDO_ANIMACION_SNIPER);
+        NoJugador.__init__(self,'Sniper.png','coordSniper.txt', [2, 3, 2, 3, 3, 3, 1, 1, 1], VELOCIDAD_SNIPER, VELOCIDAD_SALTO_SNIPER, RETARDO_ANIMACION_SNIPER);
 
     # Aqui vendria la implementacion de la IA segun las posiciones de los jugadores
     # La implementacion de la inteligencia segun este personaje particular
