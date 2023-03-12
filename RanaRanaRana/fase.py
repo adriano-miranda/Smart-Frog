@@ -166,6 +166,7 @@ class Fase(Escena):
 
             # Se calcula cuantos pixeles esta fuera del scroll
             desplazamiento = jugador.rect.bottom - MAXIMO_Y_SCROLL
+            print(desplazamiento)
             #print("self.scrolly + ALTO_PANTALLA >= self.fondo.rect.bottom: ", self.scrolly + ALTO_PANTALLA, " ", self.scrolly + ALTO_PANTALLA >= self.fondo.rect.bottom)
 
             # Si el escenario ya está abajo del todo, no lo movemos mas
