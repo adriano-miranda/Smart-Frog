@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 import pygame, escena
 from escena import *
@@ -51,15 +50,15 @@ class Fase(Escena):
         self.grupoJugadores = pygame.sprite.Group(self.jugador)
 
         # Ponemos a los jugadores en sus posiciones iniciales
-        self.jugador.establecerPosicion((380, 1380))
+        self.jugador.establecerPosicion((380, 1170))
 
         # Creamos las plataformas del decorado
         # (MoverIzq->Derecha, moverArriba->Abajo, Ancho, Largo)
         #Tener en cuenta el scale de la imagen!
         
-        plataformaBase = Plataforma(pygame.Rect(-100, 1200, 1500, 800),'madera.png', 1000, 300)
-        plataforma1 = Plataforma(pygame.Rect(300, 1100, 1500, 800),'madera.png', 500, 100)
-        plataforma2 = Plataforma(pygame.Rect(150, 1000, 1500, 800),'madera.png', 300, 100)
+        plataformaBase = Plataforma(pygame.Rect(-100, 1000, 1500, 1200),'madera.png', 1000, 600)
+        plataforma1 = Plataforma(pygame.Rect(300, 950, 1500, 800),'madera.png', 500, 100)
+        plataforma2 = Plataforma(pygame.Rect(150, 780, 1500, 800),'madera.png', 300, 100)
         # La plataforma del techo del edificio
         #plataformaCasa = Plataforma(pygame.Rect(870, 417, 200, 10))
         # y el grupo con las mismas
@@ -127,7 +126,7 @@ class Fase(Escena):
                 self.scrollx = self.scrollx + desplazamiento;
 
                 return True; # Se ha actualizado el scroll
-
+        
         # Si el jugador está dentro los límites de la pantalla
         return False;
 
