@@ -54,12 +54,16 @@ class Fase(Escena):
         self.jugador.establecerPosicion((380, 1350))
 
         # Creamos las plataformas del decorado
-        # La plataforma que conforma todo el suelo
-        plataformaBase = Plataforma(pygame.Rect(0, 1200, 800, 100))
+        # (MoverIzq->Derecha, moverArriba->Abajo, Ancho, Largo)
+        #Tener en cuenta el scale de la imagen!
+        
+        plataformaBase = Plataforma(pygame.Rect(-100, 1200, 1500, 800),'madera.png', 1000, 300)
+        plataforma1 = Plataforma(pygame.Rect(300, 1100, 1500, 800),'madera.png', 500, 100)
+        plataforma2 = Plataforma(pygame.Rect(150, 1000, 1500, 800),'madera.png', 300, 100)
         # La plataforma del techo del edificio
         #plataformaCasa = Plataforma(pygame.Rect(870, 417, 200, 10))
         # y el grupo con las mismas
-        self.grupoPlataformas = pygame.sprite.Group(plataformaBase)
+        self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2)
 
         # Y los enemigos que tendran en este decorado
         #enemigo1 = Sniper()
@@ -72,7 +76,7 @@ class Fase(Escena):
         #  En este caso, solo los personajes, pero podría haber más (proyectiles, etc.)
         self.grupoSpritesDinamicos = pygame.sprite.Group(self.jugador)
         # Creamos otro grupo con todos los Sprites
-        self.grupoSprites = pygame.sprite.Group(plataformaBase, self.jugador)
+        self.grupoSprites = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, self.jugador)
 
 
         
@@ -264,7 +268,7 @@ class Fase(Escena):
 
 #class Plataforma(pygame.sprite.Sprite):
 class Plataforma(MiSprite):
-    def __init__(self,rectangulo):
+    def __init__(self,rectangulo, imagen, scaleX, scaleY):
         # Primero invocamos al constructor de la clase padre
         MiSprite.__init__(self)
         # Rectangulo con las coordenadas en pantalla que ocupara
@@ -272,8 +276,8 @@ class Plataforma(MiSprite):
         # Y lo situamos de forma global en esas coordenadas
         self.establecerPosicion((self.rect.left, self.rect.bottom))
         # En el caso particular de este juego, las plataformas no se van a ver, asi que no se carga ninguna imagen
-        self.image = GestorRecursos.CargarImagen('frog.png', 0)
-        self.image = pygame.transform.scale(self.image, (800, 100))
+        self.image = GestorRecursos.CargarImagen(imagen, 0)
+        self.image = pygame.transform.scale(self.image, (scaleX, scaleY))
 
 
 # -------------------------------------------------
