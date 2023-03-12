@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
 
 import pygame, escena
 from escena import *
 from personajes import *
 from pygame.locals import *
-import HUD_related
 
 # -------------------------------------------------
 # -------------------------------------------------
@@ -15,8 +13,11 @@ import HUD_related
 # Los bordes de la pantalla para hacer scroll
 MINIMO_X_JUGADOR = 5
 MAXIMO_X_JUGADOR = ANCHO_PANTALLA - MINIMO_X_JUGADOR
-MINIMO_Y_JUGADOR = 25
+MINIMO_Y_JUGADOR = 5
 MAXIMO_Y_JUGADOR = ALTO_PANTALLA - MINIMO_Y_JUGADOR
+
+MINIMO_Y_SCROLL = 250
+MAXIMO_Y_SCROLL = ALTO_PANTALLA - MINIMO_Y_SCROLL
 
 # -------------------------------------------------
 # Clase Fase
@@ -37,9 +38,6 @@ class Fase(Escena):
         # Primero invocamos al constructor de la clase padre
         Escena.__init__(self, director)
 
-        # Creamos la barra de carga del salto
-        self.barra_carga = HUD_related.ElementoGUI(archivoImagen="Barra.png", position=(100,100))
-
         # Creamos el fondo
         self.fondo = Agua()
 
@@ -52,15 +50,19 @@ class Fase(Escena):
         self.grupoJugadores = pygame.sprite.Group(self.jugador)
 
         # Ponemos a los jugadores en sus posiciones iniciales
-        self.jugador.establecerPosicion((380, 1350))
+        self.jugador.establecerPosicion((380, 1170))
 
         # Creamos las plataformas del decorado
-        # La plataforma que conforma todo el suelo
-        plataformaSuelo = Plataforma(pygame.Rect(0, 550, 1200, 15))
+        # (MoverIzq->Derecha, moverArriba->Abajo, Ancho, Largo)
+        #Tener en cuenta el scale de la imagen!
+        
+        plataformaBase = Plataforma(pygame.Rect(-100, 1000, 1500, 1200),'madera.png', 1000, 600)
+        plataforma1 = Plataforma(pygame.Rect(300, 950, 1500, 800),'madera.png', 500, 100)
+        plataforma2 = Plataforma(pygame.Rect(150, 780, 1500, 800),'madera.png', 300, 100)
         # La plataforma del techo del edificio
         #plataformaCasa = Plataforma(pygame.Rect(870, 417, 200, 10))
         # y el grupo con las mismas
-        self.grupoPlataformas = pygame.sprite.Group(plataformaSuelo)
+        self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2)
 
         # Y los enemigos que tendran en este decorado
         #enemigo1 = Sniper()
@@ -73,62 +75,10 @@ class Fase(Escena):
         #  En este caso, solo los personajes, pero podría haber más (proyectiles, etc.)
         self.grupoSpritesDinamicos = pygame.sprite.Group(self.jugador)
         # Creamos otro grupo con todos los Sprites
-        self.grupoSprites = pygame.sprite.Group(self.jugador, plataformaSuelo)
+        self.grupoSprites = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, self.jugador)
 
 
-    # Devuelve True o False según se ha tenido que desplazar el scroll
-    def actualizarScrollOrdenados(self, jugador):
-
-        # Si el jugador se encuentra más allá del borde superior
-        if (jugador.rect.top<MINIMO_Y_JUGADOR):
-            print("ARRIBA: ", jugador.posicion)
-
-            # Se calcula cuantos pixeles esta fuera del borde
-            desplazamiento = MINIMO_Y_JUGADOR - jugador.rect.top
-
-            # Si el escenario ya está arriba del todo, no lo movemos mas
-            if self.scrolly <= 0:
-                self.scrolly = 0
-
-                # En su lugar, colocamos al jugador arriba de todo
-                jugador.establecerPosicion((jugador.posicion[0], MINIMO_Y_JUGADOR+jugador.rect.height))
-
-                return False; # No se ha actualizado el scroll
-
-            # Si se puede hacer scroll arriba
-            else:
-                # Calculamos el nivel de scroll actual: el anterior - desplazamiento
-                #  (desplazamos arriba)
-                self.scrolly = self.scrolly - desplazamiento;
-
-                return True; # Se ha actualizado el scroll
-
-        # Si el jugador se encuentra más allá del borde inferior
-        if (jugador.rect.bottom>MAXIMO_Y_JUGADOR):
-            print("ABAJO: ", jugador.posicion)
-
-            # Se calcula cuantos pixeles esta fuera del borde
-            desplazamiento = jugador.rect.bottom - MAXIMO_Y_JUGADOR
-
-            # Si el escenario ya está abajo del todo, no lo movemos mas
-            if self.scrolly + ALTO_PANTALLA >= self.fondo.rect.bottom:
-                self.scrolly = self.fondo.rect.bottom - ALTO_PANTALLA
-
-                # En su lugar, colocamos al jugador abajo de todo
-                jugador.establecerPosicion((jugador.posicion[0], self.scrolly+MAXIMO_Y_JUGADOR))
-
-                return False; # No se ha actualizado el scroll
-
-
-            # Si se puede hacer scroll abajo
-            else:
-
-                # Calculamos el nivel de scroll actual: el anterior + desplazamiento
-                #  (desplazamos abajo)
-                self.scrolly = self.scrolly + desplazamiento;
-
-                return True; # Se ha actualizado el scroll
-
+    def scrollHorizontal(self, jugador):
         # Si el jugador se encuentra más allá del borde izquierdo
         if (jugador.rect.left<MINIMO_X_JUGADOR):
 
@@ -153,7 +103,7 @@ class Fase(Escena):
                 return True; # Se ha actualizado el scroll
 
         # Si el jugador se encuentra más allá del borde derecho
-        if (jugador.rect.right>MAXIMO_X_JUGADOR):
+        elif (jugador.rect.right>MAXIMO_X_JUGADOR):
 
             # Se calcula cuantos pixeles esta fuera del borde
             desplazamiento = jugador.rect.right - MAXIMO_X_JUGADOR
@@ -176,9 +126,70 @@ class Fase(Escena):
                 self.scrollx = self.scrollx + desplazamiento;
 
                 return True; # Se ha actualizado el scroll
-
+        
         # Si el jugador está dentro los límites de la pantalla
         return False;
+
+        
+    # Devuelve True o False según se ha tenido que desplazar el scroll
+    def actualizarScrollOrdenados(self, jugador):
+        # Si el jugador se encuentra más allá del scroll superior
+        if (jugador.rect.top < MINIMO_Y_SCROLL):
+            print("ARRIBA: ", jugador.posicion)
+
+            # Se calcula cuantos pixeles esta fuera del scroll
+            desplazamiento = MINIMO_Y_SCROLL - jugador.rect.top
+
+            # Si el escenario ya está arriba del todo, no lo movemos mas
+            if self.scrolly <= 0:
+                self.scrolly = 0
+
+                # Si el jugador está arriba del todo
+                if(jugador.rect.top < MINIMO_Y_JUGADOR):
+                    # Colocamos al jugador arriba de todo
+                    jugador.establecerPosicion((jugador.posicion[0], MINIMO_Y_JUGADOR + jugador.rect.height))
+
+                return self.scrollHorizontal(jugador); # No se ha actualizado el scroll
+
+            # Si se puede hacer scroll arriba
+            else:
+                # Calculamos el nivel de scroll actual: el anterior - desplazamiento
+                #  (desplazamos arriba)
+                self.scrolly = self.scrolly - desplazamiento;
+
+                return True; # Se ha actualizado el scroll
+
+        # Si el jugador se encuentra más allá del scroll inferior
+        elif (jugador.rect.bottom > MAXIMO_Y_SCROLL):
+            print("ABAJO: ", jugador.posicion)
+
+            # Se calcula cuantos pixeles esta fuera del scroll
+            desplazamiento = jugador.rect.bottom - MAXIMO_Y_SCROLL
+            #print("self.scrolly + ALTO_PANTALLA >= self.fondo.rect.bottom: ", self.scrolly + ALTO_PANTALLA, " ", self.scrolly + ALTO_PANTALLA >= self.fondo.rect.bottom)
+
+            # Si el escenario ya está abajo del todo, no lo movemos mas
+            if self.scrolly + ALTO_PANTALLA >= self.fondo.rect.bottom:
+                self.scrolly = self.fondo.rect.bottom - ALTO_PANTALLA
+
+                # Si el jugador está abajo del todo
+                if(jugador.rect.bottom > MAXIMO_Y_JUGADOR):
+                    # Colocamos al jugador abajo de todo
+                    jugador.establecerPosicion((jugador.posicion[0], self.scrolly + MAXIMO_Y_JUGADOR))
+
+                return self.scrollHorizontal(jugador); # No se ha actualizado el scroll
+
+
+            # Si se puede hacer scroll abajo
+            else:
+
+                # Calculamos el nivel de scroll actual: el anterior + desplazamiento
+                #  (desplazamos abajo)
+                self.scrolly = self.scrolly + desplazamiento;
+                print(desplazamiento)
+
+                return True; # Se ha actualizado el scroll
+
+        self.scrollHorizontal(jugador)
 
 
     def actualizarScroll(self, jugador):
@@ -240,7 +251,6 @@ class Fase(Escena):
         self.fondo.dibujar(pantalla)
         # Luego los Sprites
         self.grupoSprites.draw(pantalla)
-        self.barra_carga.draw(pantalla)
 
 
     def eventos(self, lista_eventos):
@@ -260,7 +270,7 @@ class Fase(Escena):
 
 #class Plataforma(pygame.sprite.Sprite):
 class Plataforma(MiSprite):
-    def __init__(self,rectangulo):
+    def __init__(self,rectangulo, imagen, scaleX, scaleY):
         # Primero invocamos al constructor de la clase padre
         MiSprite.__init__(self)
         # Rectangulo con las coordenadas en pantalla que ocupara
@@ -268,7 +278,8 @@ class Plataforma(MiSprite):
         # Y lo situamos de forma global en esas coordenadas
         self.establecerPosicion((self.rect.left, self.rect.bottom))
         # En el caso particular de este juego, las plataformas no se van a ver, asi que no se carga ninguna imagen
-        self.image = pygame.Surface((0, 0))
+        self.image = GestorRecursos.CargarImagen(imagen, 0)
+        self.image = pygame.transform.scale(self.image, (scaleX, scaleY))
 
 
 # -------------------------------------------------
