@@ -4,6 +4,7 @@ import pygame, sys, os
 from pygame.locals import *
 from escena import *
 from gestorRecursos import *
+import Listener
 
 # -------------------------------------------------
 # -------------------------------------------------
@@ -222,10 +223,191 @@ class Personaje(MiSprite):
     
     def update(self, grupoPlataformas, tiempo):
 
-        MAX_TIME = 1
-        MAX_JUMP_DISTANCE = 160
-        JUMP_V = 0.15
+        # Las velocidades a las que iba hasta este momento
+        (velocidadx, velocidady) = self.velocidad
+
+        # Si vamos a la izquierda o a la derecha        
+        if (self.movimiento == IZQUIERDA) or (self.movimiento == DERECHA):
+            # Esta mirando hacia ese lado
+            self.mirando = self.movimiento
+
+            # Si vamos a la izquierda, le ponemos velocidad en esa dirección
+            if self.movimiento == IZQUIERDA:
+                velocidadx = -self.velocidadCarrera
+            # Si vamos a la derecha, le ponemos velocidad en esa dirección
+            else:
+                velocidadx = self.velocidadCarrera
+
+            # Si no estamos en el aire
+            if self.numPostura != SPRITE_SALTANDO:
+                # La postura actual sera estar caminando
+                self.numPostura = SPRITE_ANDANDO
+                # Ademas, si no estamos encima de ninguna plataforma, caeremos
+                if pygame.sprite.spritecollideany(self, grupoPlataformas) == None:
+                    self.numPostura = SPRITE_SALTANDO
+
+        # Si queremos saltar
+        elif self.movimiento == ARRIBA:
+            # La postura actual sera estar saltando
+            self.numPostura = SPRITE_SALTANDO
+            # Le imprimimos una velocidad en el eje y
+            velocidady = -self.velocidadSalto
+
+        # Si no se ha pulsado ninguna tecla
+        elif self.movimiento == QUIETO:
+            # Si no estamos saltando, la postura actual será estar quieto
+            if not self.numPostura == SPRITE_SALTANDO:
+                self.numPostura = SPRITE_QUIETO
+            velocidadx = 0
+
+
+
+        # Además, si estamos en el aire
+        if self.numPostura == SPRITE_SALTANDO:
+
+            # Miramos a ver si hay que parar de caer: si hemos llegado a una plataforma
+            #  Para ello, miramos si hay colision con alguna plataforma del grupo
+            plataforma = pygame.sprite.spritecollideany(self, grupoPlataformas)
+            #  Ademas, esa colision solo nos interesa cuando estamos cayendo
+            #  y solo es efectiva cuando caemos encima, no de lado, es decir,
+            #  cuando nuestra posicion inferior esta por encima de la parte de abajo de la plataforma
+            if (plataforma != None) and (velocidady>0) and (plataforma.rect.bottom>self.rect.bottom):
+                # Lo situamos con la parte de abajo un pixel colisionando con la plataforma
+                #  para poder detectar cuando se cae de ella
+                self.establecerPosicion((self.posicion[0], plataforma.posicion[1]-plataforma.rect.height+1))
+                # Lo ponemos como quieto
+                self.numPostura = SPRITE_QUIETO
+                # Y estará quieto en el eje y
+                velocidady = 0
+
+            # Si no caemos en una plataforma, aplicamos el efecto de la gravedad
+            else:
+                pass
+                # velocidady += GRAVEDAD * tiempo
+
+        # Actualizamos la imagen a mostrar
+        self.actualizarPostura()
+
+        # Aplicamos la velocidad en cada eje      
+        self.velocidad = (velocidadx, velocidady)
+
+        # Y llamamos al método de la superclase para que, según la velocidad y el tiempo
+        #  calcule la nueva posición del Sprite
+        MiSprite.update(self, tiempo)
         
+        return
+
+
+
+# -------------------------------------------------
+# Clase Jugador
+
+class Jugador(Personaje):
+    "Cualquier personaje del juego"
+    def __init__(self, max_time = 1, max_jump_distance = 160, jump_v = 0.15, lives = 3, score = 0):
+        self.score = score         # Puntuación de la rana
+        self.lives = lives         # Vidas restantes de la rana
+        self.max_Time = max_time   # Tiempo[s] tras el cual seguir cargando el salto, no tiene efecto
+        self.jump_velocity = jump_v
+        self.max_jump_distance = max_jump_distance
+
+        self.subscribers_lives = []
+        self.subscribers_score = []
+        self.subscribers_jump = []
+
+        self.isLoadingJump = False
+        self.isJumping = False
+
+        # Invocamos al constructor de la clase padre con la configuracion de este personaje concreto
+        Personaje.__init__(self,'frog_sprites.png','coordRana.txt', [1, 2, 2, 2, 2, 2, 1, 1, 1], VELOCIDAD_JUGADOR, VELOCIDAD_SALTO_JUGADOR, RETARDO_ANIMACION_JUGADOR);
+
+
+    def mover(self, teclasPulsadas, arriba, abajo, izquierda, derecha, salto):
+        # Indicamos la acción a realizar segun la tecla pulsada para el jugador
+        mov = [0, 0, 0, 0, 0]
+        if teclasPulsadas[arriba]:
+            mov[ARRIBA] = 1
+        if teclasPulsadas[izquierda]:
+            mov[IZQUIERDA] = 1
+        if teclasPulsadas[derecha]:
+            mov[DERECHA] = 1
+        if teclasPulsadas[abajo]:
+            mov[ABAJO] = 1
+        if teclasPulsadas[salto]:
+            mov[SALTO] = 1
+        Personaje.mover(self, mov)
+
+    # Añade puntuación a la rana y devuelve la cantidad tras eso
+    def score(self, quantity):
+        self.score += quantity
+        self.notifyListeners(self.subscribers_score, self.score)
+        return self.score
+
+    # Le resta una vida a la rana y devuelve la cantidad
+    def damage(self):
+        self.lives = max(0, self.lives+1)
+        self.notifyListeners(self.subscribers_lives, self.lives)
+        return self.lives
+
+    # Está la rana preparándose para saltar?
+    def isLoadingJump(self):
+        return self.isLoadingJump
+
+    # La rana está saltando?
+    def isJumping(self):
+        return self.isJumping
+    
+    def debug(self):
+        print("Movimiento:")
+        print(self.movimiento)
+
+        print("Velocidades:")
+        print(self.velocidad)
+
+        print("Postura:")
+        print(self.numPostura)
+    
+    def notifyListeners(self, listenerList: list, dato):
+        for listerine in listenerList:
+            listerine.run(dato)
+
+    def addListenersLives(self, listener: Listener):
+        self.subscribers_lives.append(listener)
+    
+    def addListenersScore(self, listener: Listener):
+        self.subscribers_lives.append(listener)
+
+    def addListenersJump(self, listener: Listener):
+        self.subscribers_jump.append(listener)
+
+    def salto(self, distance, velocidad):
+        if self.mirando == ARRIBA:
+            return ((self.posicion[0], max(0, self.posicion[1]-distance))), 0, -velocidad
+        if self.mirando == ABAJO:
+            return ((self.posicion[0], min(ALTO_PANTALLA, self.posicion[1]+distance))), 0, velocidad
+        if self.mirando == DERECHA:
+            return ((min(ANCHO_PANTALLA, self.posicion[0] + distance), self.posicion[1])), velocidad, 0
+        if self.mirando == IZQUIERDA:
+            return ((max(0, self.posicion[0] - distance), self.posicion[1])), -velocidad, 0
+
+    def reachedPosition(self):
+        if self.mirando == ARRIBA:
+            return self.posicion[1]<=self.pos_final[1]
+        if self.mirando == ABAJO:
+            return self.posicion[1]>=self.pos_final[1]
+        if self.mirando == DERECHA:
+            return self.posicion[0]>=self.pos_final[0]
+        if self.mirando == IZQUIERDA:
+            return self.posicion[0]<=self.pos_final[0]
+
+    # Suma dos vectores y devuelve el resultado
+    def sumav(self, a: list, b: list):
+        c = b.copy()
+        for n in range(b.__len__()):
+            c[n] = a[n] + b[n]
+        return c
+    
+    def update(self, grupoPlataformas, tiempo):
 
         # Las velocidades a las que iba hasta este momento
         (velocidadx, velocidady) = self.velocidad
@@ -248,10 +430,10 @@ class Personaje(MiSprite):
                 self.numPostura = JUMPING_DOWN_SPRITE
             elif(self.mirando == IZQUIERDA) or (self.mirando == DERECHA):
                 self.numPostura = JUMPING_SIDE_SPRITE
-            jump_distance = (((self.t0) / 1000) / MAX_TIME) * MAX_JUMP_DISTANCE
-            jump_distance = min(MAX_JUMP_DISTANCE, jump_distance)
-            self.pos_final, velocidadx, velocidady = self.salto(jump_distance, JUMP_V)
-            
+            jump_distance = (((self.t0) / 1000) / self.max_Time) * self.max_jump_distance
+            jump_distance = min(self.max_jump_distance, jump_distance)
+            self.pos_final, velocidadx, velocidady = self.salto(jump_distance, self.jump_velocity)
+
         elif (self.movimiento == self.sumav(M_IZQUIERDA, M_ARRIBA)):
             self.movimiento = self.movimientoPasado
 
@@ -352,35 +534,6 @@ class Personaje(MiSprite):
         MiSprite.update(self, tiempo)
         
         return
-
-
-
-# -------------------------------------------------
-# Clase Jugador
-
-class Jugador(Personaje):
-    "Cualquier personaje del juego"
-    def __init__(self):
-        self.score = 0
-        self.isLoadingJump = False
-        self.isJumping = False
-        # Invocamos al constructor de la clase padre con la configuracion de este personaje concreto
-        Personaje.__init__(self,'frog_sprites.png','coordRana.txt', [1, 2, 2, 2, 2, 2, 1, 1, 1], VELOCIDAD_JUGADOR, VELOCIDAD_SALTO_JUGADOR, RETARDO_ANIMACION_JUGADOR);
-
-    def mover(self, teclasPulsadas, arriba, abajo, izquierda, derecha, salto):
-        # Indicamos la acción a realizar segun la tecla pulsada para el jugador
-        mov = [0, 0, 0, 0, 0]
-        if teclasPulsadas[arriba]:
-            mov[ARRIBA] = 1
-        if teclasPulsadas[izquierda]:
-            mov[IZQUIERDA] = 1
-        if teclasPulsadas[derecha]:
-            mov[DERECHA] = 1
-        if teclasPulsadas[abajo]:
-            mov[ABAJO] = 1
-        if teclasPulsadas[salto]:
-            mov[SALTO] = 1
-        Personaje.mover(self, mov)
 
 
 # -------------------------------------------------
