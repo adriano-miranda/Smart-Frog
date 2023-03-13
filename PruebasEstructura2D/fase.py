@@ -2,7 +2,7 @@ import pygame, escena
 from escena import *
 from personajes import *
 from pygame.locals import *
-
+from gameOver import GameOver
 # -------------------------------------------------
 # -------------------------------------------------
 # Constantes
@@ -275,7 +275,14 @@ class Fase(Escena):
             pygame.sprite.Sprite.kill(insecto)
             self.jugador.score +=100
 
-        
+        if(self.jugador.lives ==0):
+            print('MUERTO')
+            self.gameOver()
+
+    def gameOver(self):
+        gameOver = GameOver(self.director)
+        self.director.cambiarEscena(gameOver)
+
             
 
     def dibujar(self, pantalla):
