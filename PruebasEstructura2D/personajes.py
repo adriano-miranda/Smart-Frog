@@ -234,6 +234,12 @@ class Personaje(MiSprite):
         if (self.isJumping):
             if (self.reachedPosition()):
                 self.isJumping = False
+                if(self.mirando == DERECHA or self.mirando == IZQUIERDA):
+                    self.numPostura = IDLE_SIDE_SPRITE
+                if(self.mirando == ABAJO):
+                    self.numPostura = IDLE_DOWN_SPRITE
+                if(self.mirando == ARRIBA):
+                    self.numPostura = IDLE_UP_SPRITE    
         elif (not self.isLoadingJump and self.movimiento[4]): # Quiero cargar salto
             self.isLoadingJump = True
             self.t0 = tiempo
@@ -383,8 +389,6 @@ class Jugador(Personaje):
         Personaje.mover(self, mov)
 
         #limites plataformas
-        print("POSICION[0]: ", self.posicion[0])
-        print("POSICION[1]: ", self.posicion[1])
             
         #if self.posicion[0]<0:
         #    self.posicion[0] = 0
