@@ -134,6 +134,7 @@ class Fase(Escena):
         
     # Devuelve True o False según se ha tenido que desplazar el scroll
     def actualizarScrollOrdenados(self, jugador):
+        print(self.scrolly)
         # Si el jugador se encuentra más allá del scroll superior
         if (jugador.rect.top < MINIMO_Y_SCROLL):
             print("ARRIBA: ", jugador.posicion)
@@ -166,8 +167,8 @@ class Fase(Escena):
 
             # Se calcula cuantos pixeles esta fuera del scroll
             desplazamiento = jugador.rect.bottom - MAXIMO_Y_SCROLL
-            print(desplazamiento)
-            #print("self.scrolly + ALTO_PANTALLA >= self.fondo.rect.bottom: ", self.scrolly + ALTO_PANTALLA, " ", self.scrolly + ALTO_PANTALLA >= self.fondo.rect.bottom)
+            if (desplazamiento >= self.fondo.rect.bottom - ALTO_PANTALLA):
+                desplazamiento = self.fondo.rect.bottom - ALTO_PANTALLA
 
             # Si el escenario ya está abajo del todo, no lo movemos mas
             if self.scrolly + ALTO_PANTALLA >= self.fondo.rect.bottom:
