@@ -123,7 +123,7 @@ class PantallaGUI:
 
 class PantallaInicialGUI(PantallaGUI):
     def __init__(self, menu):
-        PantallaGUI.__init__(self, menu, 'frog.png')
+        PantallaGUI.__init__(self, menu, 'portada2.png')
         # Creamos los botones y los metemos en la lista
         botonJugar = BotonJugar(self)
         botonSalir = BotonSalir(self)
