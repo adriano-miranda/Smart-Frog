@@ -53,16 +53,22 @@ class Fase(Escena):
 
         # Creamos las plataformas del decorado
         # (MoverIzq->Derecha, moverArriba->Abajo, Ancho, Largo)
-        #Tener en cuenta el scale de la imagen!
-        
+        #Escalado de la imagen debe ser igual que el largo y el ancho!
+
         plataformaBase = Plataforma(pygame.Rect(0, 1200, 800, 200),'madera.png', 800, 200)
-        plataforma1 = Plataforma(pygame.Rect(300, 1050, 500, 100),'madera.png', 500, 100)
+        plataforma1 = Plataforma(pygame.Rect(150, 1050, 500, 100),'madera.png', 500, 100)
         plataforma2 = Plataforma(pygame.Rect(150, 850, 500, 75),'madera.png', 500, 75)
+        plataforma3 = Plataforma(pygame.Rect(100, 660, 250, 45),'madera.png', 250, 55)
+        plataforma4 = Plataforma(pygame.Rect(450, 660, 250, 45),'madera.png', 250, 55)
+        
+        #Creo las moscas
+        mosca1 = Mosca(pygame.Rect(650, 660, 30, 30), 35, 35)
         # La plataforma del techo del edificio
         #plataformaCasa = Plataforma(pygame.Rect(870, 417, 200, 10))
         # y el grupo con las mismas
        
-        self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2)
+        self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4)
+        self.grupoInsectos = pygame.sprite.Group(mosca1)
         # Y los enemigos que tendran en este decorado
         #enemigo1 = Sniper()
         #enemigo1.establecerPosicion((1000, 418))
@@ -75,7 +81,7 @@ class Fase(Escena):
         self.grupoSpritesDinamicos = pygame.sprite.Group(self.jugador)
         # Creamos otro grupo con todos los Sprites
        
-        self.grupoSprites = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, self.jugador)
+        self.grupoSprites = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4, mosca1, self.jugador)
 
     def scrollHorizontal(self, jugador):
         # Si el jugador se encuentra más allá del borde izquierdo
@@ -208,9 +214,16 @@ class Fase(Escena):
 
     def isOnWater(self, entidad1: pygame.sprite.Sprite, ground_platforms: pygame.sprite.Group) -> bool:
         aux = (pygame.sprite.spritecollideany(entidad1, ground_platforms))
-        #print(aux)
+        #si no es ninguna de las plataformas
         return (aux is None)
 
+    def eatInsect(self, entidad1: pygame.sprite.Sprite, insectos: pygame.sprite.Group) -> bool:
+        aux = (pygame.sprite.spritecollideany(entidad1, insectos))
+        #si es un insecto
+        return (aux)
+
+    
+    
     # Se actualiza el decorado, realizando las siguientes acciones:
     #  Se indica para los personajes no jugadores qué movimiento desean realizar según su IA
     #  Se mueven los sprites dinámicos, todos a la vez
@@ -231,6 +244,8 @@ class Fase(Escena):
         # Esta operación de update ya comprueba que los movimientos sean correctos
         #  y, si lo son, realiza el movimiento de los Sprites
         self.grupoSpritesDinamicos.update(self.grupoPlataformas, tiempo)
+        #self.grupoSpritesDinamicos.update(self.grupoInsectos, tiempo)
+        
         # Dentro del update ya se comprueba que todos los movimientos son válidos
         #  (que no choque con paredes, etc.)
 
@@ -253,7 +268,16 @@ class Fase(Escena):
             print("ESTOY EN EL AGUA")
             self.jugador.establecerPosicion((380, 1370))
             self.jugador.lives-=1
+
+        if(self.eatInsect(self.jugador,self.grupoInsectos) and  not self.jugador.isJumping):
+            print("COMIENDO INSECTO")
+            insecto = pygame.sprite.spritecollideany(self.jugador, self.grupoInsectos)
+            pygame.sprite.Sprite.kill(insecto)
+            self.jugador.score +=100
+
         
+            
+
     def dibujar(self, pantalla):
         # Ponemos primero el fondo
         self.fondo.dibujar(pantalla)
@@ -274,7 +298,25 @@ class Fase(Escena):
         #self.jugador2.mover(teclasPulsadas, K_w,  K_s,    K_a,    K_d)
 
 # -------------------------------------------------
-# Clase Plataforma
+# Clase Mosca
+class Mosca(MiSprite):
+    def __init__(self,rectangulo, scaleX, scaleY):
+        # Primero invocamos al constructor de la clase padre
+        MiSprite.__init__(self)
+        # Rectangulo con las coordenadas en pantalla que ocupara
+        self.rect = rectangulo
+        # Y lo situamos de forma global en esas coordenadas
+        self.establecerPosicion((self.rect.left, self.rect.bottom))
+        # En el caso particular de este juego, las plataformas no se van a ver, asi que no se carga ninguna imagen
+        self.image = GestorRecursos.CargarImagen('mosca.jpeg', 0)
+        self.image = pygame.transform.scale(self.image, (scaleX, scaleY))
+
+
+        
+
+
+        
+
 
 #class Plataforma(pygame.sprite.Sprite):
 class Plataforma(MiSprite):
@@ -287,6 +329,7 @@ class Plataforma(MiSprite):
         self.establecerPosicion((self.rect.left, self.rect.bottom))
         # En el caso particular de este juego, las plataformas no se van a ver, asi que no se carga ninguna imagen
         self.image = GestorRecursos.CargarImagen(imagen, 0)
+        #self.image.set_colorkey(0)
         self.image = pygame.transform.scale(self.image, (scaleX, scaleY))
 
 
