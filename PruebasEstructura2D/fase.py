@@ -1,4 +1,3 @@
-
 import pygame, escena
 from escena import *
 from personajes import *
@@ -50,20 +49,20 @@ class Fase(Escena):
         self.grupoJugadores = pygame.sprite.Group(self.jugador)
 
         # Ponemos a los jugadores en sus posiciones iniciales
-        self.jugador.establecerPosicion((380, 1170))
+        self.jugador.establecerPosicion((380, 1370))
 
         # Creamos las plataformas del decorado
         # (MoverIzq->Derecha, moverArriba->Abajo, Ancho, Largo)
         #Tener en cuenta el scale de la imagen!
         
-        plataformaBase = Plataforma(pygame.Rect(-100, 1000, 1500, 1200),'madera.png', 1000, 600)
-        plataforma1 = Plataforma(pygame.Rect(300, 950, 1500, 800),'madera.png', 500, 100)
-        plataforma2 = Plataforma(pygame.Rect(150, 780, 1500, 800),'madera.png', 300, 100)
+        plataformaBase = Plataforma(pygame.Rect(0, 1200, 800, 200),'madera.png', 800, 200)
+        plataforma1 = Plataforma(pygame.Rect(300, 1050, 500, 100),'madera.png', 500, 100)
+        plataforma2 = Plataforma(pygame.Rect(150, 850, 500, 75),'madera.png', 500, 75)
         # La plataforma del techo del edificio
         #plataformaCasa = Plataforma(pygame.Rect(870, 417, 200, 10))
         # y el grupo con las mismas
+       
         self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2)
-
         # Y los enemigos que tendran en este decorado
         #enemigo1 = Sniper()
         #enemigo1.establecerPosicion((1000, 418))
@@ -75,8 +74,8 @@ class Fase(Escena):
         #  En este caso, solo los personajes, pero podría haber más (proyectiles, etc.)
         self.grupoSpritesDinamicos = pygame.sprite.Group(self.jugador)
         # Creamos otro grupo con todos los Sprites
+       
         self.grupoSprites = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, self.jugador)
-
 
     def scrollHorizontal(self, jugador):
         # Si el jugador se encuentra más allá del borde izquierdo
@@ -167,7 +166,7 @@ class Fase(Escena):
             desplazamiento = jugador.rect.bottom - MAXIMO_Y_SCROLL
             if (desplazamiento >= self.fondo.rect.bottom - ALTO_PANTALLA):
                 desplazamiento = self.fondo.rect.bottom - ALTO_PANTALLA
-
+            print("DESPLAZAMIENTO: ", desplazamiento)
             # Si el escenario ya está abajo del todo, no lo movemos mas
             if self.scrolly + ALTO_PANTALLA >= self.fondo.rect.bottom:
                 self.scrolly = self.fondo.rect.bottom - ALTO_PANTALLA
@@ -207,6 +206,10 @@ class Fase(Escena):
             self.fondo.update(self.scrolly)
 
 
+    def isOnWater(self, entidad1: pygame.sprite.Sprite, ground_platforms: pygame.sprite.Group) -> bool:
+        aux = (pygame.sprite.spritecollideany(entidad1, ground_platforms))
+        #print(aux)
+        return (aux is None)
 
     # Se actualiza el decorado, realizando las siguientes acciones:
     #  Se indica para los personajes no jugadores qué movimiento desean realizar según su IA
@@ -245,7 +248,11 @@ class Fase(Escena):
 
         # Actualizamos el scroll
         self.actualizarScroll(self.jugador)
-
+        
+        if(self.isOnWater(self.jugador,self.grupoPlataformas) and  not self.jugador.isJumping):
+            print("ESTOY EN EL AGUA")
+            self.jugador.establecerPosicion((380, 1370))
+            self.jugador.lives-=1
         
     def dibujar(self, pantalla):
         # Ponemos primero el fondo
@@ -303,6 +310,7 @@ class Agua:
         # La subimagen que estamos viendo
         self.rectSubimagen = pygame.Rect(0, 0, ANCHO_PANTALLA, ALTO_PANTALLA)
         self.rectSubimagen.top = 0 # El scroll vertical empieza en la posicion 0 por defecto
+
 
     def update(self, scrolly):
         self.rectSubimagen.top = scrolly
