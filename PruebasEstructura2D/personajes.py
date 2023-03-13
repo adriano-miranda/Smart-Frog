@@ -181,7 +181,7 @@ class Personaje(MiSprite):
             # Si ha pasado, actualizamos la postura
             self.numImagenPostura += 1
             if self.numImagenPostura >= len(self.coordenadasHoja[self.numPostura]):
-                self.numImagenPostura = 0;
+                self.numImagenPostura = 0
             if self.numImagenPostura < 0:
                 self.numImagenPostura = len(self.coordenadasHoja[self.numPostura])-1
             self.image = self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura])
@@ -368,6 +368,7 @@ class Jugador(Personaje):
     "Cualquier personaje del juego"
     def __init__(self):
         self.score = 0
+        self.lives = 3
         self.isLoadingJump = False
         self.isJumping = False
         # Invocamos al constructor de la clase padre con la configuracion de este personaje concreto
@@ -398,21 +399,21 @@ class Jugador(Personaje):
         
         
 
-        #restricción limite superior de plataforma
-        if (not self.isJumping  and self.posicion[1] < 1180 and self.posicion[1] > 1050):
-            self.establecerPosicion((self.posicion[0], 1180))
-        #Restriccion para limite inferior de plataforma 1
-        if (not self.isJumping  and self.posicion[1] > 1025 and self.posicion[1] < 1180):
-            self.establecerPosicion((self.posicion[0], 1025))
-        #Restriccion para limite superior de plataforma 1    
-        if (not self.isJumping  and self.posicion[1] < 990 and self.posicion[1] > 850):
-            self.establecerPosicion((self.posicion[0], 990))
-        #Restriccion para limite izquierdo de plataforma 1    
-        if (not self.isJumping  and self.posicion[0] < 335 and self.posicion[1] <= 1025 and self.posicion[1] >= 990):
-            self.establecerPosicion((335, self.posicion[1]))
-        #Restriccion para limite derecho de plataforma 1    
-        if (not self.isJumping  and self.posicion[0] > 725 and self.posicion[1] <= 1025 and self.posicion[1] >= 990):
-            self.establecerPosicion((725, self.posicion[1]))
+        # #restricción limite superior de plataforma
+        # if (not self.isJumping  and self.posicion[1] < 1180 and self.posicion[1] > 1050):
+        #     self.establecerPosicion((self.posicion[0], 1180))
+        # #Restriccion para limite inferior de plataforma 1
+        # if (not self.isJumping  and self.posicion[1] > 1025 and self.posicion[1] < 1180):
+        #     self.establecerPosicion((self.posicion[0], 1025))
+        # #Restriccion para limite superior de plataforma 1    
+        # if (not self.isJumping  and self.posicion[1] < 990 and self.posicion[1] > 850):
+        #     self.establecerPosicion((self.posicion[0], 990))
+        # #Restriccion para limite izquierdo de plataforma 1    
+        # if (not self.isJumping  and self.posicion[0] < 335 and self.posicion[1] <= 1025 and self.posicion[1] >= 990):
+        #     self.establecerPosicion((335, self.posicion[1]))
+        # #Restriccion para limite derecho de plataforma 1    
+        # if (not self.isJumping  and self.posicion[0] > 725 and self.posicion[1] <= 1025 and self.posicion[1] >= 990):
+        #     self.establecerPosicion((725, self.posicion[1]))
 
 
 # -------------------------------------------------
