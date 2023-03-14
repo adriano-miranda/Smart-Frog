@@ -3,6 +3,7 @@ from escena import *
 from personajes import *
 from pygame.locals import *
 from gameOver import GameOver
+from victory import Victory
 # -------------------------------------------------
 # -------------------------------------------------
 # Constantes
@@ -68,11 +69,19 @@ class Fase(Escena):
         # (MoverIzq->Derecha, moverArriba->Abajo, Ancho, Largo)
         #Escalado de la imagen debe ser igual que el largo y el ancho!
 
-        plataformaBase = Plataforma(pygame.Rect(0, 1200, 800, 200),'madera.png', 800, 200)
-        plataforma1 = Plataforma(pygame.Rect(150, 1050, 500, 100),'madera.png', 500, 100)
-        plataforma2 = Plataforma(pygame.Rect(150, 850, 500, 75),'madera.png', 500, 75)
-        plataforma3 = Plataforma(pygame.Rect(100, 660, 250, 45),'madera.png', 250, 55)
-        plataforma4 = Plataforma(pygame.Rect(450, 660, 250, 45),'madera.png', 250, 55)
+        plataformaBase = Plataforma(pygame.Rect(0, 1200, 800, 200),'madera.png', 800, 200, False)
+        plataforma1 = Plataforma(pygame.Rect(250, 1050, 300, 100),'madera.png', 300, 100, False)
+        plataforma2 = Plataforma(pygame.Rect(150, 850, 500, 75),'madera.png', 500, 75, False)
+        plataforma3 = Plataforma(pygame.Rect(100, 660, 250, 55),'madera.png', 250, 55, False)
+        plataforma4 = Plataforma(pygame.Rect(450, 660, 250, 55),'madera.png', 250, 55, False)
+        plataforma5 = Plataforma(pygame.Rect(150, 500, 150, 45),'madera.png', 150, 45, False)
+        plataforma6 = Plataforma(pygame.Rect(350, 500, 100, 45),'madera.png', 100, 45, False)
+        plataforma7 = Plataforma(pygame.Rect(350, 330, 100, 45),'madera.png', 100, 45, False)
+        plataforma8 = Plataforma(pygame.Rect(150, 180, 100, 45),'madera.png', 100, 45, False)
+        plataforma9 = Plataforma(pygame.Rect(350, 180, 100, 45),'madera.png', 100, 45, False)
+        plataforma10 = Plataforma(pygame.Rect(550, 180, 100, 45),'madera.png', 100, 45, False)
+        #plataforma final
+        plataforma11 = Plataforma(pygame.Rect(375, 30, 50, 50),'trofeo.jpeg', 100, 100, True)
         
         #Creo las moscas
         mosca1 = Insecto(pygame.Rect(650, 660, 30, 30),'mosca.jpeg', 35, 35, 100)
@@ -84,7 +93,8 @@ class Fase(Escena):
         #plataformaCasa = Plataforma(pygame.Rect(870, 417, 200, 10))
         # y el grupo con las mismas
        
-        self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4)
+        self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4, plataforma5, plataforma6,
+        plataforma7, plataforma8, plataforma9, plataforma10, plataforma11)
         self.grupoInsectos = pygame.sprite.Group(mosca1, hormiga1)
 
         # Creamos un grupo con los Sprites que se mueven
@@ -231,6 +241,10 @@ class Fase(Escena):
         #si es un insecto
         return (aux)
 
+    def isFinalPataform(self, entidad1: pygame.sprite.Sprite, ground_platforms: pygame.sprite.Group) -> bool:
+        aux = (pygame.sprite.spritecollideany(entidad1, ground_platforms))
+        #si es un insecto
+        return (aux)
     
     
     # Se actualiza el decorado, realizando las siguientes acciones:
@@ -285,16 +299,25 @@ class Fase(Escena):
             self.jugador.score += insecto.score
             print("PUNTUACION = ",self.jugador.score )
                 
-
         if(self.jugador.lives ==0):
             print('MUERTO')
             self.gameOver()
+
+        if(self.isFinalPataform(self.jugador,self.grupoPlataformas) ):
+            plataforma = pygame.sprite.spritecollideany(self.jugador, self.grupoPlataformas)
+            if(plataforma.final == True):
+                print('Estoy en la plataforma final')
+                #paso a la pantalla de victoria
+                self.victory()
+
 
     def gameOver(self):
         gameOver = GameOver(self.director)
         self.director.cambiarEscena(gameOver)
 
-            
+    def victory(self):
+        victory = Victory(self.director)
+        self.director.cambiarEscena(victory)            
 
     def dibujar(self, pantalla):
         # Ponemos primero el fondo
@@ -335,11 +358,13 @@ class Insecto(MiSprite):
 
 #class Plataforma(pygame.sprite.Sprite):
 class Plataforma(MiSprite):
-    def __init__(self,rectangulo, imagen, scaleX, scaleY):
+    def __init__(self,rectangulo, imagen, scaleX, scaleY, final):
         # Primero invocamos al constructor de la clase padre
         MiSprite.__init__(self)
         # Rectangulo con las coordenadas en pantalla que ocupara
         self.rect = rectangulo
+        #para saber si es la plataforma final
+        self.final = final
         # Y lo situamos de forma global en esas coordenadas
         self.establecerPosicion((self.rect.left, self.rect.bottom))
         # En el caso particular de este juego, las plataformas no se van a ver, asi que no se carga ninguna imagen
