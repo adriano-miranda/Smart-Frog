@@ -49,11 +49,9 @@ VELOCIDAD_SALTO_JUGADOR = 0.3 # Pixeles por milisegundo
 RETARDO_ANIMACION_JUGADOR = [5, 5] # updates que durará cada imagen del personaje
                               # debería de ser un valor distinto para cada postura
 
-VELOCIDAD_SNIPER = 0.12 # Pixeles por milisegundo
-VELOCIDAD_SALTO_SNIPER = 0.27 # Pixeles por milisegundo
-RETARDO_ANIMACION_SNIPER = [5, 5] # updates que durará cada imagen del personaje
+VELOCIDAD_PAJARO = 0.2 # Pixeles por milisegundo
+RETARDO_ANIMACION_PAJARO = 3 # updates que durará cada imagen del personaje
                              # debería de ser un valor distinto para cada postura
-# El Sniper camina un poco más lento que el jugador, y salta menos
 
 
 # -------------------------------------------------
@@ -133,7 +131,7 @@ class Personaje(MiSprite):
         self.numImagenPostura = 0;
         cont = 0;
         self.coordenadasHoja = [];
-        for linea in range(0, 9):
+        for linea in range(0, len(numImagenes)):
             self.coordenadasHoja.append([])
             tmp = self.coordenadasHoja[linea]
             for postura in range(1, numImagenes[linea]+1):
@@ -556,12 +554,116 @@ class Jugador(Personaje):
 
 # -------------------------------------------------
 # Clase NoJugador
+class NoJugador(MiSprite):
+    "Cualquier otro npc"
+    def __init__(self, archivoImagen, archivoCoordenadas, numImagenes, velocidadCarrera, retardoAnimacion):
 
-class NoJugador(Personaje):
-    "El resto de personajes no jugadores"
-    def __init__(self, archivoImagen, archivoCoordenadas, numImagenes, velocidad, velocidadSalto, retardoAnimacion):
+        # Primero invocamos al constructor de la clase padre
+        MiSprite.__init__(self);
+
+        # Se carga la hoja
+        self.hoja = GestorRecursos.CargarImagen(archivoImagen,-1)
+        self.hoja = self.hoja.convert_alpha()
+        # El movimiento que esta realizando
+        self.movimiento = QUIETO # por defecto es andando pero como solo tiene uno le ponemos 0
+        # Lado hacia el que esta mirando
+        self.mirando = IZQUIERDA
+
+        # Leemos las coordenadas de un archivo de texto
+        datos = GestorRecursos.CargarArchivoCoordenadas(archivoCoordenadas)
+        datos = datos.split()
+        self.numPostura = 1;
+        self.numImagenPostura = 0;
+        cont = 0;
+        self.coordenadasHoja = [];
+        for linea in range(0, len(numImagenes)):
+            self.coordenadasHoja.append([])
+            tmp = self.coordenadasHoja[linea]
+            for postura in range(1, numImagenes[linea]+1):
+                tmp.append(pygame.Rect((int(datos[cont]), int(datos[cont+1])), (int(datos[cont+2]), int(datos[cont+3]))))
+                cont += 4
+
+        # El retardo a la hora de cambiar la imagen del Sprite (para que no se mueva demasiado rápido)
+        self.retardoMovimiento = 0;
+
+        # En que postura esta inicialmente
+        self.numPostura = IZQUIERDA
+
+        # El rectangulo del Sprite
+        self.rect = pygame.Rect(100,100,self.coordenadasHoja[self.numPostura][self.numImagenPostura][2],self.coordenadasHoja[self.numPostura][self.numImagenPostura][3])
+
+        # La velocidad de caminar
+        self.velocidadCarrera = velocidadCarrera
+
+        # El retardo en la animacion del personaje (podria y deberia ser distinto para cada postura)
+        self.retardoAnimacion = retardoAnimacion
+
+        # Y actualizamos la postura del Sprite inicial, llamando al metodo correspondiente
+        self.actualizarPostura()
+
+
+    # Metodo base para realizar el movimiento: simplemente se le indica cual va a hacer, y lo almacena
+    def mover(self, movimiento):
+        self.movimiento = movimiento
+
+
+    def actualizarPostura(self):
+        self.retardoMovimiento -= 1
+        # Miramos si ha pasado el retardo para dibujar una nueva postura
+        if (self.retardoMovimiento < 0):
+            self.retardoMovimiento = self.retardoAnimacion
+            # Si ha pasado, actualizamos la postura
+            self.numImagenPostura += 1
+            if self.numImagenPostura >= len(self.coordenadasHoja[self.numPostura]):
+                self.numImagenPostura = 0;
+            if self.numImagenPostura < 0:
+                self.numImagenPostura = len(self.coordenadasHoja[self.numPostura])-1
+            self.image = self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura])
+
+            # Si esta mirando a la izquiera, cogemos la porcion de la hoja
+            if self.mirando == IZQUIERDA:
+                self.image = self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura])
+            #  Si no, si mira a la derecha, invertimos esa imagen
+            elif self.mirando == DERECHA:
+                self.image = pygame.transform.flip(self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura]), 1, 0)
+
+
+    def update(self, grupoPlataformas, tiempo):
+
+        # Las velocidades a las que iba hasta este momento
+        (velocidadx, velocidady) = self.velocidad
+
+        # Si vamos a la izquierda o a la derecha        
+        if (self.movimiento == IZQUIERDA) or (self.movimiento == DERECHA):
+            # Esta mirando hacia ese lado
+            self.mirando = self.movimiento
+
+            # Si vamos a la izquierda, le ponemos velocidad en esa dirección
+            if self.movimiento == IZQUIERDA:
+                velocidadx = -self.velocidadCarrera
+            # Si vamos a la derecha, le ponemos velocidad en esa dirección
+            else:
+                velocidadx = self.velocidadCarrera
+
+        # Actualizamos la imagen a mostrar
+        self.actualizarPostura()
+
+        # Aplicamos la velocidad en cada eje      
+        self.velocidad = (velocidadx, velocidady)
+
+        # Y llamamos al método de la superclase para que, según la velocidad y el tiempo
+        #  calcule la nueva posición del Sprite
+        MiSprite.update(self, tiempo)
+        
+        return
+
+# -------------------------------------------------
+# Clase Enemigo
+class Enemigo(NoJugador):
+    "Los enemigos"
+    def __init__(self, archivoImagen, archivoCoordenadas, numImagenes, velocidad, retardoAnimacion):
         # Primero invocamos al constructor de la clase padre con los parametros pasados
-        Personaje.__init__(self, archivoImagen, archivoCoordenadas, numImagenes, velocidad, velocidadSalto, retardoAnimacion);
+        NoJugador.__init__(self, archivoImagen, archivoCoordenadas, numImagenes, velocidad, retardoAnimacion);
 
     # Aqui vendria la implementacion de la IA segun las posiciones de los jugadores
     # La implementacion por defecto, este metodo deberia de ser implementado en las clases inferiores
@@ -572,13 +674,15 @@ class NoJugador(Personaje):
         return
 
 # -------------------------------------------------
-# Clase Sniper
+# Clase Pajaro
 
-class Sniper(NoJugador):
-    "El enemigo 'Sniper'"
-    def __init__(self):
+class Pajaro(Enemigo):
+    "El enemigo 'Pajaro'"
+    def __init__(self, iRecorrido, fRecorrido):
         # Invocamos al constructor de la clase padre con la configuracion de este personaje concreto
-        NoJugador.__init__(self,'Sniper.png','coordSniper.txt', [2, 3, 2, 3, 3, 3, 1, 1, 1], VELOCIDAD_SNIPER, VELOCIDAD_SALTO_SNIPER, RETARDO_ANIMACION_SNIPER);
+        Enemigo.__init__(self,'raven.png','coordPajaro.txt', [13], VELOCIDAD_PAJARO, RETARDO_ANIMACION_PAJARO);
+        self.iRecorrido = iRecorrido
+        self.fRecorrido = fRecorrido
 
     # Aqui vendria la implementacion de la IA segun las posiciones de los jugadores
     # La implementacion de la inteligencia segun este personaje particular
@@ -587,18 +691,13 @@ class Sniper(NoJugador):
         # Movemos solo a los enemigos que esten en la pantalla
         if self.rect.left>0 and self.rect.right<ANCHO_PANTALLA and self.rect.bottom>0 and self.rect.top<ALTO_PANTALLA:
 
-            # Por ejemplo, intentara acercarse al jugador mas cercano en el eje x
-            # Miramos cual es el jugador mas cercano
-            #if abs(jugador1.posicion[0]-self.posicion[0])<abs(jugador2.posicion[0]-self.posicion[0]):
-            #    jugadorMasCercano = jugador1
-            #else:
-            #    jugadorMasCercano = jugador2
-            # Y nos movemos andando hacia el
-            if jugador.posicion[0]<self.posicion[0]:
-                Personaje.mover(self, M_IZQUIERDA)
+            if self.rect.left <= self.iRecorrido:
+                Personaje.mover(self, DERECHA)
+            elif self.rect.right >= self.fRecorrido:
+                Personaje.mover(self, IZQUIERDA)
             else:
-                Personaje.mover(self, M_DERECHA)
+                Personaje.mover(self, QUIETO)
 
         # Si este personaje no esta en pantalla, no hara nada
         else:
-            Personaje.mover(self, M_QUIETO)
+            Personaje.mover(self, QUIETO)

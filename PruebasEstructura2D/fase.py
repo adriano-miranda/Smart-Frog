@@ -23,6 +23,12 @@ MAXIMO_Y_SCROLL = ALTO_PANTALLA - MINIMO_Y_SCROLL
 
 class Fase(Escena):
     def __init__(self, director):
+        # musiquita
+        pygame.mixer.pre_init(44100, 16, 2, 512)   # el archivo tiene que estar formateado con exactamente la misma
+                                                    # frecuencia, bitrate y canales para que pueda abrirlo
+        pygame.mixer.init()
+        sonido = pygame.mixer.Sound("sonidos/route11_-_hg_ss.ogg")
+        musicaPrincipal = sonido.play()
 
         # Habria que pasarle como parámetro el número de fase, a partir del cual se cargue
         #  un fichero donde este la configuracion de esa fase en concreto, con cosas como
@@ -50,6 +56,13 @@ class Fase(Escena):
 
         # Ponemos a los jugadores en sus posiciones iniciales
         self.jugador.establecerPosicion((380, 1370))
+        
+        # Y los enemigos
+        enemigo1 = Pajaro(50, 750)
+        enemigo1.establecerPosicion((50, 1250))
+        
+        # Creamos un grupo con los enemigos
+        self.grupoEnemigos = pygame.sprite.Group( enemigo1 )
 
         # Creamos las plataformas del decorado
         # (MoverIzq->Derecha, moverArriba->Abajo, Ancho, Largo)
@@ -73,19 +86,13 @@ class Fase(Escena):
        
         self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4)
         self.grupoInsectos = pygame.sprite.Group(mosca1, hormiga1)
-        # Y los enemigos que tendran en este decorado
-        #enemigo1 = Sniper()
-        #enemigo1.establecerPosicion((1000, 418))
-
-        # Creamos un grupo con los enemigos
-        #self.grupoEnemigos = pygame.sprite.Group( enemigo1 )
 
         # Creamos un grupo con los Sprites que se mueven
         #  En este caso, solo los personajes, pero podría haber más (proyectiles, etc.)
-        self.grupoSpritesDinamicos = pygame.sprite.Group(self.jugador)
+        self.grupoSpritesDinamicos = pygame.sprite.Group(self.jugador, enemigo1)
         # Creamos otro grupo con todos los Sprites
        
-        self.grupoSprites = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4, mosca1,hormiga1, self.jugador)
+        self.grupoSprites = pygame.sprite.Group(self.grupoPlataformas, self.grupoInsectos, self.grupoJugadores, self.grupoEnemigos)
 
     def scrollHorizontal(self, jugador):
         # Si el jugador se encuentra más allá del borde izquierdo
@@ -176,7 +183,6 @@ class Fase(Escena):
             desplazamiento = jugador.rect.bottom - MAXIMO_Y_SCROLL
             if (desplazamiento >= self.fondo.rect.bottom - ALTO_PANTALLA):
                 desplazamiento = self.fondo.rect.bottom - ALTO_PANTALLA
-            print("DESPLAZAMIENTO: ", desplazamiento)
             # Si el escenario ya está abajo del todo, no lo movemos mas
             if self.scrolly + ALTO_PANTALLA >= self.fondo.rect.bottom:
                 self.scrolly = self.fondo.rect.bottom - ALTO_PANTALLA
@@ -195,7 +201,6 @@ class Fase(Escena):
                 # Calculamos el nivel de scroll actual: el anterior + desplazamiento
                 #  (desplazamos abajo)
                 self.scrolly = self.scrolly + desplazamiento;
-                print(desplazamiento)
 
                 return True; # Se ha actualizado el scroll
 
@@ -238,8 +243,8 @@ class Fase(Escena):
     def update(self, tiempo):
 
         # Primero, se indican las acciones que van a hacer los enemigos segun como esten los jugadores
-        #for enemigo in iter(self.grupoEnemigos):
-        #    enemigo.mover_cpu(self.jugador)
+        for enemigo in iter(self.grupoEnemigos):
+            enemigo.mover_cpu(self.jugador)
         # Esta operación es aplicable también a cualquier Sprite que tenga algún tipo de IA
         # En el caso de los jugadores, esto ya se ha realizado
 

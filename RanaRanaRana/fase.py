@@ -57,26 +57,24 @@ class Fase(Escena):
         # (MoverIzq->Derecha, moverArriba->Abajo, Ancho, Largo)
         #Tener en cuenta el scale de la imagen!
         
-        plataformaBase = Plataforma(pygame.Rect(-100, 1200, 1500, 800),'madera.png', 1000, 300)
-        plataforma1 = Plataforma(pygame.Rect(300, 1100, 1500, 800),'madera.png', 500, 100)
-        plataforma2 = Plataforma(pygame.Rect(150, 1000, 1500, 800),'madera.png', 300, 100)
+        plataformaBase = Plataforma(pygame.Rect(0, 1200, 800, 200))
         # La plataforma del techo del edificio
         #plataformaCasa = Plataforma(pygame.Rect(870, 417, 200, 10))
         # y el grupo con las mismas
-        self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2)
+        self.grupoPlataformas = pygame.sprite.Group(plataformaBase)
 
         # Y los enemigos que tendran en este decorado
-        #enemigo1 = Sniper()
-        #enemigo1.establecerPosicion((1000, 418))
+        enemigo1 = Pajaro(50, 750)
+        enemigo1.establecerPosicion((50, 1250))
 
         # Creamos un grupo con los enemigos
-        #self.grupoEnemigos = pygame.sprite.Group( enemigo1 )
+        self.grupoEnemigos = pygame.sprite.Group( enemigo1 )
 
         # Creamos un grupo con los Sprites que se mueven
         #  En este caso, solo los personajes, pero podría haber más (proyectiles, etc.)
-        self.grupoSpritesDinamicos = pygame.sprite.Group(self.jugador)
+        self.grupoSpritesDinamicos = pygame.sprite.Group(self.jugador, enemigo1)
         # Creamos otro grupo con todos los Sprites
-        self.grupoSprites = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, self.jugador)
+        self.grupoSprites = pygame.sprite.Group(self.grupoPlataformas, self.jugador, enemigo1)
 
 
     def scrollHorizontal(self, jugador):
@@ -134,7 +132,6 @@ class Fase(Escena):
         
     # Devuelve True o False según se ha tenido que desplazar el scroll
     def actualizarScrollOrdenados(self, jugador):
-        print(self.scrolly)
         # Si el jugador se encuentra más allá del scroll superior
         if (jugador.rect.top < MINIMO_Y_SCROLL):
             print("ARRIBA: ", jugador.posicion)
@@ -188,7 +185,6 @@ class Fase(Escena):
                 # Calculamos el nivel de scroll actual: el anterior + desplazamiento
                 #  (desplazamos abajo)
                 self.scrolly = self.scrolly + desplazamiento;
-                print(desplazamiento)
 
                 return True; # Se ha actualizado el scroll
 
@@ -220,8 +216,8 @@ class Fase(Escena):
     def update(self, tiempo):
 
         # Primero, se indican las acciones que van a hacer los enemigos segun como esten los jugadores
-        #for enemigo in iter(self.grupoEnemigos):
-        #    enemigo.mover_cpu(self.jugador)
+        for enemigo in iter(self.grupoEnemigos):
+            enemigo.mover_cpu(self.jugador)
         # Esta operación es aplicable también a cualquier Sprite que tenga algún tipo de IA
         # En el caso de los jugadores, esto ya se ha realizado
 
@@ -273,7 +269,7 @@ class Fase(Escena):
 
 #class Plataforma(pygame.sprite.Sprite):
 class Plataforma(MiSprite):
-    def __init__(self,rectangulo, imagen, scaleX, scaleY):
+    def __init__(self,rectangulo):
         # Primero invocamos al constructor de la clase padre
         MiSprite.__init__(self)
         # Rectangulo con las coordenadas en pantalla que ocupara
@@ -281,8 +277,8 @@ class Plataforma(MiSprite):
         # Y lo situamos de forma global en esas coordenadas
         self.establecerPosicion((self.rect.left, self.rect.bottom))
         # En el caso particular de este juego, las plataformas no se van a ver, asi que no se carga ninguna imagen
-        self.image = GestorRecursos.CargarImagen(imagen, 0)
-        self.image = pygame.transform.scale(self.image, (scaleX, scaleY))
+        self.image = GestorRecursos.CargarImagen('frog.png', 0)
+        self.image = pygame.transform.scale(self.image, (800, 200))
 
 
 # -------------------------------------------------
