@@ -509,8 +509,31 @@ class Pajaro(Enemigo):
     def __init__(self, iRecorrido, fRecorrido):
         # Invocamos al constructor de la clase padre con la configuracion de este personaje concreto
         Enemigo.__init__(self,'raven.png','coordPajaro.txt', [13], VELOCIDAD_PAJARO, RETARDO_ANIMACION_PAJARO);
+        self.rect = pygame.Rect(100,100,self.rect.width/2,self.rect.height/2)
         self.iRecorrido = iRecorrido
         self.fRecorrido = fRecorrido
+
+    def actualizarPostura(self):
+        self.retardoMovimiento -= 1
+        # Miramos si ha pasado el retardo para dibujar una nueva postura
+        if (self.retardoMovimiento < 0):
+            self.retardoMovimiento = self.retardoAnimacion
+            # Si ha pasado, actualizamos la postura
+            self.numImagenPostura += 1
+            if self.numImagenPostura >= len(self.coordenadasHoja[self.numPostura]):
+                self.numImagenPostura = 0;
+            if self.numImagenPostura < 0:
+                self.numImagenPostura = len(self.coordenadasHoja[self.numPostura])-1
+            self.image = self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura])
+
+            # Si esta mirando a la izquiera, cogemos la porcion de la hoja
+            if self.mirando == IZQUIERDA:
+                self.image = self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura])
+            #  Si no, si mira a la derecha, invertimos esa imagen
+            elif self.mirando == DERECHA:
+                self.image = pygame.transform.flip(self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura]), 1, 0)
+
+            self.image = pygame.transform.scale(self.image, (self.image.get_width()/2, self.image.get_height()/2))
 
     # Aqui vendria la implementacion de la IA segun las posiciones de los jugadores
     # La implementacion de la inteligencia segun este personaje particular
