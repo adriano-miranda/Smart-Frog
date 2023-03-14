@@ -62,13 +62,17 @@ class Fase(Escena):
         plataforma4 = Plataforma(pygame.Rect(450, 660, 250, 45),'madera.png', 250, 55)
         
         #Creo las moscas
-        mosca1 = Mosca(pygame.Rect(650, 660, 30, 30), 35, 35)
+        mosca1 = Insecto(pygame.Rect(650, 660, 30, 30),'mosca.jpeg', 35, 35, 100)
+
+        #Creo hormigas
+        hormiga1 = Insecto(pygame.Rect(300, 1250, 25, 25),'hormiga.png', 25, 25, 50)
+        
         # La plataforma del techo del edificio
         #plataformaCasa = Plataforma(pygame.Rect(870, 417, 200, 10))
         # y el grupo con las mismas
        
         self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4)
-        self.grupoInsectos = pygame.sprite.Group(mosca1)
+        self.grupoInsectos = pygame.sprite.Group(mosca1, hormiga1)
         # Y los enemigos que tendran en este decorado
         #enemigo1 = Sniper()
         #enemigo1.establecerPosicion((1000, 418))
@@ -81,7 +85,7 @@ class Fase(Escena):
         self.grupoSpritesDinamicos = pygame.sprite.Group(self.jugador)
         # Creamos otro grupo con todos los Sprites
        
-        self.grupoSprites = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4, mosca1, self.jugador)
+        self.grupoSprites = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4, mosca1,hormiga1, self.jugador)
 
     def scrollHorizontal(self, jugador):
         # Si el jugador se encuentra más allá del borde izquierdo
@@ -273,7 +277,9 @@ class Fase(Escena):
             print("COMIENDO INSECTO")
             insecto = pygame.sprite.spritecollideany(self.jugador, self.grupoInsectos)
             pygame.sprite.Sprite.kill(insecto)
-            self.jugador.score +=100
+            self.jugador.score += insecto.score
+            print("PUNTUACION = ",self.jugador.score )
+                
 
         if(self.jugador.lives ==0):
             print('MUERTO')
@@ -306,22 +312,19 @@ class Fase(Escena):
 
 # -------------------------------------------------
 # Clase Mosca
-class Mosca(MiSprite):
-    def __init__(self,rectangulo, scaleX, scaleY):
+class Insecto(MiSprite):
+    def __init__(self,rectangulo, image,scaleX, scaleY, score):
         # Primero invocamos al constructor de la clase padre
         MiSprite.__init__(self)
         # Rectangulo con las coordenadas en pantalla que ocupara
         self.rect = rectangulo
         # Y lo situamos de forma global en esas coordenadas
         self.establecerPosicion((self.rect.left, self.rect.bottom))
+        #Puntuación que suma el insecto al ser comido
+        self.score = score
         # En el caso particular de este juego, las plataformas no se van a ver, asi que no se carga ninguna imagen
-        self.image = GestorRecursos.CargarImagen('mosca.jpeg', 0)
+        self.image = GestorRecursos.CargarImagen(image, 0)
         self.image = pygame.transform.scale(self.image, (scaleX, scaleY))
-
-
-        
-
-
         
 
 
