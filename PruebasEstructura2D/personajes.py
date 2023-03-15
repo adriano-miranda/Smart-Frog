@@ -735,10 +735,8 @@ class Pajaro(Enemigo):
 class Calamar(Enemigo):
     "El enemigo 'Calamar'"
     def __init__(self, iRecorrido, fRecorrido, grupoPlataformas):
-        self.numPostura = DERECHA
         # Invocamos al constructor de la clase padre con la configuracion de este personaje concreto
         Enemigo.__init__(self,'squid.png','coordCalamar.txt', [1, 1], VELOCIDAD_CALAMAR, RETARDO_ANIMACION_CALAMAR);
-
         self.rect = pygame.Rect(100,100,self.rect.width/2,self.rect.height/2)
         self.original_scale = (self.rect.width, self.rect.height)
         self.iRecorrido = iRecorrido

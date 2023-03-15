@@ -20,6 +20,7 @@ MINIMO_Y_SCROLL = 250
 MAXIMO_Y_SCROLL = ALTO_PANTALLA - MINIMO_Y_SCROLL
 
 POS_INI_JUGADOR = (380, 1370)
+
 # -------------------------------------------------
 # Clase Fase
 
@@ -63,6 +64,8 @@ class Fase(Escena):
         self.scrollx = 0
         self.scrolly = 0
 
+        self.timer = 0
+
         # Creamos los sprites de los jugadores
         self.jugador = Jugador()
         self.grupoJugadores = pygame.sprite.Group(self.jugador)
@@ -86,14 +89,14 @@ class Fase(Escena):
         plataforma9 = Plataforma(pygame.Rect(350, 180, 100, 45),'madera.png', 100, 45, False)
         plataforma10 = Plataforma(pygame.Rect(550, 180, 100, 45),'madera.png', 100, 45, False)
         nenufar1 = Nenufar(pygame.Rect(50, 900, 50, 50))
-        dnenufar1 = DNenufar(pygame.Rect(700, 900, 50, 50))
+        self.dnenufar1 = DNenufar(pygame.Rect(700, 900, 50, 50), self.jugador, 3000)
         self.plataforma102 = Plataforma2(pygame.Rect(550, 180, 100, 45),'madera.png', 100, 45, False)
         #plataforma final
         self.plataformaFinal= Plataforma(pygame.Rect(375, 30, 50, 50),'trofeo.png', 100, 100, True)
 
         # El grupo de las plataformas
         self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4, plataforma5, plataforma6,
-        plataforma7, plataforma8, plataforma9, plataforma10, self.plataformaFinal, nenufar1, dnenufar1)
+        plataforma7, plataforma8, plataforma9, plataforma10, self.plataformaFinal, nenufar1, self.dnenufar1)
 
         # Y los enemigos
         enemigo1 = Pajaro(50, 750)
@@ -248,7 +251,6 @@ class Fase(Escena):
     def hitEnemy(self, jugador):
         return pygame.sprite.spritecollideany(jugador, self.grupoEnemigos)
 
-
     def isOnWater(self, entidad1: pygame.sprite.Sprite, ground_platforms: pygame.sprite.Group) -> bool:
         aux = (pygame.sprite.spritecollideany(entidad1, ground_platforms))
         #si no es ninguna de las plataformas
@@ -259,8 +261,8 @@ class Fase(Escena):
         #si es un insecto
         return (aux)
 
-    def isFinalPataform(self, jugador):
-            return pygame.sprite.spritecollide(self.jugador, [self.plataformaFinal], False)
+    def isFinalPlatform(self, jugador):
+        return pygame.sprite.spritecollide(self.jugador, [self.plataformaFinal], False)
     
     
     # Se actualiza el decorado, realizando las siguientes acciones:
@@ -285,6 +287,32 @@ class Fase(Escena):
         self.grupoSpritesDinamicos.update(self.grupoPlataformas, tiempo)
         self.plataforma102.update()
         #self.grupoSpritesDinamicos.update(self.grupoInsectos, tiempo)
+
+        # actualizar estado nenufar
+        self.dnenufar1.update(tiempo)
+
+        print(self.timer)
+        print(self.dnenufar1.visible)
+        if(self.dnenufar1.visible == False):
+            self.timer -= 1
+            if self.timer <= 0:
+                self.dnenufar1.visible = False
+                self.timer = 0
+
+        if(pygame.sprite.spritecollide(self.dnenufar1, [self.jugador], False)):
+            self.timer += 1
+            if self.timer >= 300:
+                self.dnenufar1.visible = False
+        else:
+            self.dnenufar1.visible = True
+            self.timer = 0
+
+        # si nenufar está como no visible
+        if(not self.dnenufar1.visible):
+            self.grupoPlataformas.remove(self.dnenufar1)
+        else:
+            self.grupoPlataformas.add(self.dnenufar1)
+
         
         # Dentro del update ya se comprueba que todos los movimientos son válidos
         #  (que no choque con paredes, etc.)
@@ -330,7 +358,7 @@ class Fase(Escena):
             print('MUERTO')
             self.gameOver()
 
-        if self.isFinalPataform(self.jugador):
+        if self.isFinalPlatform(self.jugador):
             print('Estoy en la plataforma final')
             #paso a la pantalla de victoria
             self.victory()
@@ -416,7 +444,7 @@ class Plataforma2(pygame.sprite.Sprite):
 
 # plataforma Nenufar
 class Nenufar(MiSprite):
-    def __init__(self,rectangulo):
+    def __init__(self, rectangulo):
         # Primero invocamos al constructor de la clase padre
         MiSprite.__init__(self)
         # Rectangulo con las coordenadas en pantalla que ocupara
@@ -430,7 +458,7 @@ class Nenufar(MiSprite):
 
 # plataforma dNenufar
 class DNenufar(MiSprite):
-    def __init__(self,rectangulo):
+    def __init__(self, rectangulo, jugador, tiempoActivo):
         # Primero invocamos al constructor de la clase padre
         MiSprite.__init__(self)
         # Rectangulo con las coordenadas en pantalla que ocupara
@@ -441,6 +469,28 @@ class DNenufar(MiSprite):
         self.image = GestorRecursos.CargarImagen('dNenufar.png', -1)
         #self.image.set_colorkey(0)
         self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
+
+        self.jugador = jugador
+        self.visible = True
+        self.tiempoActivo = tiempoActivo
+        self.timer = 0
+
+        def update(self, tiempo):
+            print(self.visible)
+            if(self.visible == False):
+                self.timer -= reloj.tick(60)
+                if self.timer <= 0:
+                    self.visible = False
+                    self.timer = 0
+
+            if(pygame.sprite.spritecollide(self, [self.jugador], False)):
+                self.timer += reloj.tick(60)
+                if self.timer >= self.tiempoActivo:
+                    self.visible = False
+            else:
+                self.visible = True
+                self.timer = 0
+
 
 # -------------------------------------------------
 # Clase Agua
