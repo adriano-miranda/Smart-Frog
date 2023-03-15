@@ -80,14 +80,15 @@ class Fase(Escena):
         plataforma8 = Plataforma(pygame.Rect(150, 180, 100, 45),'madera.png', 100, 45, False)
         plataforma9 = Plataforma(pygame.Rect(350, 180, 100, 45),'madera.png', 100, 45, False)
         plataforma10 = Plataforma(pygame.Rect(550, 180, 100, 45),'madera.png', 100, 45, False)
+        self.plataforma102 = Plataforma2(pygame.Rect(550, 180, 100, 45),'madera.png', 100, 45, False)
         #plataforma final
-        plataforma11 = Plataforma(pygame.Rect(375, 30, 50, 50),'trofeo.jpeg', 100, 100, True)
+        plataforma11 = Plataforma(pygame.Rect(375, 30, 50, 50),'trofeo.png', 100, 100, True)
         
         #Creo las moscas
-        mosca1 = Insecto(pygame.Rect(650, 660, 30, 30),'mosca.jpeg', 35, 35, 100)
+        mosca1 = Insecto(pygame.Rect(650, 660, 30, 30),'mosca.png', 50, 50, 100)
 
         #Creo hormigas
-        hormiga1 = Insecto(pygame.Rect(300, 1250, 25, 25),'hormiga.png', 25, 25, 50)
+        hormiga1 = Insecto(pygame.Rect(300, 1250, 25, 25),'hormiga.png', 50, 50, 50)
         
         # La plataforma del techo del edificio
         #plataformaCasa = Plataforma(pygame.Rect(870, 417, 200, 10))
@@ -267,6 +268,7 @@ class Fase(Escena):
         # Esta operación de update ya comprueba que los movimientos sean correctos
         #  y, si lo son, realiza el movimiento de los Sprites
         self.grupoSpritesDinamicos.update(self.grupoPlataformas, tiempo)
+        self.plataforma102.update()
         #self.grupoSpritesDinamicos.update(self.grupoInsectos, tiempo)
         
         # Dentro del update ya se comprueba que todos los movimientos son válidos
@@ -324,6 +326,7 @@ class Fase(Escena):
         self.fondo.dibujar(pantalla)
         # Luego los Sprites
         self.grupoSprites.draw(pantalla)
+        pantalla.blit(self.plataforma102.image, (100,100))
 
 
     def eventos(self, lista_eventos):
@@ -372,6 +375,21 @@ class Plataforma(MiSprite):
         #self.image.set_colorkey(0)
         self.image = pygame.transform.scale(self.image, (scaleX, scaleY))
 
+#class Plataforma(pygame.sprite.Sprite):
+class Plataforma2(pygame.sprite.Sprite):
+    def __init__(self,rectangulo, imagen, scaleX, scaleY, final):
+        # Primero invocamos al constructor de la clase padre
+        MiSprite.__init__(self)
+        # Rectangulo con las coordenadas en pantalla que ocupara
+        self.rect = rectangulo
+        #para saber si es la plataforma final
+        self.final = final
+        # Y lo situamos de forma global en esas coordenadas
+        #self.establecerPosicion((self.rect.left, self.rect.bottom))
+        # En el caso particular de este juego, las plataformas no se van a ver, asi que no se carga ninguna imagen
+        self.image = GestorRecursos.CargarImagen(imagen, 0)
+        #self.image.set_colorkey(0)
+        self.image = pygame.transform.scale(self.image, (scaleX, scaleY))
 
 # -------------------------------------------------
 # Clase Agua
