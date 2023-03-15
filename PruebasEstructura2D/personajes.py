@@ -377,7 +377,7 @@ class Jugador(Personaje):
 
     # Le resta una vida a la rana y devuelve la cantidad
     def damage(self):
-        self.lives = max(0, self.lives+1)
+        self.lives = max(0, self.lives-1)
         self.notifyListeners(self.subscribers_lives, self.lives)
         return self.lives
 
@@ -447,11 +447,14 @@ class Jugador(Personaje):
         elif (not self.isLoadingJump and self.movimiento[4]): # Quiero cargar salto
             self.isLoadingJump = True
             self.t0 = tiempo
+            self.notifyListeners(self.subscribers_jump, self.t0)
         elif (self.isLoadingJump and self.movimiento[4]):
             self.t0 += tiempo
+            self.notifyListeners(self.subscribers_jump, self.t0)
         elif (self.isLoadingJump and (not self.movimiento[4])): # Ahora si salto
             self.isLoadingJump = False
             self.isJumping = True
+            self.notifyListeners(self.subscribers_jump, 0)
             if(self.mirando == ARRIBA):
                 self.numPostura = JUMPING_UP_SPRITE
             elif(self.mirando == ABAJO):

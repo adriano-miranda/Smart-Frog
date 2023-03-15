@@ -94,12 +94,16 @@ class Fase(Escena):
         #plataforma final
         self.plataformaFinal= Plataforma(pygame.Rect(375, 30, 50, 50),'trofeo.png', 100, 100, True)
 
-        self.hud = HUD((0, 0), 'madera.png', 100, 45)
+        self.hud = HUD((0, 55), 'madera.png', 150, 50)
+        self.progress_bar = BarraCarga((1, 54), 'PasoBarra.png', 148, 48, self.jugador.max_Time)
         self.hud_vidas = HUDVidas((0, 0), 'corazon.png', 50, 50, 55, self.jugador.getLives())
 
         # El grupo de los HUDS
-        self.grupoHuds = pygame.sprite.Group(self.hud)
+        self.grupoHuds = pygame.sprite.Group(self.hud, self.progress_bar)
         self.hud_vidas.addToGroup(self.grupoHuds)
+
+        self.jugador.addListenersJump(self.progress_bar)
+        self.jugador.addListenersLives(self.hud_vidas)
 
         # El grupo de las plataformas
         self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4, plataforma5, plataforma6,
@@ -345,21 +349,19 @@ class Fase(Escena):
         if(self.hitEnemy(self.jugador)):
             self.canal_reservado_1.play(self.croak)
             self.jugador.establecerPosicion(POS_INI_JUGADOR)
-            self.jugador.lives-=1
-            self.hud_vidas.removeLife()
+            self.jugador.damage()
         
         if(self.isOnWater(self.jugador,self.grupoPlataformas) and  not self.jugador.isJumping):
             self.canal_reservado_0.play(self.caidaAgua)
             print("ESTOY EN EL AGUA")
             self.jugador.establecerPosicion(POS_INI_JUGADOR)
-            self.jugador.lives-=1
+            self.jugador.damage()
 
         if(self.eatInsect(self.jugador,self.grupoInsectos) and  not self.jugador.isJumping):
             self.canal_reservado_2.play(self.croak)
             print("COMIENDO INSECTO")
             insecto = pygame.sprite.spritecollideany(self.jugador, self.grupoInsectos)
             pygame.sprite.Sprite.kill(insecto)
-            self.hud.hide()
             self.jugador.score += insecto.score
             print("PUNTUACION = ",self.jugador.score )
                 
@@ -386,6 +388,7 @@ class Fase(Escena):
         self.fondo.dibujar(pantalla)
         # Luego los Sprites
         self.grupoSprites.draw(pantalla)
+        # Por último, los HUD's
         self.grupoHuds.draw(pantalla)
 
 

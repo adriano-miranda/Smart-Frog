@@ -2,7 +2,7 @@ from pygame import *
 from gestorRecursos import *
 
 class Listener(sprite.Sprite):
-    def run(datos):
+    def run(self, datos):
         pass
 
 class HUD(Listener):
@@ -27,8 +27,8 @@ class HUD(Listener):
     def update(self):
         pass
 
-    # def run(datos):
-    #     pass
+    def run(self, datos):
+        pass
 
     def dibujar(self, pantalla):
         pantalla.blit(self.image, self.position)
@@ -65,20 +65,35 @@ class HUDVidas(HUD):
 
     # Add quantity lives
     def addLife(self, grupo: sprite.Group, quantity=1):
-        if not (self.remainingLifes == self.totalLives):
+        if not (self.remainingLives == self.totalLives):
             aux = min(self.totalLives, self.remainingLives + quantity)
             grupo.add(self.lives[self.remainingLives:aux])
             self.remainingLives = aux
 
     def show(self, grupo: sprite.Group):
         self.addLife(grupo, quantity=self.totalLives)
+    
+    def run(self, datos):
+        self.removeLife()
 
     
 
-# class BarraCarga(HUD):
-#     def __init__(self, position1, position2, fondoBarra, barraProgreso):
-#         self.position1 = position1
-#         self.position2 = position2
-#         self.imagen1 = GestorRecursos.CargarImagen(fondoBarra, -1)
-#         self.imagen2 = GestorRecursos.CargarImagen(barraProgreso, -1)
-#         pygame.transform.scale(self.imagen, (10, 20))
+class BarraCarga(HUD):
+    def __init__(self, position, barraProgreso, scaleX, scaleY, max_time):
+        super().__init__(position, barraProgreso, 1, scaleY)
+        self.progress_bar_width = max(1, scaleX)
+        self.progress_bar_height = scaleY
+        self.maxTime = max_time
+    
+    def hide(self):
+        self.kill()
+    
+    def show(self, grupo: sprite.Group):
+        grupo.add(self)
+
+    def run(self, datos: float):
+        maxT = self.maxTime * 1000
+        progress = min((datos), maxT) / maxT  # Calcula el porcentaje de carga del salto
+        inner_width = int(progress * (self.progress_bar_width - 2))
+        #inner_rect = pygame.Rect((self.position[0] + 1, self.position[1] + 1), (inner_width, self.progress_bar_height - 2))
+        self.image = pygame.transform.scale(self.image, (max(1, inner_width), self.progress_bar_height))
