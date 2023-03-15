@@ -85,21 +85,21 @@ class Fase(Escena):
         plataforma8 = Plataforma(pygame.Rect(150, 180, 100, 45),'madera.png', 100, 45, False)
         plataforma9 = Plataforma(pygame.Rect(350, 180, 100, 45),'madera.png', 100, 45, False)
         plataforma10 = Plataforma(pygame.Rect(550, 180, 100, 45),'madera.png', 100, 45, False)
-        nenufar1 = Nenufar(pygame.Rect(50, 1000, 50, 50))
-        dnenufar1 = DNenufar(pygame.Rect(700, 1000, 50, 50))
+        nenufar1 = Nenufar(pygame.Rect(50, 900, 50, 50))
+        dnenufar1 = DNenufar(pygame.Rect(700, 900, 50, 50))
         self.plataforma102 = Plataforma2(pygame.Rect(550, 180, 100, 45),'madera.png', 100, 45, False)
         #plataforma final
-        plataforma11 = Plataforma(pygame.Rect(375, 30, 50, 50),'trofeo.png', 100, 100, True)
+        self.plataformaFinal= Plataforma(pygame.Rect(375, 30, 50, 50),'trofeo.png', 100, 100, True)
 
         # El grupo de las plataformas
         self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4, plataforma5, plataforma6,
-        plataforma7, plataforma8, plataforma9, plataforma10, plataforma11, nenufar1, dnenufar1)
+        plataforma7, plataforma8, plataforma9, plataforma10, self.plataformaFinal, nenufar1, dnenufar1)
 
         # Y los enemigos
         enemigo1 = Pajaro(50, 750)
         enemigo1.establecerPosicion((50, 1250))
         enemigo2 = Calamar(50, 750, self.grupoPlataformas)
-        enemigo2.establecerPosicion((50, 1120))
+        enemigo2.establecerPosicion((50, 1130))
         
         # Creamos un grupo con los enemigos
         self.grupoEnemigos = pygame.sprite.Group(enemigo1, enemigo2)
@@ -176,7 +176,6 @@ class Fase(Escena):
     def actualizarScrollOrdenados(self, jugador):
         # Si el jugador se encuentra más allá del scroll superior
         if (jugador.rect.top < MINIMO_Y_SCROLL):
-            print("ARRIBA: ", jugador.posicion)
 
             # Se calcula cuantos pixeles esta fuera del scroll
             desplazamiento = MINIMO_Y_SCROLL - jugador.rect.top
@@ -202,7 +201,6 @@ class Fase(Escena):
 
         # Si el jugador se encuentra más allá del scroll inferior
         elif (jugador.rect.bottom > MAXIMO_Y_SCROLL):
-            print("ABAJO: ", jugador.posicion)
 
             # Se calcula cuantos pixeles esta fuera del scroll
             desplazamiento = jugador.rect.bottom - MAXIMO_Y_SCROLL
@@ -261,10 +259,8 @@ class Fase(Escena):
         #si es un insecto
         return (aux)
 
-    def isFinalPataform(self, entidad1: pygame.sprite.Sprite, ground_platforms: pygame.sprite.Group) -> bool:
-        aux = (pygame.sprite.spritecollideany(entidad1, ground_platforms))
-        #si es un insecto
-        return (aux)
+    def isFinalPataform(self, jugador):
+            return pygame.sprite.spritecollide(self.jugador, [self.plataformaFinal], False)
     
     
     # Se actualiza el decorado, realizando las siguientes acciones:
@@ -334,12 +330,10 @@ class Fase(Escena):
             print('MUERTO')
             self.gameOver()
 
-        if(self.isFinalPataform(self.jugador,self.grupoPlataformas) ):
-            plataforma = pygame.sprite.spritecollideany(self.jugador, self.grupoPlataformas)
-            if(plataforma.final == True):
-                print('Estoy en la plataforma final')
-                #paso a la pantalla de victoria
-                self.victory()
+        if self.isFinalPataform(self.jugador):
+            print('Estoy en la plataforma final')
+            #paso a la pantalla de victoria
+            self.victory()
 
 
     def gameOver(self):

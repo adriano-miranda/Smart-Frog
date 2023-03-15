@@ -719,15 +719,15 @@ class Pajaro(Enemigo):
         if self.rect.left>0 and self.rect.right<ANCHO_PANTALLA and self.rect.bottom>0 and self.rect.top<ALTO_PANTALLA:
 
             if self.rect.left <= self.iRecorrido:
-                Personaje.mover(self, DERECHA)
+                NoJugador.mover(self, DERECHA)
             elif self.rect.right >= self.fRecorrido:
-                Personaje.mover(self, IZQUIERDA)
+                NoJugador.mover(self, IZQUIERDA)
             else:
-                Personaje.mover(self, QUIETO)
+                NoJugador.mover(self, QUIETO)
 
         # Si este personaje no esta en pantalla, no hara nada
         else:
-            Personaje.mover(self, QUIETO)
+            NoJugador.mover(self, QUIETO)
 
 # -------------------------------------------------
 # Clase Calamar
@@ -735,11 +735,15 @@ class Pajaro(Enemigo):
 class Calamar(Enemigo):
     "El enemigo 'Calamar'"
     def __init__(self, iRecorrido, fRecorrido, grupoPlataformas):
+        self.numPostura = DERECHA
         # Invocamos al constructor de la clase padre con la configuracion de este personaje concreto
-        Enemigo.__init__(self,'squid.png','coordCalamar.txt', [1], VELOCIDAD_CALAMAR, RETARDO_ANIMACION_CALAMAR);
+        Enemigo.__init__(self,'squid.png','coordCalamar.txt', [1, 1], VELOCIDAD_CALAMAR, RETARDO_ANIMACION_CALAMAR);
+
         self.rect = pygame.Rect(100,100,self.rect.width/2,self.rect.height/2)
+        self.original_scale = (self.rect.width, self.rect.height)
         self.iRecorrido = iRecorrido
         self.fRecorrido = fRecorrido
+        self.grupoPlataformas = grupoPlataformas
 
     def actualizarPostura(self):
         self.retardoMovimiento -= 1
@@ -761,22 +765,21 @@ class Calamar(Enemigo):
             elif self.mirando == DERECHA:
                 self.image = pygame.transform.flip(self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura]), 1, 0)
 
-            self.image = pygame.transform.scale(self.image, (self.image.get_width()/2, self.image.get_height()/2))
+            self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
 
     # Aqui vendria la implementacion de la IA segun las posiciones de los jugadores
     # La implementacion de la inteligencia segun este personaje particular
     def mover_cpu(self, jugador):
 
-        # Movemos solo a los enemigos que esten en la pantalla
-        if self.rect.left>0 and self.rect.right<ANCHO_PANTALLA and self.rect.bottom>0 and self.rect.top<ALTO_PANTALLA:
-
-            if self.rect.left <= self.iRecorrido:
-                Personaje.mover(self, DERECHA)
-            elif self.rect.right >= self.fRecorrido:
-                Personaje.mover(self, IZQUIERDA)
-            else:
-                Personaje.mover(self, QUIETO)
-
-        # Si este personaje no esta en pantalla, no hara nada
+        if pygame.sprite.spritecollideany(self, self.grupoPlataformas):
+            self.numPostura = IZQUIERDA
         else:
-            Personaje.mover(self, QUIETO)
+            self.numPostura = DERECHA
+
+        if self.rect.left <= self.iRecorrido:
+            NoJugador.mover(self, DERECHA)
+        elif self.rect.right >= self.fRecorrido:
+            NoJugador.mover(self, IZQUIERDA)
+        else:
+            NoJugador.mover(self, QUIETO)
+
