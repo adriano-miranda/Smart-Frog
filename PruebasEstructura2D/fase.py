@@ -19,17 +19,29 @@ MAXIMO_Y_JUGADOR = ALTO_PANTALLA - MINIMO_Y_JUGADOR
 MINIMO_Y_SCROLL = 250
 MAXIMO_Y_SCROLL = ALTO_PANTALLA - MINIMO_Y_SCROLL
 
+POS_INI_JUGADOR = (380, 1370)
 # -------------------------------------------------
 # Clase Fase
 
 class Fase(Escena):
     def __init__(self, director):
-        # musiquita
+        # cargamos sonidos
         pygame.mixer.pre_init(44100, 16, 2, 512)   # el archivo tiene que estar formateado con exactamente la misma
                                                     # frecuencia, bitrate y canales para que pueda abrirlo
         pygame.mixer.init()
-        sonido = pygame.mixer.Sound("sonidos/route11_-_hg_ss.ogg")
-        musicaPrincipal = sonido.play()
+        self.caidaAgua = sonido = pygame.mixer.Sound("sonidos/Heavy-Splash.ogg")
+        self.croak = sonido = pygame.mixer.Sound("sonidos/croak.ogg")
+        pygame.mixer.set_reserved(4) # reservamos canales para efectos de sonido
+        self.canal_reservado_0 = pygame.mixer.Channel(0)
+        self.canal_reservado_1 = pygame.mixer.Channel(1)
+        self.canal_reservado_2 = pygame.mixer.Channel(2)
+
+        # musiquita
+        pygame.mixer.music.load("sonidos/route11_-_hg_ss.ogg")
+        pygame.mixer.music.set_volume(0.2) # valores entre 0.0 y 1.0
+        pygame.mixer.music.play(-1) # el -1 hace que suene en bucle
+
+
 
         # Habria que pasarle como parámetro el número de fase, a partir del cual se cargue
         #  un fichero donde este la configuracion de esa fase en concreto, con cosas como
@@ -56,7 +68,7 @@ class Fase(Escena):
         self.grupoJugadores = pygame.sprite.Group(self.jugador)
 
         # Ponemos a los jugadores en sus posiciones iniciales
-        self.jugador.establecerPosicion((380, 1370))
+        self.jugador.establecerPosicion(POS_INI_JUGADOR)
         
         # Y los enemigos
         enemigo1 = Pajaro(50, 750)
@@ -100,7 +112,7 @@ class Fase(Escena):
 
         # Creamos un grupo con los Sprites que se mueven
         #  En este caso, solo los personajes, pero podría haber más (proyectiles, etc.)
-        self.grupoSpritesDinamicos = pygame.sprite.Group(self.jugador, enemigo1)
+        self.grupoSpritesDinamicos = pygame.sprite.Group(self.jugador, self.grupoEnemigos)
         # Creamos otro grupo con todos los Sprites
        
         self.grupoSprites = pygame.sprite.Group(self.grupoPlataformas, self.grupoInsectos, self.grupoJugadores, self.grupoEnemigos)
@@ -215,6 +227,8 @@ class Fase(Escena):
 
                 return True; # Se ha actualizado el scroll
 
+            return False
+
         self.scrollHorizontal(jugador)
 
 
@@ -230,6 +244,9 @@ class Fase(Escena):
 
             # Ademas, actualizamos el fondo para que se muestre una parte distinta
             self.fondo.update(self.scrolly)
+
+    def hitEnemy(self, jugador):
+        return pygame.sprite.spritecollideany(jugador, self.grupoEnemigos)
 
 
     def isOnWater(self, entidad1: pygame.sprite.Sprite, ground_platforms: pygame.sprite.Group) -> bool:
@@ -288,13 +305,23 @@ class Fase(Escena):
 
         # Actualizamos el scroll
         self.actualizarScroll(self.jugador)
+
+    # -----------------------------------------------------------
+    
+        # Comprobamos colisiones
+        if(self.hitEnemy(self.jugador)):
+            self.canal_reservado_1.play(self.croak)
+            self.jugador.establecerPosicion(POS_INI_JUGADOR)
+            self.jugador.lives-=1
         
         if(self.isOnWater(self.jugador,self.grupoPlataformas) and  not self.jugador.isJumping):
+            self.canal_reservado_0.play(self.caidaAgua)
             print("ESTOY EN EL AGUA")
-            self.jugador.establecerPosicion((380, 1370))
+            self.jugador.establecerPosicion(POS_INI_JUGADOR)
             self.jugador.lives-=1
 
         if(self.eatInsect(self.jugador,self.grupoInsectos) and  not self.jugador.isJumping):
+            self.canal_reservado_2.play(self.croak)
             print("COMIENDO INSECTO")
             insecto = pygame.sprite.spritecollideany(self.jugador, self.grupoInsectos)
             pygame.sprite.Sprite.kill(insecto)
