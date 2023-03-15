@@ -85,13 +85,15 @@ class Fase(Escena):
         plataforma8 = Plataforma(pygame.Rect(150, 180, 100, 45),'madera.png', 100, 45, False)
         plataforma9 = Plataforma(pygame.Rect(350, 180, 100, 45),'madera.png', 100, 45, False)
         plataforma10 = Plataforma(pygame.Rect(550, 180, 100, 45),'madera.png', 100, 45, False)
+        nenufar1 = Nenufar(pygame.Rect(50, 1000, 50, 50))
+        dnenufar1 = DNenufar(pygame.Rect(700, 1000, 50, 50))
         self.plataforma102 = Plataforma2(pygame.Rect(550, 180, 100, 45),'madera.png', 100, 45, False)
         #plataforma final
         plataforma11 = Plataforma(pygame.Rect(375, 30, 50, 50),'trofeo.png', 100, 100, True)
 
         # El grupo de las plataformas
         self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4, plataforma5, plataforma6,
-        plataforma7, plataforma8, plataforma9, plataforma10, plataforma11)
+        plataforma7, plataforma8, plataforma9, plataforma10, plataforma11, nenufar1, dnenufar1)
 
         # Y los enemigos
         enemigo1 = Pajaro(50, 750)
@@ -417,6 +419,34 @@ class Plataforma2(pygame.sprite.Sprite):
         self.image = GestorRecursos.CargarImagen(imagen, 0)
         #self.image.set_colorkey(0)
         self.image = pygame.transform.scale(self.image, (scaleX, scaleY))
+
+# plataforma Nenufar
+class Nenufar(MiSprite):
+    def __init__(self,rectangulo):
+        # Primero invocamos al constructor de la clase padre
+        MiSprite.__init__(self)
+        # Rectangulo con las coordenadas en pantalla que ocupara
+        self.rect = rectangulo
+        # Y lo situamos de forma global en esas coordenadas
+        self.establecerPosicion((self.rect.left, self.rect.bottom))
+        # En el caso particular de este juego, las plataformas no se van a ver, asi que no se carga ninguna imagen
+        self.image = GestorRecursos.CargarImagen('nenufar.png', -1)
+        #self.image.set_colorkey(0)
+        self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
+
+# plataforma dNenufar
+class DNenufar(MiSprite):
+    def __init__(self,rectangulo):
+        # Primero invocamos al constructor de la clase padre
+        MiSprite.__init__(self)
+        # Rectangulo con las coordenadas en pantalla que ocupara
+        self.rect = rectangulo
+        # Y lo situamos de forma global en esas coordenadas
+        self.establecerPosicion((self.rect.left, self.rect.bottom))
+        # En el caso particular de este juego, las plataformas no se van a ver, asi que no se carga ninguna imagen
+        self.image = GestorRecursos.CargarImagen('dNenufar.png', -1)
+        #self.image.set_colorkey(0)
+        self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
 
 # -------------------------------------------------
 # Clase Agua
