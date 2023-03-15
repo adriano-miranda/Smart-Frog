@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import Listener
+from hud import *
 import pygame, sys, os
 from pygame.locals import *
 from escena import *
@@ -362,8 +362,15 @@ class Jugador(Personaje):
         # if (not self.isJumping  and self.posicion[0] > 725 and self.posicion[1] <= 1025 and self.posicion[1] >= 990):
         #     self.establecerPosicion((725, self.posicion[1]))
 
+    # Getters y setters
+    def getLives(self):
+        return self.lives
+    
+    def getScore(self):
+        return self.score
+
     # Añade puntuación a la rana y devuelve la cantidad tras eso
-    def score(self, quantity):
+    def addScore(self, quantity):
         self.score += quantity
         self.notifyListeners(self.subscribers_score, self.score)
         return self.score
@@ -382,7 +389,7 @@ class Jugador(Personaje):
     def isJumping(self):
         return self.isJumping
         
-    def notifyListeners(self, listenerList: list, dato):
+    def notifyListeners(self, listenerList: list[Listener], dato):
         for listerine in listenerList:
             listerine.run(dato)
 

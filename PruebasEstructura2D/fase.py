@@ -4,6 +4,7 @@ from personajes import *
 from pygame.locals import *
 from gameOver import GameOver
 from victory import Victory
+from hud import *
 # -------------------------------------------------
 # -------------------------------------------------
 # Constantes
@@ -38,9 +39,9 @@ class Fase(Escena):
         self.canal_reservado_2 = pygame.mixer.Channel(2)
 
         # musiquita
-        pygame.mixer.music.load("sonidos/route11_-_hg_ss.ogg")
-        pygame.mixer.music.set_volume(0.2) # valores entre 0.0 y 1.0
-        pygame.mixer.music.play(-1) # el -1 hace que suene en bucle
+        #pygame.mixer.music.load("sonidos/route11_-_hg_ss.ogg")
+        #pygame.mixer.music.set_volume(0.2) # valores entre 0.0 y 1.0
+        #pygame.mixer.music.play(-1) # el -1 hace que suene en bucle
 
 
 
@@ -90,9 +91,15 @@ class Fase(Escena):
         plataforma10 = Plataforma(pygame.Rect(550, 180, 100, 45),'madera.png', 100, 45, False)
         nenufar1 = Nenufar(pygame.Rect(50, 900, 50, 50))
         self.dnenufar1 = DNenufar(pygame.Rect(700, 900, 50, 50), self.jugador, 3000)
-        self.plataforma102 = Plataforma2(pygame.Rect(550, 180, 100, 45),'madera.png', 100, 45, False)
         #plataforma final
         self.plataformaFinal= Plataforma(pygame.Rect(375, 30, 50, 50),'trofeo.png', 100, 100, True)
+
+        self.hud = HUD((0, 0), 'madera.png', 100, 45)
+        self.hud_vidas = HUDVidas((0, 0), 'corazon.png', 50, 50, 55, self.jugador.getLives())
+
+        # El grupo de los HUDS
+        self.grupoHuds = pygame.sprite.Group(self.hud)
+        self.hud_vidas.addToGroup(self.grupoHuds)
 
         # El grupo de las plataformas
         self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4, plataforma5, plataforma6,
@@ -285,7 +292,7 @@ class Fase(Escena):
         # Esta operación de update ya comprueba que los movimientos sean correctos
         #  y, si lo son, realiza el movimiento de los Sprites
         self.grupoSpritesDinamicos.update(self.grupoPlataformas, tiempo)
-        self.plataforma102.update()
+        self.grupoHuds.update() # ADriano dice que falla aqui
         #self.grupoSpritesDinamicos.update(self.grupoInsectos, tiempo)
 
         # actualizar estado nenufar
@@ -339,6 +346,7 @@ class Fase(Escena):
             self.canal_reservado_1.play(self.croak)
             self.jugador.establecerPosicion(POS_INI_JUGADOR)
             self.jugador.lives-=1
+            self.hud_vidas.removeLife()
         
         if(self.isOnWater(self.jugador,self.grupoPlataformas) and  not self.jugador.isJumping):
             self.canal_reservado_0.play(self.caidaAgua)
@@ -351,6 +359,7 @@ class Fase(Escena):
             print("COMIENDO INSECTO")
             insecto = pygame.sprite.spritecollideany(self.jugador, self.grupoInsectos)
             pygame.sprite.Sprite.kill(insecto)
+            self.hud.hide()
             self.jugador.score += insecto.score
             print("PUNTUACION = ",self.jugador.score )
                 
@@ -377,7 +386,7 @@ class Fase(Escena):
         self.fondo.dibujar(pantalla)
         # Luego los Sprites
         self.grupoSprites.draw(pantalla)
-        pantalla.blit(self.plataforma102.image, (100,100))
+        self.grupoHuds.draw(pantalla)
 
 
     def eventos(self, lista_eventos):
