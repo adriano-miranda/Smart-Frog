@@ -53,6 +53,10 @@ VELOCIDAD_PAJARO = 0.2 # Pixeles por milisegundo
 RETARDO_ANIMACION_PAJARO = 3 # updates que durará cada imagen del personaje
                              # debería de ser un valor distinto para cada postura
 
+VELOCIDAD_CALAMAR = 0.1 # Pixeles por milisegundo
+RETARDO_ANIMACION_CALAMAR = 5 # updates que durará cada imagen del personaje
+                             # debería de ser un valor distinto para cada postura
+
 
 # -------------------------------------------------
 # -------------------------------------------------
@@ -681,6 +685,58 @@ class Pajaro(Enemigo):
     def __init__(self, iRecorrido, fRecorrido):
         # Invocamos al constructor de la clase padre con la configuracion de este personaje concreto
         Enemigo.__init__(self,'raven.png','coordPajaro.txt', [13], VELOCIDAD_PAJARO, RETARDO_ANIMACION_PAJARO);
+        self.rect = pygame.Rect(100,100,self.rect.width/2,self.rect.height/2)
+        self.iRecorrido = iRecorrido
+        self.fRecorrido = fRecorrido
+
+    def actualizarPostura(self):
+        self.retardoMovimiento -= 1
+        # Miramos si ha pasado el retardo para dibujar una nueva postura
+        if (self.retardoMovimiento < 0):
+            self.retardoMovimiento = self.retardoAnimacion
+            # Si ha pasado, actualizamos la postura
+            self.numImagenPostura += 1
+            if self.numImagenPostura >= len(self.coordenadasHoja[self.numPostura]):
+                self.numImagenPostura = 0;
+            if self.numImagenPostura < 0:
+                self.numImagenPostura = len(self.coordenadasHoja[self.numPostura])-1
+            self.image = self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura])
+
+            # Si esta mirando a la izquiera, cogemos la porcion de la hoja
+            if self.mirando == IZQUIERDA:
+                self.image = self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura])
+            #  Si no, si mira a la derecha, invertimos esa imagen
+            elif self.mirando == DERECHA:
+                self.image = pygame.transform.flip(self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura]), 1, 0)
+
+            self.image = pygame.transform.scale(self.image, (self.image.get_width()/2, self.image.get_height()/2))
+
+    # Aqui vendria la implementacion de la IA segun las posiciones de los jugadores
+    # La implementacion de la inteligencia segun este personaje particular
+    def mover_cpu(self, jugador):
+
+        # Movemos solo a los enemigos que esten en la pantalla
+        if self.rect.left>0 and self.rect.right<ANCHO_PANTALLA and self.rect.bottom>0 and self.rect.top<ALTO_PANTALLA:
+
+            if self.rect.left <= self.iRecorrido:
+                Personaje.mover(self, DERECHA)
+            elif self.rect.right >= self.fRecorrido:
+                Personaje.mover(self, IZQUIERDA)
+            else:
+                Personaje.mover(self, QUIETO)
+
+        # Si este personaje no esta en pantalla, no hara nada
+        else:
+            Personaje.mover(self, QUIETO)
+
+# -------------------------------------------------
+# Clase Calamar
+
+class Calamar(Enemigo):
+    "El enemigo 'Calamar'"
+    def __init__(self, iRecorrido, fRecorrido, grupoPlataformas):
+        # Invocamos al constructor de la clase padre con la configuracion de este personaje concreto
+        Enemigo.__init__(self,'squid.png','coordCalamar.txt', [1], VELOCIDAD_CALAMAR, RETARDO_ANIMACION_CALAMAR);
         self.rect = pygame.Rect(100,100,self.rect.width/2,self.rect.height/2)
         self.iRecorrido = iRecorrido
         self.fRecorrido = fRecorrido

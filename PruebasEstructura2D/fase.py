@@ -69,13 +69,6 @@ class Fase(Escena):
 
         # Ponemos a los jugadores en sus posiciones iniciales
         self.jugador.establecerPosicion(POS_INI_JUGADOR)
-        
-        # Y los enemigos
-        enemigo1 = Pajaro(50, 750)
-        enemigo1.establecerPosicion((50, 1250))
-        
-        # Creamos un grupo con los enemigos
-        self.grupoEnemigos = pygame.sprite.Group( enemigo1 )
 
         # Creamos las plataformas del decorado
         # (MoverIzq->Derecha, moverArriba->Abajo, Ancho, Largo)
@@ -95,19 +88,26 @@ class Fase(Escena):
         self.plataforma102 = Plataforma2(pygame.Rect(550, 180, 100, 45),'madera.png', 100, 45, False)
         #plataforma final
         plataforma11 = Plataforma(pygame.Rect(375, 30, 50, 50),'trofeo.png', 100, 100, True)
+
+        # El grupo de las plataformas
+        self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4, plataforma5, plataforma6,
+        plataforma7, plataforma8, plataforma9, plataforma10, plataforma11)
+
+        # Y los enemigos
+        enemigo1 = Pajaro(50, 750)
+        enemigo1.establecerPosicion((50, 1250))
+        enemigo2 = Calamar(50, 750, self.grupoPlataformas)
+        enemigo2.establecerPosicion((50, 1120))
+        
+        # Creamos un grupo con los enemigos
+        self.grupoEnemigos = pygame.sprite.Group(enemigo1, enemigo2)
         
         #Creo las moscas
         mosca1 = Insecto(pygame.Rect(650, 660, 30, 30),'mosca.png', 50, 50, 100)
 
         #Creo hormigas
-        hormiga1 = Insecto(pygame.Rect(300, 1250, 25, 25),'hormiga.png', 50, 50, 50)
+        hormiga1 = Insecto(pygame.Rect(300, 1250, 25, 25),'hormiga.png', 50, 50, 50)       
         
-        # La plataforma del techo del edificio
-        #plataformaCasa = Plataforma(pygame.Rect(870, 417, 200, 10))
-        # y el grupo con las mismas
-       
-        self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4, plataforma5, plataforma6,
-        plataforma7, plataforma8, plataforma9, plataforma10, plataforma11)
         self.grupoInsectos = pygame.sprite.Group(mosca1, hormiga1)
 
         # Creamos un grupo con los Sprites que se mueven
@@ -307,7 +307,7 @@ class Fase(Escena):
         self.actualizarScroll(self.jugador)
 
     # -----------------------------------------------------------
-    
+
         # Comprobamos colisiones
         if(self.hitEnemy(self.jugador)):
             self.canal_reservado_1.play(self.croak)
