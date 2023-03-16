@@ -33,6 +33,7 @@ class Fase(Escena):
         pygame.mixer.init()
         self.caidaAgua = sonido = pygame.mixer.Sound("sonidos/Heavy-Splash.ogg")
         self.croak = sonido = pygame.mixer.Sound("sonidos/croak.ogg")
+        self.kaorc = sonido = pygame.mixer.Sound("sonidos/kaorc.ogg")
         pygame.mixer.set_reserved(4) # reservamos canales para efectos de sonido
         self.canal_reservado_0 = pygame.mixer.Channel(0)
         self.canal_reservado_1 = pygame.mixer.Channel(1)
@@ -65,8 +66,6 @@ class Fase(Escena):
         self.scrollx = 0
         self.scrolly = 0
 
-        self.timer = 0
-
         # Creamos los sprites de los jugadores
         self.jugador = Jugador()
         self.grupoJugadores = pygame.sprite.Group(self.jugador)
@@ -89,7 +88,7 @@ class Fase(Escena):
         nenufar3 = Nenufar(pygame.Rect(550, 180, 100, 45))
         nenufar4 = Nenufar(pygame.Rect(350, 500, 100, 45))
         nenufar5 = Nenufar(pygame.Rect(350, 330, 100, 45))
-        self.dnenufar1 = DNenufar(pygame.Rect(700, 900, 50, 50), self.jugador, 3000)
+        self.dnenufar1 = DNenufar(pygame.Rect(700, 900, 50, 50), 300)
         #plataforma final
         self.plataformaFinal= Plataforma(pygame.Rect(350, 30, 50, 50),'trofeo.png', 100, 100, True)
 
@@ -108,6 +107,7 @@ class Fase(Escena):
 
         # El grupo de las plataformas
         self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4, plataforma5, self.plataformaFinal, nenufar1, nenufar2, nenufar3, nenufar4, nenufar5)
+        self.grupoDNenufares = pygame.sprite.Group(self.dnenufar1)
 
         # Y los enemigos
         enemigo1 = Pajaro(50, 750)
@@ -301,30 +301,17 @@ class Fase(Escena):
         self.grupoHuds.update() # ADriano dice que falla aqui
         #self.grupoSpritesDinamicos.update(self.grupoInsectos, tiempo)
 
-        # actualizar estado nenufar
-        self.dnenufar1.update(tiempo)
+        # actualizar estado nenufares
+        for nenufar in iter(self.grupoDNenufares):
+            nenufar.update(self.jugador)
 
-        #print(self.timer)
-        #print(self.dnenufar1.visible)
-        if(self.dnenufar1.visible == False):
-            self.timer -= 1
-            if self.timer <= 0:
-                self.dnenufar1.visible = False
-                self.timer = 0
-
-        if(pygame.sprite.spritecollide(self.dnenufar1, [self.jugador], False)):
-            self.timer += 1
-            if self.timer >= 300:
-                self.dnenufar1.visible = False
-        else:
-            self.dnenufar1.visible = True
-            self.timer = 0
-
-        # si nenufar está como no visible
-        if(not self.dnenufar1.visible):
-            self.grupoPlataformas.remove(self.dnenufar1)
-        else:
-            self.grupoPlataformas.add(self.dnenufar1)
+            # si nenufar está como no visible
+            if(not nenufar.visible):
+                self.grupoPlataformas.remove(nenufar)
+                self.grupoSprites.remove(nenufar)
+            else:
+                self.grupoPlataformas.add(nenufar)
+                self.grupoSprites = pygame.sprite.Group(nenufar, self.grupoSprites)
 
         
         # Dentro del update ya se comprueba que todos los movimientos son válidos
@@ -474,7 +461,7 @@ class Nenufar(MiSprite):
 
 # plataforma dNenufar
 class DNenufar(MiSprite):
-    def __init__(self, rectangulo, jugador, tiempoActivo):
+    def __init__(self, rectangulo, tiempoActivo):
         # Primero invocamos al constructor de la clase padre
         MiSprite.__init__(self)
         # Rectangulo con las coordenadas en pantalla que ocupara
@@ -486,24 +473,24 @@ class DNenufar(MiSprite):
         #self.image.set_colorkey(0)
         self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
 
-        self.jugador = jugador
         self.visible = True
+        self.pisado = False
         self.tiempoActivo = tiempoActivo
         self.timer = 0
 
-        def update(self, tiempo):
-            print(self.visible)
-            if(self.visible == False):
-                self.timer -= reloj.tick(60)
-                if self.timer <= 0:
-                    self.visible = False
-                    self.timer = 0
+    def update(self, jugador):
+        if(pygame.sprite.spritecollide(self, [jugador], False)):
+            self.pisado = True
 
-            if(pygame.sprite.spritecollide(self, [self.jugador], False)):
-                self.timer += reloj.tick(60)
-                if self.timer >= self.tiempoActivo:
-                    self.visible = False
-            else:
+        if(self.pisado):
+            self.timer += 1
+            if self.timer >= self.tiempoActivo:
+                self.visible = False
+                self.pisado = False
+
+        elif(not self.pisado and self.timer > 0):
+            self.timer -= 1
+            if self.timer <= 0:
                 self.visible = True
                 self.timer = 0
 
