@@ -1,5 +1,6 @@
 from pygame import *
 from gestorRecursos import *
+from typing import Tuple
 
 class Listener(sprite.Sprite):
     def run(self, datos):
@@ -10,7 +11,7 @@ class HUD(Listener):
     # position: La posición es una tupla de enteros
     # archivoImagen: El nombre del archivo o la ruta
     #       relativa junto con el nombre dentro de la carpeta "imagenes"
-    def __init__(self, position: tuple[int], archivoImagen, scaleX, scaleY):
+    def __init__(self, position: Tuple[int], archivoImagen, scaleX, scaleY):
         pygame.sprite.Sprite.__init__(self)
         self.rect = Rect(position[0], position[1], scaleX, scaleY)
         self.position = position
@@ -38,7 +39,7 @@ class HUDVidas(HUD):
     # remainingLives = Número de vidas restantes
     # totalLives = Número de vidas totales que representa el HUD
     # lives[...] = Lista con los HUD's, cada uno de los cuales, representa una vida
-    def __init__(self, position: tuple[int], archivoImagen, scaleX, scaleY, distancia, num_lives):
+    def __init__(self, position: Tuple[int], archivoImagen, scaleX, scaleY, distancia, num_lives):
         self.lives: list[HUD] = []
 
         for i in range(num_lives):

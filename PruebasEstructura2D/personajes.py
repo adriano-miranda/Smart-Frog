@@ -5,7 +5,7 @@ import pygame, sys, os
 from pygame.locals import *
 from escena import *
 from gestorRecursos import *
-
+from typing import List
 # -------------------------------------------------
 # -------------------------------------------------
 # Constantes
@@ -336,31 +336,6 @@ class Jugador(Personaje):
             mov[SALTO] = 1
         Personaje.mover(self, mov)
 
-        #limites plataformas
-            
-        #if self.posicion[0]<0:
-        #    self.posicion[0] = 0
-        #elif self.posicion[0] > 800 - 5:
-        #    self.posicion[0] = 600 - 5
-        #if self.posicion[1] < 400:    
-        
-        
-
-        # #restricción limite superior de plataforma
-        # if (not self.isJumping  and self.posicion[1] < 1180 and self.posicion[1] > 1050):
-        #     self.establecerPosicion((self.posicion[0], 1180))
-        # #Restriccion para limite inferior de plataforma 1
-        # if (not self.isJumping  and self.posicion[1] > 1025 and self.posicion[1] < 1180):
-        #     self.establecerPosicion((self.posicion[0], 1025))
-        # #Restriccion para limite superior de plataforma 1    
-        # if (not self.isJumping  and self.posicion[1] < 990 and self.posicion[1] > 850):
-        #     self.establecerPosicion((self.posicion[0], 990))
-        # #Restriccion para limite izquierdo de plataforma 1    
-        # if (not self.isJumping  and self.posicion[0] < 335 and self.posicion[1] <= 1025 and self.posicion[1] >= 990):
-        #     self.establecerPosicion((335, self.posicion[1]))
-        # #Restriccion para limite derecho de plataforma 1    
-        # if (not self.isJumping  and self.posicion[0] > 725 and self.posicion[1] <= 1025 and self.posicion[1] >= 990):
-        #     self.establecerPosicion((725, self.posicion[1]))
 
     # Getters y setters
     def getLives(self):
@@ -389,7 +364,7 @@ class Jugador(Personaje):
     def isJumping(self):
         return self.isJumping
         
-    def notifyListeners(self, listenerList: list[Listener], dato):
+    def notifyListeners(self, listenerList: List[Listener], dato):
         for listerine in listenerList:
             listerine.run(dato)
 
@@ -695,7 +670,7 @@ class Pajaro(Enemigo):
     def __init__(self, iRecorrido, fRecorrido):
         # Invocamos al constructor de la clase padre con la configuracion de este personaje concreto
         Enemigo.__init__(self,'raven.png','coordPajaro.txt', [13], VELOCIDAD_PAJARO, RETARDO_ANIMACION_PAJARO);
-        self.rect = pygame.Rect(100,100,self.rect.width/2,self.rect.height/2)
+        self.rect = pygame.Rect(100,100,50,50)
         self.iRecorrido = iRecorrido
         self.fRecorrido = fRecorrido
 

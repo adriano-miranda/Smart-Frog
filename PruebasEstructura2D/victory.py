@@ -1,10 +1,10 @@
 # -*- encoding: utf-8 -*-
 
-import pygame
+from pygame import *
 from pygame.locals import *
 from escena import *
 from gestorRecursos import *
-
+from personajes import *
 
 # -------------------------------------------------
 # Clase abstracta ElementoGUI
@@ -55,6 +55,10 @@ class BotonSalir(Boton):
 # -------------------------------------------------
 # Clase TextoGUI y los distintos textos
 
+class Listener(sprite.Sprite):
+    def run(self, datos):
+        pass
+
 class TextoGUI(ElementoGUI):
     def __init__(self, pantalla, fuente, color, texto, posicion):
         # Se crea la imagen del texto
@@ -65,6 +69,22 @@ class TextoGUI(ElementoGUI):
         self.establecerPosicion(posicion)
     def dibujar(self, pantalla):
         pantalla.blit(self.imagen, self.rect)
+
+class TextoPuntuacion1(TextoGUI):
+    def __init__(self, pantalla):
+        self.jugador = Jugador()
+        # La fuente la debería cargar el estor de recursos
+        fuente = pygame.font.SysFont('arial', 26)
+        puntuacion = "PUNTUACION: " 
+        TextoGUI.__init__(self, pantalla, fuente, (0, 0, 0), puntuacion , (510, 500))
+
+class TextoPuntuacion(TextoGUI, Listener):
+    def __init__(self, pantalla):
+        self.jugador = Jugador()
+        # La fuente la debería cargar el estor de recursos
+        fuente = pygame.font.SysFont('arial', 26)
+        puntuacion = str(self.jugador.getScore()) 
+        TextoGUI.__init__(self, pantalla, fuente, (0, 0, 0), puntuacion , (710, 500))
 
 class TextoSalir(TextoGUI):
     def __init__(self, pantalla):
@@ -114,7 +134,11 @@ class PantallaInicialGUI(PantallaGUI):
         self.elementosGUI.append(botonSalir)
         # Creamos el texto y lo metemos en la lista
         textoSalir = TextoSalir(self)
+        textoPuntuacion = TextoPuntuacion(self)
+        textoPuntuacion1 = TextoPuntuacion1(self)
         self.elementosGUI.append(textoSalir)
+        self.elementosGUI.append(textoPuntuacion)
+        self.elementosGUI.append(textoPuntuacion1)
 
 # -------------------------------------------------
 # Clase victory, la escena en sí

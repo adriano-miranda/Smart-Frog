@@ -39,9 +39,9 @@ class Fase(Escena):
         self.canal_reservado_2 = pygame.mixer.Channel(2)
 
         # musiquita
-        #pygame.mixer.music.load("sonidos/route11_-_hg_ss.ogg")
-        #pygame.mixer.music.set_volume(0.2) # valores entre 0.0 y 1.0
-        #pygame.mixer.music.play(-1) # el -1 hace que suene en bucle
+        pygame.mixer.music.load("sonidos/route11_-_hg_ss.ogg")
+        pygame.mixer.music.set_volume(0.2) # valores entre 0.0 y 1.0
+        pygame.mixer.music.play(-1) # el -1 hace que suene en bucle
 
 
 
@@ -84,19 +84,19 @@ class Fase(Escena):
         plataforma3 = Plataforma(pygame.Rect(100, 660, 250, 55),'madera.png', 250, 55, False)
         plataforma4 = Plataforma(pygame.Rect(450, 660, 250, 55),'madera.png', 250, 55, False)
         plataforma5 = Plataforma(pygame.Rect(150, 500, 150, 45),'madera.png', 150, 45, False)
-        plataforma6 = Plataforma(pygame.Rect(350, 500, 100, 45),'madera.png', 100, 45, False)
-        plataforma7 = Plataforma(pygame.Rect(350, 330, 100, 45),'madera.png', 100, 45, False)
-        plataforma8 = Plataforma(pygame.Rect(150, 180, 100, 45),'madera.png', 100, 45, False)
-        plataforma9 = Plataforma(pygame.Rect(350, 180, 100, 45),'madera.png', 100, 45, False)
-        plataforma10 = Plataforma(pygame.Rect(550, 180, 100, 45),'madera.png', 100, 45, False)
-        nenufar1 = Nenufar(pygame.Rect(50, 900, 50, 50))
+        nenufar1 = Nenufar(pygame.Rect(150, 180, 100, 45))
+        nenufar2 = Nenufar(pygame.Rect(350, 180, 100, 45))
+        nenufar3 = Nenufar(pygame.Rect(550, 180, 100, 45))
+        nenufar4 = Nenufar(pygame.Rect(350, 500, 100, 45))
+        nenufar5 = Nenufar(pygame.Rect(350, 330, 100, 45))
         self.dnenufar1 = DNenufar(pygame.Rect(700, 900, 50, 50), self.jugador, 3000)
         #plataforma final
-        self.plataformaFinal= Plataforma(pygame.Rect(375, 30, 50, 50),'trofeo.png', 100, 100, True)
+        self.plataformaFinal= Plataforma(pygame.Rect(350, 30, 50, 50),'trofeo.png', 100, 100, True)
 
-        self.hud = HUD((0, 55), 'madera.png', 150, 50)
+        self.hud = HUD((0, 55), 'rectangulo_blanco.jpeg', 150, 50)
         self.progress_bar = BarraCarga((1, 54), 'PasoBarra.png', 148, 48, self.jugador.max_Time)
-        self.hud_vidas = HUDVidas((0, 0), 'corazon.png', 50, 50, 55, self.jugador.getLives())
+        #position: Tuple[int], archivoImagen, scaleX, scaleY
+        self.hud_vidas = HUDVidas((0, 0), 'corazon1.png', 70, 50, 55, self.jugador.getLives())
 
         # El grupo de los HUDS
         self.grupoHuds = pygame.sprite.Group(self.hud, self.progress_bar)
@@ -104,27 +104,29 @@ class Fase(Escena):
 
         self.jugador.addListenersJump(self.progress_bar)
         self.jugador.addListenersLives(self.hud_vidas)
+        
 
         # El grupo de las plataformas
-        self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4, plataforma5, plataforma6,
-        plataforma7, plataforma8, plataforma9, plataforma10, self.plataformaFinal, nenufar1, self.dnenufar1)
+        self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4, plataforma5, self.plataformaFinal, nenufar1, nenufar2, nenufar3, nenufar4, nenufar5)
 
         # Y los enemigos
         enemigo1 = Pajaro(50, 750)
         enemigo1.establecerPosicion((50, 1250))
-        enemigo2 = Calamar(50, 750, self.grupoPlataformas)
-        enemigo2.establecerPosicion((50, 1130))
+        enemigo2 = Calamar(50, 900, self.grupoPlataformas)
+        enemigo2.establecerPosicion((50, 900))
+        enemigo3 = Pajaro(50, 750)
+        enemigo3.establecerPosicion((50, 180))
+        # Creamos un grupo con los enemigostrofeo
+        self.grupoEnemigos = pygame.sprite.Group(enemigo1, enemigo2, enemigo3)
         
-        # Creamos un grupo con los enemigos
-        self.grupoEnemigos = pygame.sprite.Group(enemigo1, enemigo2)
+        #Creo las moscas    rectangulo, image,scaleX, scaleY, score
+        mosca1 = Insecto(pygame.Rect(650, 660, 50, 50),'mosca.png', 50, 50, 100)
+        mosca2 = Insecto(pygame.Rect(150, 180, 50, 50),'mosca.png', 50, 50, 100)
         
-        #Creo las moscas
-        mosca1 = Insecto(pygame.Rect(650, 660, 30, 30),'mosca.png', 50, 50, 100)
-
         #Creo hormigas
-        hormiga1 = Insecto(pygame.Rect(300, 1250, 25, 25),'hormiga.png', 50, 50, 50)       
+        hormiga1 = Insecto(pygame.Rect(200, 1225, 25, 35),'hormiga.png', 35, 35, 50)       
         
-        self.grupoInsectos = pygame.sprite.Group(mosca1, hormiga1)
+        self.grupoInsectos = pygame.sprite.Group(mosca1, mosca2 ,hormiga1)
 
         # Creamos un grupo con los Sprites que se mueven
         #  En este caso, solo los personajes, pero podría haber más (proyectiles, etc.)
@@ -302,8 +304,8 @@ class Fase(Escena):
         # actualizar estado nenufar
         self.dnenufar1.update(tiempo)
 
-        print(self.timer)
-        print(self.dnenufar1.visible)
+        #print(self.timer)
+        #print(self.dnenufar1.visible)
         if(self.dnenufar1.visible == False):
             self.timer -= 1
             if self.timer <= 0:
@@ -361,9 +363,11 @@ class Fase(Escena):
             self.canal_reservado_2.play(self.croak)
             print("COMIENDO INSECTO")
             insecto = pygame.sprite.spritecollideany(self.jugador, self.grupoInsectos)
+            self.jugador.addScore(insecto.score)
+            #self.jugador.score += insecto.score
             pygame.sprite.Sprite.kill(insecto)
-            self.jugador.score += insecto.score
-            print("PUNTUACION = ",self.jugador.score )
+            #print("PUNTUACION = ",self.jugador.score )
+            print("PUNTUACION1 = ",str(self.jugador.getScore()))
                 
         if(self.jugador.lives ==0):
             print('MUERTO')
@@ -373,7 +377,7 @@ class Fase(Escena):
             print('Estoy en la plataforma final')
             #paso a la pantalla de victoria
             self.victory()
-
+        #print("Estoy en la posicion: ",self.jugador.posicion )        
 
     def gameOver(self):
         gameOver = GameOver(self.director)
