@@ -31,9 +31,9 @@ class Fase(Escena):
         pygame.mixer.pre_init(44100, 16, 2, 512)   # el archivo tiene que estar formateado con exactamente la misma
                                                     # frecuencia, bitrate y canales para que pueda abrirlo
         pygame.mixer.init()
-        self.caidaAgua = sonido = pygame.mixer.Sound("sonidos/Heavy-Splash.ogg")
-        self.croak = sonido = pygame.mixer.Sound("sonidos/croak.ogg")
-        self.kaorc = sonido = pygame.mixer.Sound("sonidos/kaorc.ogg")
+        self.caidaAgua = GestorRecursos.CargarSonido("Heavy-Splash.ogg")
+        self.croak = GestorRecursos.CargarSonido("croak.ogg")
+        self.kaorc = GestorRecursos.CargarSonido("kaorc.ogg")
         pygame.mixer.set_reserved(4) # reservamos canales para efectos de sonido
         self.canal_reservado_0 = pygame.mixer.Channel(0)
         self.canal_reservado_1 = pygame.mixer.Channel(1)
@@ -220,8 +220,10 @@ class Fase(Escena):
 
             # Se calcula cuantos pixeles esta fuera del scroll
             desplazamiento = jugador.rect.bottom - MAXIMO_Y_SCROLL
-            if (desplazamiento >= self.fondo.rect.bottom - ALTO_PANTALLA):
+            if (desplazamiento > self.fondo.rect.bottom - ALTO_PANTALLA):
                 desplazamiento = self.fondo.rect.bottom - ALTO_PANTALLA
+            print("DESPLAZAMIENTO: ", desplazamiento)
+            print("scrolly: ", self.scrolly)
             # Si el escenario ya está abajo del todo, no lo movemos mas
             if self.scrolly + ALTO_PANTALLA >= self.fondo.rect.bottom:
                 self.scrolly = self.fondo.rect.bottom - ALTO_PANTALLA
@@ -230,6 +232,7 @@ class Fase(Escena):
                 if(jugador.rect.bottom > MAXIMO_Y_JUGADOR):
                     # Colocamos al jugador abajo de todo
                     jugador.establecerPosicion((jugador.posicion[0], self.scrolly + MAXIMO_Y_JUGADOR))
+                    desplazamiento = jugador.rect.bottom - MAXIMO_Y_JUGADOR
 
                 return self.scrollHorizontal(jugador); # No se ha actualizado el scroll
 
@@ -239,7 +242,10 @@ class Fase(Escena):
 
                 # Calculamos el nivel de scroll actual: el anterior + desplazamiento
                 #  (desplazamos abajo)
-                self.scrolly = self.scrolly + desplazamiento;
+                if(self.scrolly + desplazamiento < 800):
+                    self.scrolly = self.scrolly + desplazamiento;
+                else:
+                    self.scrolly = 800
 
                 return True; # Se ha actualizado el scroll
 
@@ -309,7 +315,7 @@ class Fase(Escena):
             if(not nenufar.visible):
                 self.grupoPlataformas.remove(nenufar)
                 self.grupoSprites.remove(nenufar)
-            else:
+            elif(nenufar not in self.grupoPlataformas):
                 self.grupoPlataformas.add(nenufar)
                 self.grupoSprites = pygame.sprite.Group(nenufar, self.grupoSprites)
 
@@ -332,11 +338,9 @@ class Fase(Escena):
         # Actualizamos el scroll
         self.actualizarScroll(self.jugador)
 
-    # -----------------------------------------------------------
-
         # Comprobamos colisiones
         if(self.hitEnemy(self.jugador)):
-            self.canal_reservado_1.play(self.croak)
+            self.canal_reservado_1.play(self.kaorc)
             self.jugador.establecerPosicion(POS_INI_JUGADOR)
             self.jugador.damage()
         
@@ -461,7 +465,7 @@ class Nenufar(MiSprite):
 
 # plataforma dNenufar
 class DNenufar(MiSprite):
-    def __init__(self, rectangulo, tiempoActivo):
+    def __init__(self, rectangulo, tiempoActivo=300):
         # Primero invocamos al constructor de la clase padre
         MiSprite.__init__(self)
         # Rectangulo con las coordenadas en pantalla que ocupara

@@ -54,3 +54,22 @@ class GestorRecursos(object):
             # Se devuelve
             return datos
 
+    @classmethod
+    def CargarSonido(cls, nombre):
+        # Si el nombre de archivo está entre los recursos ya cargados
+        if nombre in cls.recursos:
+            # Se devuelve ese recurso
+            return cls.recursos[nombre]
+        # Si no ha sido cargado anteriormente
+        else:
+            # Se carga la imagen indicando la carpeta en la que está
+            fullname = os.path.join('sonidos', nombre)
+            try:
+                sonido = pygame.mixer.Sound(fullname)
+            except pygame.error as message:
+                print('Cannot load sound:', fullname)
+                raise SystemExit(message)
+            # Se almacena
+            cls.recursos[nombre] = sonido
+            # Se devuelve
+            return sonido
