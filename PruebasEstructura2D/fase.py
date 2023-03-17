@@ -220,10 +220,6 @@ class Fase(Escena):
 
             # Se calcula cuantos pixeles esta fuera del scroll
             desplazamiento = jugador.rect.bottom - MAXIMO_Y_SCROLL
-            if (desplazamiento > self.fondo.rect.bottom - ALTO_PANTALLA):
-                desplazamiento = self.fondo.rect.bottom - ALTO_PANTALLA
-            print("DESPLAZAMIENTO: ", desplazamiento)
-            print("scrolly: ", self.scrolly)
             # Si el escenario ya está abajo del todo, no lo movemos mas
             if self.scrolly + ALTO_PANTALLA >= self.fondo.rect.bottom:
                 self.scrolly = self.fondo.rect.bottom - ALTO_PANTALLA
@@ -242,10 +238,10 @@ class Fase(Escena):
 
                 # Calculamos el nivel de scroll actual: el anterior + desplazamiento
                 #  (desplazamos abajo)
-                if(self.scrolly + desplazamiento < 800):
+                if(self.scrolly + desplazamiento < self.fondo.rect.bottom - ALTO_PANTALLA):
                     self.scrolly = self.scrolly + desplazamiento;
                 else:
-                    self.scrolly = 800
+                    self.scrolly = self.fondo.rect.bottom - ALTO_PANTALLA
 
                 return True; # Se ha actualizado el scroll
 
