@@ -55,9 +55,6 @@ class BotonSalir(Boton):
 # -------------------------------------------------
 # Clase TextoGUI y los distintos textos
 
-class Listener(sprite.Sprite):
-    def run(self, datos):
-        pass
 
 class TextoGUI(ElementoGUI):
     def __init__(self, pantalla, fuente, color, texto, posicion):
@@ -78,12 +75,13 @@ class TextoPuntuacion1(TextoGUI):
         puntuacion = "PUNTUACION: " 
         TextoGUI.__init__(self, pantalla, fuente, (0, 0, 0), puntuacion , (510, 500))
 
-class TextoPuntuacion(TextoGUI, Listener):
-    def __init__(self, pantalla):
+class TextoPuntuacion(TextoGUI):
+    def __init__(self, pantalla, score):
         self.jugador = Jugador()
         # La fuente la debería cargar el estor de recursos
         fuente = pygame.font.SysFont('arial', 26)
-        puntuacion = str(self.jugador.getScore()) 
+        self.score = score
+        puntuacion = str(self.score) 
         TextoGUI.__init__(self, pantalla, fuente, (0, 0, 0), puntuacion , (710, 500))
 
 class TextoSalir(TextoGUI):
@@ -127,14 +125,15 @@ class PantallaGUI:
             elemento.dibujar(pantalla)
 
 class PantallaInicialGUI(PantallaGUI):
-    def __init__(self, victory):
+    def __init__(self, victory, score):
         PantallaGUI.__init__(self, victory, 'victory.jpeg')
         # Creamos los botones y los metemos en la lista
         botonSalir = BotonSalir(self)
         self.elementosGUI.append(botonSalir)
         # Creamos el texto y lo metemos en la lista
         textoSalir = TextoSalir(self)
-        textoPuntuacion = TextoPuntuacion(self)
+        self.score = score
+        textoPuntuacion = TextoPuntuacion(self, self.score)
         textoPuntuacion1 = TextoPuntuacion1(self)
         self.elementosGUI.append(textoSalir)
         self.elementosGUI.append(textoPuntuacion)
@@ -145,16 +144,19 @@ class PantallaInicialGUI(PantallaGUI):
 
 class Victory(Escena):
 
-    def __init__(self, director):
+    def __init__(self, director, score):
         # Llamamos al constructor de la clase padre
         Escena.__init__(self, director);
         # Creamos la lista de pantallas
         self.listaPantallas = []
+        #Puntuacion para el texto de puntuacion
+        self.score = score
         # Creamos las pantallas que vamos a tener
         #   y las metemos en la lista
-        self.listaPantallas.append(PantallaInicialGUI(self))
+        self.listaPantallas.append(PantallaInicialGUI(self, self.score))
         # En que pantalla estamos actualmente
         self.mostrarPantallaInicial()
+        
 
     def update(self, *args):
         return
