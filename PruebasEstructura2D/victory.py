@@ -5,6 +5,7 @@ from pygame.locals import *
 from escena import *
 from gestorRecursos import *
 from personajes import *
+from fase2 import Fase2
 
 # -------------------------------------------------
 # Clase abstracta ElementoGUI
@@ -52,6 +53,12 @@ class BotonSalir(Boton):
     def accion(self):
         self.pantalla.victory.salirPrograma()
 
+class BotonFase2(Boton):
+    def __init__(self, pantalla):
+        Boton.__init__(self, pantalla, 'boton_verde.png', (580,500))
+    def accion(self):
+        self.pantalla.victory.ejecutarFase2()
+
 # -------------------------------------------------
 # Clase TextoGUI y los distintos textos
 
@@ -73,7 +80,7 @@ class TextoPuntuacion1(TextoGUI):
         # La fuente la debería cargar el estor de recursos
         fuente = pygame.font.SysFont('arial', 26)
         puntuacion = "PUNTUACION: " 
-        TextoGUI.__init__(self, pantalla, fuente, (0, 0, 0), puntuacion , (510, 500))
+        TextoGUI.__init__(self, pantalla, fuente, (0, 0, 0), puntuacion , (100, 500))
 
 class TextoPuntuacion(TextoGUI):
     def __init__(self, pantalla, score):
@@ -82,7 +89,7 @@ class TextoPuntuacion(TextoGUI):
         fuente = pygame.font.SysFont('arial', 26)
         self.score = score
         puntuacion = str(self.score) 
-        TextoGUI.__init__(self, pantalla, fuente, (0, 0, 0), puntuacion , (710, 500))
+        TextoGUI.__init__(self, pantalla, fuente, (0, 0, 0), puntuacion , (300, 500))
 
 class TextoSalir(TextoGUI):
     def __init__(self, pantalla):
@@ -91,6 +98,14 @@ class TextoSalir(TextoGUI):
         TextoGUI.__init__(self, pantalla, fuente, (0, 0, 0), 'Salir', (610, 565))
     def accion(self):
         self.pantalla.victory.salirPrograma()
+
+class TextoFase2(TextoGUI):
+    def __init__(self, pantalla):
+        # La fuente la debería cargar el estor de recursos
+        fuente = pygame.font.SysFont('arial', 26);
+        TextoGUI.__init__(self, pantalla, fuente, (0, 0, 0), 'nivel 2', (610, 505))
+    def accion(self):
+        self.pantalla.victory.ejecutarFase2()
 
 # -------------------------------------------------
 # Clase PantallaGUI y las distintas pantallas
@@ -129,16 +144,19 @@ class PantallaInicialGUI(PantallaGUI):
         PantallaGUI.__init__(self, victory, 'victory.jpeg')
         # Creamos los botones y los metemos en la lista
         botonSalir = BotonSalir(self)
+        botonFase2 = BotonFase2(self)
         self.elementosGUI.append(botonSalir)
+        self.elementosGUI.append(botonFase2)
         # Creamos el texto y lo metemos en la lista
         textoSalir = TextoSalir(self)
         self.score = score
         textoPuntuacion = TextoPuntuacion(self, self.score)
         textoPuntuacion1 = TextoPuntuacion1(self)
+        textoFase2 = TextoFase2(self)
         self.elementosGUI.append(textoSalir)
         self.elementosGUI.append(textoPuntuacion)
         self.elementosGUI.append(textoPuntuacion1)
-
+        self.elementosGUI.append(textoFase2)
 # -------------------------------------------------
 # Clase victory, la escena en sí
 
@@ -186,6 +204,10 @@ class Victory(Escena):
     def ejecutarJuego(self):
         fase = Fase(self.director)
         self.director.apilarEscena(fase)
+
+    def ejecutarFase2(self):
+        fase2 = Fase2(self.director)
+        self.director.apilarEscena(fase2)
 
     def mostrarPantallaInicial(self):
         self.pantallaActual = 0

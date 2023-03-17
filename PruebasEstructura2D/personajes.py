@@ -670,7 +670,7 @@ class Pajaro(Enemigo):
     def __init__(self, iRecorrido, fRecorrido):
         # Invocamos al constructor de la clase padre con la configuracion de este personaje concreto
         Enemigo.__init__(self,'raven.png','coordPajaro.txt', [13], VELOCIDAD_PAJARO, RETARDO_ANIMACION_PAJARO);
-        self.rect = pygame.Rect(100,100,self.rect.width/2,self.rect.height/2)
+        self.rect = pygame.Rect(100,100,50,50)
         self.iRecorrido = iRecorrido
         self.fRecorrido = fRecorrido
 
@@ -700,10 +700,17 @@ class Pajaro(Enemigo):
     # La implementacion de la inteligencia segun este personaje particular
     def mover_cpu(self, jugador):
 
-        if self.rect.left <= self.iRecorrido:
-            NoJugador.mover(self, DERECHA)
-        elif self.rect.right >= self.fRecorrido:
-            NoJugador.mover(self, IZQUIERDA)
+        # Movemos solo a los enemigos que esten en la pantalla
+        if self.rect.left>0 and self.rect.right<ANCHO_PANTALLA and self.rect.bottom>0 and self.rect.top<ALTO_PANTALLA:
+
+            if self.rect.left <= self.iRecorrido:
+                NoJugador.mover(self, DERECHA)
+            elif self.rect.right >= self.fRecorrido:
+                NoJugador.mover(self, IZQUIERDA)
+            else:
+                NoJugador.mover(self, QUIETO)
+
+        # Si este personaje no esta en pantalla, no hara nada
         else:
             NoJugador.mover(self, QUIETO)
 
