@@ -338,13 +338,15 @@ class Fase(Escena):
         # Comprobamos colisiones
         if(self.hitEnemy(self.jugador)):
             self.canal_reservado_1.play(self.kaorc)
-            self.jugador.establecerPosicion(POS_INI_JUGADOR)
+            self.jugador.resetAtPosition(POS_INI_JUGADOR)
+            #self.jugador.establecerPosicion(POS_INI_JUGADOR)
             self.jugador.damage()
         
         if(self.isOnWater(self.jugador,self.grupoPlataformas) and  not self.jugador.isJumping):
             self.canal_reservado_0.play(self.caidaAgua)
             print("ESTOY EN EL AGUA")
-            self.jugador.establecerPosicion(POS_INI_JUGADOR)
+            self.jugador.resetAtPosition(POS_INI_JUGADOR)
+            #self.jugador.establecerPosicion(POS_INI_JUGADOR)
             self.jugador.damage()
 
         if(self.eatInsect(self.jugador,self.grupoInsectos) and  not self.jugador.isJumping):
