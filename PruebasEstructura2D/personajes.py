@@ -341,64 +341,64 @@ class Jugador(Personaje):
     def getLives(self):
         return self.lives
     
+
     def getScore(self):
         return self.score
+    
 
-    # Añade puntuación a la rana y devuelve la cantidad tras eso
+    def resetAtPosition(self, position):
+        "Se coloca al jugador en una posición concreta y se resetean los movimientos"
+        self.establecerPosicion(position)
+        self.isJumping = False
+        self.isLoadingJump = False
+        self.mirando = ARRIBA
+        self.numPostura = IDLE_UP_SPRITE
+
+
     def addScore(self, quantity):
+        "Añade puntuación a la rana, se lo notifica a los subscriptores y devuelve la cantidad tras eso"
         self.score += quantity
         self.notifyListeners(self.subscribers_score, self.score)
         return self.score
 
-    # Le resta una vida a la rana y devuelve la cantidad
+
     def damage(self):
+        "Le resta una vida al jugador, se lo notifica a los subscriptores y devuelve la cantidad a quien llama este método"
         self.lives = max(0, self.lives-1)
         self.notifyListeners(self.subscribers_lives, self.lives)
         return self.lives
 
-    # Está la rana preparándose para saltar?
+
     def isLoadingJump(self):
+        "Está la rana preparándose para saltar?"
         return self.isLoadingJump
 
-    # La rana está saltando?
+
     def isJumping(self):
+        "La rana está saltando?"
         return self.isJumping
-        
-    def notifyListeners(self, listenerList: List[Listener], dato):
+    
+
+    def notifyListeners(self, listenerList: list[Listener], dato):
+        "Notificar a los listeners de una lista específica de listeners"
         for listerine in listenerList:
             listerine.run(dato)
 
     def addListenersLives(self, listener: Listener):
+        "Añadir un listener a la lista de suscriptores para conocer cambios en las vidas"
         self.subscribers_lives.append(listener)
-    
+
     def addListenersScore(self, listener: Listener):
+        "Añadir un listener a la lista de suscriptores para conocer cambios en la puntuación"
         self.subscribers_lives.append(listener)
 
     def addListenersJump(self, listener: Listener):
+        "Añadir un listener a la lista de suscriptores para saber el tiempo que el salto lleva cargando"
         self.subscribers_jump.append(listener)
 
-    def salto(self, distance, velocidad):
-        if self.mirando == ARRIBA:
-            return ((self.posicion[0], max(0, self.posicion[1]-distance))), 0, -velocidad
-        if self.mirando == ABAJO:
-            return ((self.posicion[0], min(ALTO_PANTALLA, self.posicion[1]+distance))), 0, velocidad
-        if self.mirando == DERECHA:
-            return ((min(ANCHO_PANTALLA, self.posicion[0] + distance), self.posicion[1])), velocidad, 0
-        if self.mirando == IZQUIERDA:
-            return ((max(0, self.posicion[0] - distance), self.posicion[1])), -velocidad, 0
 
-    def reachedPosition(self):
-        if self.mirando == ARRIBA:
-            return self.posicion[1]<=self.pos_final[1]
-        if self.mirando == ABAJO:
-            return self.posicion[1]>=self.pos_final[1]
-        if self.mirando == DERECHA:
-            return self.posicion[0]>=self.pos_final[0]
-        if self.mirando == IZQUIERDA:
-            return self.posicion[0]<=self.pos_final[0]
-
-    # Suma dos vectores y devuelve el resultado
     def sumav(self, a: list, b: list):
+        "Suma dos vectores y devuelve el resultado"
         c = b.copy()
         for n in range(b.__len__()):
             c[n] = a[n] + b[n]
@@ -411,14 +411,16 @@ class Jugador(Personaje):
 
         ##  self.movimiento and self.movimientoPasado
         if (self.isJumping):
-            if (self.reachedPosition()):
+            if ((self.ts <= 0) or (self.posicion == self.posicion_anterior)):
                 self.isJumping = False
                 if(self.mirando == DERECHA or self.mirando == IZQUIERDA):
                     self.numPostura = IDLE_SIDE_SPRITE
                 if(self.mirando == ABAJO):
                     self.numPostura = IDLE_DOWN_SPRITE
                 if(self.mirando == ARRIBA):
-                    self.numPostura = IDLE_UP_SPRITE    
+                    self.numPostura = IDLE_UP_SPRITE
+            else:
+                self.ts -= tiempo
         elif (not self.isLoadingJump and self.movimiento[4]): # Quiero cargar salto
             self.isLoadingJump = True
             self.t0 = tiempo
@@ -432,14 +434,23 @@ class Jugador(Personaje):
             self.notifyListeners(self.subscribers_jump, 0)
             if(self.mirando == ARRIBA):
                 self.numPostura = JUMPING_UP_SPRITE
+                velocidadx = 0
+                velocidady = -self.jump_velocity
             elif(self.mirando == ABAJO):
                 self.numPostura = JUMPING_DOWN_SPRITE
-            elif(self.mirando == IZQUIERDA) or (self.mirando == DERECHA):
+                velocidadx = 0
+                velocidady = self.jump_velocity
+            else:
+                if(self.mirando == IZQUIERDA):
+                    velocidadx = -self.jump_velocity
+                else:
+                    velocidadx = self.jump_velocity
+                velocidady = 0
                 self.numPostura = JUMPING_SIDE_SPRITE
             jump_distance = (((self.t0) / 1000) / self.max_Time) * self.max_jump_distance
             jump_distance = min(self.max_jump_distance, jump_distance)
-            self.pos_final, velocidadx, velocidady = self.salto(jump_distance, self.jump_velocity)
-            
+            # Math: T_s = \frac{\min(\Delta_{max}, \frac{T_p}{T_{p max}} \times \Delta_{max})}{V_s}
+            self.ts = (min(self.max_jump_distance, self.max_jump_distance * (self.t0 / 1000)/self.max_Time)) / self.jump_velocity
         elif (self.movimiento == self.sumav(M_IZQUIERDA, M_ARRIBA)):
             self.movimiento = self.movimientoPasado
 
@@ -535,11 +546,14 @@ class Jugador(Personaje):
         # Aplicamos la velocidad en cada eje      
         self.velocidad = (velocidadx, velocidady)
 
+        self.posicion_anterior = self.posicion
+
         # Y llamamos al método de la superclase para que, según la velocidad y el tiempo
         #  calcule la nueva posición del Sprite
         MiSprite.update(self, tiempo)
         
         return
+
 
 # -------------------------------------------------
 # Clase NoJugador
