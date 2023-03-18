@@ -31,7 +31,7 @@ class Fase2(Escena):
         pygame.mixer.pre_init(44100, 16, 2, 512)   # el archivo tiene que estar formateado con exactamente la misma
                                                     # frecuencia, bitrate y canales para que pueda abrirlo
         pygame.mixer.init()
-        self.caidaAgua = GestorRecursos.CargarSonido("Heavy-Splash.ogg")
+        self.caidaLava = GestorRecursos.CargarSonido("burnt_lava.ogg")
         self.croak = GestorRecursos.CargarSonido("croak.ogg")
         self.kaorc = GestorRecursos.CargarSonido("kaorc.ogg")
         pygame.mixer.set_reserved(4) # reservamos canales para efectos de sonido
@@ -40,7 +40,7 @@ class Fase2(Escena):
         self.canal_reservado_2 = pygame.mixer.Channel(2)
 
         # musiquita
-        pygame.mixer.music.load("sonidos/route11_-_hg_ss.ogg")
+        pygame.mixer.music.load("sonidos/death_mountain_twilight.ogg")
         pygame.mixer.music.set_volume(0.2) # valores entre 0.0 y 1.0
         pygame.mixer.music.play(-1) # el -1 hace que suene en bucle
 
@@ -60,7 +60,7 @@ class Fase2(Escena):
         Escena.__init__(self, director)
 
         # Creamos el fondo
-        self.fondo = Fondo()
+        self.fondo = Fondo('lava.jpeg')
 
         # Que parte del fondo estamos visualizando
         self.scrollx = 0
@@ -77,20 +77,20 @@ class Fase2(Escena):
         # (MoverIzq->Derecha, moverArriba->Abajo, Ancho, Largo)
         #Escalado de la imagen debe ser igual que el largo y el ancho!
 
-        plataformaBase = Plataforma(pygame.Rect(0, 1200, 800, 200),'piedra.jpeg', 800, 200, False)
-        plataforma1 = Plataforma(pygame.Rect(250, 1050, 300, 100),'piedra.jpeg', 300, 100, False)
-        plataforma2 = Plataforma(pygame.Rect(150, 850, 500, 75),'piedra.jpeg', 500, 75, False)
-        plataforma3 = Plataforma(pygame.Rect(100, 660, 250, 55),'piedra.jpeg', 250, 55, False)
-        plataforma4 = Plataforma(pygame.Rect(450, 660, 250, 55),'piedra.jpeg', 250, 55, False)
-        plataforma5 = Plataforma(pygame.Rect(150, 500, 150, 45),'piedra.jpeg', 150, 45, False)
+        plataformaBase = Plataforma(pygame.Rect(0, 1200, 800, 200),'piedra.jpeg', 800, 200)
+        plataforma1 = Plataforma(pygame.Rect(250, 1050, 300, 100),'piedra.jpeg', 300, 100)
+        plataforma2 = Plataforma(pygame.Rect(150, 850, 500, 75),'piedra.jpeg', 500, 75)
+        plataforma3 = Plataforma(pygame.Rect(100, 660, 250, 55),'piedra.jpeg', 250, 55)
+        plataforma4 = Plataforma(pygame.Rect(450, 660, 250, 55),'piedra.jpeg', 250, 55)
+        plataforma5 = Plataforma(pygame.Rect(150, 500, 150, 45),'piedra.jpeg', 150, 45)
         nenufar1 = Nenufar(pygame.Rect(150, 180, 100, 45))
         nenufar2 = Nenufar(pygame.Rect(350, 180, 100, 45))
         nenufar3 = Nenufar(pygame.Rect(550, 180, 100, 45))
         nenufar4 = Nenufar(pygame.Rect(350, 500, 100, 45))
         nenufar5 = Nenufar(pygame.Rect(350, 330, 100, 45))
-        self.dnenufar1 = DNenufar(pygame.Rect(700, 900, 50, 50), 300)
+        self.dnenufar1 = DNenufar(pygame.Rect(700, 900, 50, 50))
         #plataforma final
-        self.plataformaFinal= Plataforma(pygame.Rect(350, 30, 50, 50),'trofeo.png', 100, 100, True)
+        self.plataformaFinal= Plataforma(pygame.Rect(350, 30, 50, 50),'trofeo.png', 100, 100)
 
         self.hud = HUD((0, 55), 'rectangulo_blanco.jpeg', 150, 50)
         self.progress_bar = BarraCarga((1, 54), 'PasoBarra.png', 148, 48, self.jugador.max_Time)
@@ -341,7 +341,7 @@ class Fase2(Escena):
             self.jugador.damage()
         
         if(self.isOnWater(self.jugador,self.grupoPlataformas) and  not self.jugador.isJumping):
-            self.canal_reservado_0.play(self.caidaAgua)
+            self.canal_reservado_0.play(self.caidaLava)
             print("ESTOY EN EL AGUA")
             self.jugador.establecerPosicion(POS_INI_JUGADOR)
             self.jugador.damage()

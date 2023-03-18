@@ -61,7 +61,7 @@ class Fase(Escena):
         Escena.__init__(self, director)
 
         # Creamos el fondo
-        self.fondo = Fondo()
+        self.fondo = Fondo('water_tile.png')
 
         # Que parte del fondo estamos visualizando
         self.scrollx = 0
@@ -78,20 +78,20 @@ class Fase(Escena):
         # (MoverIzq->Derecha, moverArriba->Abajo, Ancho, Largo)
         #Escalado de la imagen debe ser igual que el largo y el ancho!
 
-        plataformaBase = Plataforma(pygame.Rect(0, 1200, 800, 200),'madera.png', 800, 200, False)
-        plataforma1 = Plataforma(pygame.Rect(250, 1050, 300, 100),'madera.png', 300, 100, False)
-        plataforma2 = Plataforma(pygame.Rect(150, 850, 500, 75),'madera.png', 500, 75, False)
-        plataforma3 = Plataforma(pygame.Rect(100, 660, 250, 55),'madera.png', 250, 55, False)
-        plataforma4 = Plataforma(pygame.Rect(450, 660, 250, 55),'madera.png', 250, 55, False)
-        plataforma5 = Plataforma(pygame.Rect(150, 500, 150, 45),'madera.png', 150, 45, False)
+        plataformaBase = Plataforma(pygame.Rect(0, 1200, 800, 200),'madera.png', 800, 200)
+        plataforma1 = Plataforma(pygame.Rect(250, 1050, 300, 100),'madera.png', 300, 100)
+        plataforma2 = Plataforma(pygame.Rect(150, 850, 500, 75),'madera.png', 500, 75)
+        plataforma3 = Plataforma(pygame.Rect(100, 660, 250, 55),'madera.png', 250, 55)
+        plataforma4 = Plataforma(pygame.Rect(450, 660, 250, 55),'madera.png', 250, 55)
+        plataforma5 = Plataforma(pygame.Rect(150, 500, 150, 45),'madera.png', 150, 45)
         nenufar1 = Nenufar(pygame.Rect(150, 180, 100, 45))
         nenufar2 = Nenufar(pygame.Rect(350, 180, 100, 45))
         nenufar3 = Nenufar(pygame.Rect(550, 180, 100, 45))
         nenufar4 = Nenufar(pygame.Rect(350, 500, 100, 45))
         nenufar5 = Nenufar(pygame.Rect(350, 330, 100, 45))
-        self.dnenufar1 = DNenufar(pygame.Rect(700, 900, 50, 50), 300)
+        self.dnenufar1 = DNenufar(pygame.Rect(700, 900, 50, 50))
         #plataforma final
-        self.plataformaFinal= Plataforma(pygame.Rect(350, 30, 50, 50),'trofeo.png', 100, 100, True)
+        self.plataformaFinal= Plataforma(pygame.Rect(0, 0, 800, 100),'piedra.jpeg', 800, 100)
 
         self.hud = HUD((0, 55), 'rectangulo_blanco.jpeg', 150, 50)
         self.progress_bar = BarraCarga((1, 54), 'PasoBarra.png', 148, 48, self.jugador.max_Time)

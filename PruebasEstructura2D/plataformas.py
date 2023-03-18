@@ -25,13 +25,11 @@ class Insecto(MiSprite):
 
 #class Plataforma(pygame.sprite.Sprite):
 class Plataforma(MiSprite):
-    def __init__(self,rectangulo, imagen, scaleX, scaleY, final):
+    def __init__(self,rectangulo, imagen, scaleX, scaleY):
         # Primero invocamos al constructor de la clase padre
         MiSprite.__init__(self)
         # Rectangulo con las coordenadas en pantalla que ocupara
         self.rect = rectangulo
-        #para saber si es la plataforma final
-        self.final = final
         # Y lo situamos de forma global en esas coordenadas
         self.establecerPosicion((self.rect.left, self.rect.bottom))
         # En el caso particular de este juego, las plataformas no se van a ver, asi que no se carga ninguna imagen
@@ -41,13 +39,11 @@ class Plataforma(MiSprite):
 
 #class Plataforma(pygame.sprite.Sprite):
 class Plataforma2(pygame.sprite.Sprite):
-    def __init__(self,rectangulo, imagen, scaleX, scaleY, final):
+    def __init__(self,rectangulo, imagen, scaleX, scaleY):
         # Primero invocamos al constructor de la clase padre
         MiSprite.__init__(self)
         # Rectangulo con las coordenadas en pantalla que ocupara
         self.rect = rectangulo
-        #para saber si es la plataforma final
-        self.final = final
         # Y lo situamos de forma global en esas coordenadas
         #self.establecerPosicion((self.rect.left, self.rect.bottom))
         # En el caso particular de este juego, las plataformas no se van a ver, asi que no se carga ninguna imagen
@@ -71,7 +67,7 @@ class Nenufar(MiSprite):
 
 # plataforma dNenufar
 class DNenufar(MiSprite):
-    def __init__(self, rectangulo, tiempoActivo=300):
+    def __init__(self, rectangulo, tiempoActivo=180):
         # Primero invocamos al constructor de la clase padre
         MiSprite.__init__(self)
         # Rectangulo con las coordenadas en pantalla que ocupara
@@ -103,14 +99,14 @@ class DNenufar(MiSprite):
             if self.timer <= 0:
                 self.visible = True
                 self.timer = 0
-                
+
 # -------------------------------------------------
 # Clase Fondo
 
 class Fondo:
-    def __init__(self):
-        self.tile = GestorRecursos.CargarImagen('water_tile.png', 0) # Cargar textura de fondo
-        self.imagen = pygame.Surface((800, 1400)) # Crear capa de fondo
+    def __init__(self, imagen, alto=1400):
+        self.tile = GestorRecursos.CargarImagen(imagen, 0) # Cargar textura de fondo
+        self.imagen = pygame.Surface((800, alto)) # Crear capa de fondo
         self.imagen = self.imagen.convert()
 
         # Rellenar capa de fondo con la imagen
