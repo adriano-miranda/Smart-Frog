@@ -123,7 +123,7 @@ class Personaje(MiSprite):
 
         # El movimiento que el usuario quiere realizar
         self.movimiento       = [0, 0, 0, 0, 0]
-        self.movimientoPasado = [1, 1, 1, 1, 1]
+        self.movimientoPasado = [0, 0, 0, 0, 0]
         
         # Lado hacia el que esta mirando
         self.mirando = ARRIBA
@@ -196,33 +196,16 @@ class Personaje(MiSprite):
             elif self.mirando == DERECHA:
                 self.image = pygame.transform.flip(self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura]), 1, 0)
 
-    def salto(self, distance, velocidad):
+
+    def detener(self):
+        "Detiene al jugador y se queda \"idle\" mirando hacia la dirección en la que estaba"
         if self.mirando == ARRIBA:
-            return ((self.posicion[0], max(0, self.posicion[1]-distance))), 0, -velocidad
-        if self.mirando == ABAJO:
-            return ((self.posicion[0], min(ALTO_PANTALLA, self.posicion[1]+distance))), 0, velocidad
-        if self.mirando == DERECHA:
-            return ((min(ANCHO_PANTALLA, self.posicion[0] + distance), self.posicion[1])), velocidad, 0
-        if self.mirando == IZQUIERDA:
-            return ((max(0, self.posicion[0] - distance), self.posicion[1])), -velocidad, 0
+            self.numPostura = IDLE_UP_SPRITE
+        elif self.mirando == ABAJO:
+            self.numPostura = IDLE_DOWN_SPRITE
+        else:
+            self.numPostura = IDLE_SIDE_SPRITE
 
-    def reachedPosition(self):
-        if self.mirando == ARRIBA:
-            return self.posicion[1]<=self.pos_final[1]
-        if self.mirando == ABAJO:
-            return self.posicion[1]>=self.pos_final[1]
-        if self.mirando == DERECHA:
-            return self.posicion[0]>=self.pos_final[0]
-        if self.mirando == IZQUIERDA:
-            return self.posicion[0]<=self.pos_final[0]
-
-
-    def sumav(self, a: list, b: list):
-        c = b.copy()
-        for n in range(b.__len__()):
-            c[n] = a[n] + b[n]
-        return c
-    
     def update(self, grupoPlataformas, tiempo):
 
         # Las velocidades a las que iba hasta este momento
@@ -413,16 +396,20 @@ class Jugador(Personaje):
         if (self.isJumping):
             if ((self.ts <= 0) or (self.posicion == self.posicion_anterior)):
                 self.isJumping = False
-                if(self.mirando == DERECHA or self.mirando == IZQUIERDA):
-                    self.numPostura = IDLE_SIDE_SPRITE
-                if(self.mirando == ABAJO):
-                    self.numPostura = IDLE_DOWN_SPRITE
-                if(self.mirando == ARRIBA):
-                    self.numPostura = IDLE_UP_SPRITE
+                self.detener()
+                # if(self.mirando == DERECHA or self.mirando == IZQUIERDA):
+                #     self.numPostura = IDLE_SIDE_SPRITE
+                # if(self.mirando == ABAJO):
+                #     self.numPostura = IDLE_DOWN_SPRITE
+                # if(self.mirando == ARRIBA):
+                #     self.numPostura = IDLE_UP_SPRITE
             else:
                 self.ts -= tiempo
         elif (not self.isLoadingJump and self.movimiento[4]): # Quiero cargar salto
             self.isLoadingJump = True
+            self.movimiento = M_QUIETO
+            velocidadx = velocidady = 0
+            self.detener()
             self.t0 = tiempo
             self.notifyListeners(self.subscribers_jump, self.t0)
         elif (self.isLoadingJump and self.movimiento[4]):
@@ -465,21 +452,23 @@ class Jugador(Personaje):
 
         elif (self.movimiento == M_ARRIBA):
             # La postura actual sera estar saltando
-            self.numPostura = MOVING_UP_SPRITE
             self.mirando = ARRIBA
-            # Le imprimimos una velocidad en el eje y
-            velocidady = -self.velocidadCarrera
-            velocidadx = 0
-            self.moviendose = 1
+            if not self.isJumping:
+                self.numPostura = MOVING_UP_SPRITE
+                # Le imprimimos una velocidad en el eje y
+                velocidady = -self.velocidadCarrera
+                velocidadx = 0
+                self.moviendose = 1
 
         elif (self.movimiento == M_ABAJO):
             # La postura actual sera estar saltando
-            self.numPostura = MOVING_DOWN_SPRITE
             self.mirando = ABAJO
-            # Le imprimimos una velocidad en el eje y
-            velocidady = +self.velocidadCarrera
-            velocidadx = 0
-            self.moviendose = 1
+            if not self.isJumping:
+                self.numPostura = MOVING_DOWN_SPRITE
+                # Le imprimimos una velocidad en el eje y
+                velocidady = +self.velocidadCarrera
+                velocidadx = 0
+                self.moviendose = 1
 
         elif (self.movimiento == self.sumav(M_ARRIBA, M_ABAJO)):
             # Si no estamos saltando, la postura actual será estar quieto
@@ -497,18 +486,20 @@ class Jugador(Personaje):
             self.moviendose = 0
 
         elif (self.movimiento == M_DERECHA):
-            velocidadx = self.velocidadCarrera
-            velocidady = 0
-            self.numPostura = MOVING_SIDE_SPRITE
             self.mirando = DERECHA
-            self.moviendose = 1
+            if not self.isJumping:
+                velocidadx = self.velocidadCarrera
+                velocidady = 0
+                self.numPostura = MOVING_SIDE_SPRITE
+                self.moviendose = 1
 
         elif (self.movimiento == M_IZQUIERDA):
-            velocidadx = -self.velocidadCarrera
-            velocidady = 0
-            self.numPostura = MOVING_SIDE_SPRITE
             self.mirando = IZQUIERDA
-            self.moviendose = 1
+            if not self.isJumping:
+                velocidadx = -self.velocidadCarrera
+                velocidady = 0
+                self.numPostura = MOVING_SIDE_SPRITE
+                self.moviendose = 1
 
         elif (self.movimiento == self.sumav(M_DERECHA, M_IZQUIERDA)):
             # Si no estamos saltando, la postura actual será estar quieto
