@@ -6,6 +6,7 @@ from plataformas import *
 from gameOver import GameOver
 from victory import Victory
 from hud import *
+from persistentData import *
 # -------------------------------------------------
 # -------------------------------------------------
 # Constantes
@@ -365,6 +366,8 @@ class Fase(Escena):
 
         if self.isFinalPlatform(self.jugador):
             print('Estoy en la plataforma final')
+            # Guardo los datos de las vidas en el almacén de persistencia
+            self.director.persistentData.addKeyValue(persistentData.key_remaining_lives, self.jugador.getLives())
             #paso a la pantalla de victoria
             self.victory()
         #print("Estoy en la posicion: ",self.jugador.posicion )        

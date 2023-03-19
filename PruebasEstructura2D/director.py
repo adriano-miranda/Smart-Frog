@@ -3,6 +3,7 @@
 # Modulos
 import pygame
 import sys
+from persistentData import *
 #import escena
 from escena import *
 from pygame.locals import *
@@ -14,6 +15,8 @@ class Director():
         # Inicializamos la pantalla y el modo grafico
         self.screen = pygame.display.set_mode((ANCHO_PANTALLA, ALTO_PANTALLA))
         pygame.display.set_caption("Smart Frog")
+        # Datos persistentes
+        self.persistentData = persistentData()
         # Pila de escenas
         self.pila = []
         # Flag que nos indica cuando quieren salir de la escena

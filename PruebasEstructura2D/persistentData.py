@@ -1,5 +1,7 @@
 class persistentData():
 
+    key_remaining_lives = "actual_lives"
+
     def __init__(self) -> None:
         self.RAE = {
             "version": "1.00",

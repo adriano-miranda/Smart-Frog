@@ -5,6 +5,7 @@ from personajes import *
 from plataformas import *
 from gameOver import GameOver
 from hud import *
+from persistentData import *
 # -------------------------------------------------
 # -------------------------------------------------
 # Constantes
@@ -44,6 +45,8 @@ class Fase2(Escena):
         pygame.mixer.music.set_volume(0.2) # valores entre 0.0 y 1.0
         pygame.mixer.music.play(-1) # el -1 hace que suene en bucle
 
+        vidas_rana = director.persistentData.getKeyBut(persistentData.key_remaining_lives, 3)
+
 
 
         # Habria que pasarle como parámetro el número de fase, a partir del cual se cargue
@@ -67,7 +70,7 @@ class Fase2(Escena):
         self.scrolly = 0
 
         # Creamos los sprites de los jugadores
-        self.jugador = Jugador()
+        self.jugador = Jugador(lives=vidas_rana)
         self.grupoJugadores = pygame.sprite.Group(self.jugador)
 
         # Ponemos a los jugadores en sus posiciones iniciales
