@@ -199,6 +199,7 @@ class Personaje(MiSprite):
 
     def detener(self):
         "Detiene al jugador y se queda \"idle\" mirando hacia la dirección en la que estaba"
+        self.velocidad = (0,0)
         if self.mirando == ARRIBA:
             self.numPostura = IDLE_UP_SPRITE
         elif self.mirando == ABAJO:
@@ -301,6 +302,9 @@ class Jugador(Personaje):
         self.isLoadingJump = False
         self.isJumping = False
 
+        self.t0 = 0 # Tiempo (aprox.) que el usuario ha mantenido la tecla de salto
+        self.ts = 0 # Tiempo que el jugador va a saltar hasta que se detenga, sino se detiene antes
+
         # Invocamos al constructor de la clase padre con la configuracion de este personaje concreto
         Personaje.__init__(self,'frog_sprites.png','coordRana.txt', [1, 2, 2, 2, 2, 2, 1, 1, 1], VELOCIDAD_JUGADOR, VELOCIDAD_SALTO_JUGADOR, RETARDO_ANIMACION_JUGADOR);
 
@@ -387,6 +391,13 @@ class Jugador(Personaje):
             c[n] = a[n] + b[n]
         return c
     
+    def diff(self, a:list, b:list) -> list:
+        "la lista A, debería ser la más grande, sino podrían quedar valores negativos"
+        c = a.copy()
+        for n in range(a.__len__()):
+                c[n] -= b[n]
+        return c
+
     def update(self, grupoPlataformas, tiempo):
     
         # Las velocidades a las que iba hasta este momento
@@ -397,139 +408,151 @@ class Jugador(Personaje):
             if ((self.ts <= 0) or (self.posicion == self.posicion_anterior)):
                 self.isJumping = False
                 self.detener()
-                # if(self.mirando == DERECHA or self.mirando == IZQUIERDA):
-                #     self.numPostura = IDLE_SIDE_SPRITE
-                # if(self.mirando == ABAJO):
-                #     self.numPostura = IDLE_DOWN_SPRITE
-                # if(self.mirando == ARRIBA):
-                #     self.numPostura = IDLE_UP_SPRITE
             else:
                 self.ts -= tiempo
-        elif (not self.isLoadingJump and self.movimiento[4]): # Quiero cargar salto
-            self.isLoadingJump = True
-            self.movimiento = M_QUIETO
-            velocidadx = velocidady = 0
-            self.detener()
-            self.t0 = tiempo
-            self.notifyListeners(self.subscribers_jump, self.t0)
-        elif (self.isLoadingJump and self.movimiento[4]):
-            self.t0 += tiempo
-            self.notifyListeners(self.subscribers_jump, self.t0)
-        elif (self.isLoadingJump and (not self.movimiento[4])): # Ahora si salto
-            self.isLoadingJump = False
-            self.isJumping = True
-            self.notifyListeners(self.subscribers_jump, 0)
-            if(self.mirando == ARRIBA):
-                self.numPostura = JUMPING_UP_SPRITE
-                velocidadx = 0
-                velocidady = -self.jump_velocity
-            elif(self.mirando == ABAJO):
-                self.numPostura = JUMPING_DOWN_SPRITE
-                velocidadx = 0
-                velocidady = self.jump_velocity
-            else:
-                if(self.mirando == IZQUIERDA):
-                    velocidadx = -self.jump_velocity
+        else:
+            if (self.isLoadingJump and (not self.movimiento[4])): # Ahora si salto
+                self.isLoadingJump = False
+                self.isJumping = True
+                self.notifyListeners(self.subscribers_jump, 0)
+                if(self.mirando == ARRIBA):
+                    self.numPostura = JUMPING_UP_SPRITE
+                    velocidadx = 0
+                    velocidady = -self.jump_velocity
+                elif(self.mirando == ABAJO):
+                    self.numPostura = JUMPING_DOWN_SPRITE
+                    velocidadx = 0
+                    velocidady = self.jump_velocity
                 else:
-                    velocidadx = self.jump_velocity
-                velocidady = 0
-                self.numPostura = JUMPING_SIDE_SPRITE
-            jump_distance = (((self.t0) / 1000) / self.max_Time) * self.max_jump_distance
-            jump_distance = min(self.max_jump_distance, jump_distance)
-            # Math: T_s = \frac{\min(\Delta_{max}, \frac{T_p}{T_{p max}} \times \Delta_{max})}{V_s}
-            self.ts = (min(self.max_jump_distance, self.max_jump_distance * (self.t0 / 1000)/self.max_Time)) / self.jump_velocity
-        elif (self.movimiento == self.sumav(M_IZQUIERDA, M_ARRIBA)):
-            self.movimiento = self.movimientoPasado
+                    if(self.mirando == IZQUIERDA):
+                        velocidadx = -self.jump_velocity
+                    else:
+                        velocidadx = self.jump_velocity
+                    velocidady = 0
+                    self.numPostura = JUMPING_SIDE_SPRITE
+                jump_distance = (((self.t0) / 1000) / self.max_Time) * self.max_jump_distance
+                jump_distance = min(self.max_jump_distance, jump_distance)
+                # Math: T_s = \frac{\min(\Delta_{max}, \frac{T_p}{T_{p max}} \times \Delta_{max})}{V_s}
+                self.ts = (min(self.max_jump_distance, self.max_jump_distance * (self.t0 / 1000)/self.max_Time)) / self.jump_velocity
+            else:
+                if (not self.isLoadingJump and self.movimiento[4]): # Quiero cargar salto
+                    self.isLoadingJump = True
+                    velocidadx = velocidady = 0
+                    self.detener()
+                    self.t0 = tiempo
+                    self.notifyListeners(self.subscribers_jump, self.t0)
+                elif (self.isLoadingJump and self.movimiento[4]):   # Estoy cargando el salto
+                    self.t0 += tiempo
+                    self.notifyListeners(self.subscribers_jump, self.t0)
+                    if self.movimiento[ARRIBA]:
+                        self.mirando = ARRIBA
+                        self.numPostura = 0
+                    if self.movimiento[IZQUIERDA]:
+                        self.mirando = IZQUIERDA
+                        self.numPostura = 2
+                    if self.movimiento[DERECHA]:
+                        self.mirando = DERECHA
+                        self.numPostura = 2
+                    if self.movimiento[ABAJO]:
+                        self.mirando = ABAJO
+                        self.numPostura = 1
+                
+                # DIAGONAL
+                elif (self.movimiento == self.sumav(M_IZQUIERDA, M_ARRIBA)):
+                    self.movimiento = self.movimientoPasado
 
-        elif (self.movimiento == self.sumav(M_IZQUIERDA, M_ABAJO)):
-            self.movimiento = self.movimientoPasado
+                # DIAGONAL
+                elif (self.movimiento == self.sumav(M_IZQUIERDA, M_ABAJO)):
+                    self.movimiento = self.movimientoPasado
 
-        elif (self.movimiento == self.sumav(M_DERECHA, M_ARRIBA)):
-            self.movimiento = self.movimientoPasado
-            
-        elif (self.movimiento == self.sumav(M_DERECHA, M_ABAJO)):
-            self.movimiento = self.movimientoPasado
+                # DIAGONAL
+                elif (self.movimiento == self.sumav(M_DERECHA, M_ARRIBA)):
+                    self.movimiento = self.movimientoPasado
+                    
+                # DIAGONAL
+                elif (self.movimiento == self.sumav(M_DERECHA, M_ABAJO)):
+                    self.movimiento = self.movimientoPasado
 
-        elif (self.movimiento == M_ARRIBA):
-            # La postura actual sera estar saltando
-            self.mirando = ARRIBA
-            if not self.isJumping:
-                self.numPostura = MOVING_UP_SPRITE
-                # Le imprimimos una velocidad en el eje y
-                velocidady = -self.velocidadCarrera
-                velocidadx = 0
-                self.moviendose = 1
+                elif (self.movimiento == M_ARRIBA):
+                    # La postura actual sera estar saltando
+                    self.mirando = ARRIBA
+                    if not self.isLoadingJump:
+                        self.numPostura = MOVING_UP_SPRITE
+                        # Le imprimimos una velocidad en el eje y
+                        velocidady = -self.velocidadCarrera
+                        velocidadx = 0
+                        self.moviendose = 1
 
-        elif (self.movimiento == M_ABAJO):
-            # La postura actual sera estar saltando
-            self.mirando = ABAJO
-            if not self.isJumping:
-                self.numPostura = MOVING_DOWN_SPRITE
-                # Le imprimimos una velocidad en el eje y
-                velocidady = +self.velocidadCarrera
-                velocidadx = 0
-                self.moviendose = 1
+                elif (self.movimiento == M_ABAJO):
+                    # La postura actual sera estar saltando
+                    self.mirando = ABAJO
+                    if not self.isLoadingJump:
+                        self.numPostura = MOVING_DOWN_SPRITE
+                        # Le imprimimos una velocidad en el eje y
+                        velocidady = +self.velocidadCarrera
+                        velocidadx = 0
+                        self.moviendose = 1
 
-        elif (self.movimiento == self.sumav(M_ARRIBA, M_ABAJO)):
-            # Si no estamos saltando, la postura actual será estar quieto
-            if self.numPostura == MOVING_UP_SPRITE:
-                self.numPostura = IDLE_UP_SPRITE
+                elif (self.movimiento == self.sumav(M_ARRIBA, M_ABAJO)):
+                    # Si no estamos saltando, la postura actual será estar quieto
+                    if self.numPostura == MOVING_UP_SPRITE:
+                        self.numPostura = IDLE_UP_SPRITE
 
-            elif self.numPostura == MOVING_DOWN_SPRITE:
-                self.numPostura = IDLE_DOWN_SPRITE
+                    elif self.numPostura == MOVING_DOWN_SPRITE:
+                        self.numPostura = IDLE_DOWN_SPRITE
 
-            elif self.numPostura == MOVING_SIDE_SPRITE:
-                self.numPostura = IDLE_SIDE_SPRITE
+                    elif self.numPostura == MOVING_SIDE_SPRITE:
+                        self.numPostura = IDLE_SIDE_SPRITE
 
-            velocidadx = 0
-            velocidady = 0
-            self.moviendose = 0
+                    velocidadx = 0
+                    velocidady = 0
+                    self.moviendose = 0
 
-        elif (self.movimiento == M_DERECHA):
-            self.mirando = DERECHA
-            if not self.isJumping:
-                velocidadx = self.velocidadCarrera
-                velocidady = 0
-                self.numPostura = MOVING_SIDE_SPRITE
-                self.moviendose = 1
+                elif (self.movimiento == M_DERECHA):
+                    self.mirando = DERECHA
+                    if not self.isLoadingJump:
+                        velocidadx = self.velocidadCarrera
+                        velocidady = 0
+                        self.numPostura = MOVING_SIDE_SPRITE
+                        self.moviendose = 1
 
-        elif (self.movimiento == M_IZQUIERDA):
-            self.mirando = IZQUIERDA
-            if not self.isJumping:
-                velocidadx = -self.velocidadCarrera
-                velocidady = 0
-                self.numPostura = MOVING_SIDE_SPRITE
-                self.moviendose = 1
+                elif (self.movimiento == M_IZQUIERDA):
+                    self.mirando = IZQUIERDA
+                    if not self.isLoadingJump:
+                        velocidadx = -self.velocidadCarrera
+                        velocidady = 0
+                        self.numPostura = MOVING_SIDE_SPRITE
+                        self.moviendose = 1
 
-        elif (self.movimiento == self.sumav(M_DERECHA, M_IZQUIERDA)):
-            # Si no estamos saltando, la postura actual será estar quieto
-            if self.numPostura == MOVING_UP_SPRITE:
-                self.numPostura = IDLE_UP_SPRITE
+                elif (self.movimiento == self.sumav(M_DERECHA, M_IZQUIERDA)):
+                    # Si no estamos saltando, la postura actual será estar quieto
+                    if self.numPostura == MOVING_UP_SPRITE:
+                        self.numPostura = IDLE_UP_SPRITE
 
-            elif self.numPostura == MOVING_DOWN_SPRITE:
-                self.numPostura = IDLE_DOWN_SPRITE
+                    elif self.numPostura == MOVING_DOWN_SPRITE:
+                        self.numPostura = IDLE_DOWN_SPRITE
 
-            elif self.numPostura == MOVING_SIDE_SPRITE:
-                self.numPostura = IDLE_SIDE_SPRITE
+                    elif self.numPostura == MOVING_SIDE_SPRITE:
+                        self.numPostura = IDLE_SIDE_SPRITE
 
-            velocidadx = 0
-            velocidady = 0
-            self.moviendose = 0
+                    velocidadx = 0
+                    velocidady = 0
+                    self.moviendose = 0
 
-        else:   # M_QUIETO
-            # Si no estamos saltando, la postura actual será estar quieto
-            if self.numPostura == MOVING_UP_SPRITE:
-                self.numPostura = IDLE_UP_SPRITE
+                else:   # M_QUIETO
+                    # Si no estamos saltando, la postura actual será estar quieto
+                    if self.numPostura == MOVING_UP_SPRITE:
+                        self.numPostura = IDLE_UP_SPRITE
 
-            elif self.numPostura == MOVING_DOWN_SPRITE:
-                self.numPostura = IDLE_DOWN_SPRITE
+                    elif self.numPostura == MOVING_DOWN_SPRITE:
+                        self.numPostura = IDLE_DOWN_SPRITE
 
-            elif self.numPostura == MOVING_SIDE_SPRITE:
-                self.numPostura = IDLE_SIDE_SPRITE
+                    elif self.numPostura == MOVING_SIDE_SPRITE:
+                        self.numPostura = IDLE_SIDE_SPRITE
 
-            velocidadx = 0
-            velocidady = 0
-            self.moviendose = 0
+                    velocidadx = 0
+                    velocidady = 0
+                    self.moviendose = 0
 
         # Actualizamos la imagen a mostrar
         self.actualizarPostura()

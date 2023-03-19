@@ -27,3 +27,4 @@ class persistentData():
     def addKeyValue(self, key, valor):
         "Añade o actualiza un par (clave, valor) en el diccionario"
         self.RAE[key] = valor
+        print("Almacen: Almacenando " + key + " con valor: " + valor.__str__())
