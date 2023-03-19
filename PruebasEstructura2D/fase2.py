@@ -45,7 +45,6 @@ class Fase2(Escena):
         pygame.mixer.music.set_volume(0.2) # valores entre 0.0 y 1.0
         pygame.mixer.music.play(-1) # el -1 hace que suene en bucle
 
-        vidas_rana = director.persistentData.getKeyBut(persistentData.key_remaining_lives, 3)
 
 
 
@@ -61,6 +60,9 @@ class Fase2(Escena):
 
         # Primero invocamos al constructor de la clase padre
         Escena.__init__(self, director)
+
+        # Recuperamos los datos persistentes que se desee saber
+        vidas_rana = director.persistentData.getKeyBut(persistentData.key_remaining_lives, 3)
 
         # Creamos el fondo
         self.fondo = Fondo('lava.jpeg')

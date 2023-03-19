@@ -1,6 +1,8 @@
 class persistentData():
 
-    key_remaining_lives = "actual_lives"
+    KEY_REMAINING_LIVES = "actual_lives"
+    KEY_GAME_VERSION    = "version"
+    KEY_DEFAULT_LIVES   = "default_lives"
 
     def __init__(self) -> None:
         self.RAE = {
