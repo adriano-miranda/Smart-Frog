@@ -62,7 +62,7 @@ class Fase2(Escena):
         Escena.__init__(self, director)
 
         # Recuperamos los datos persistentes que se desee saber
-        vidas_rana = director.persistentData.getKeyBut(persistentData.key_remaining_lives, 3)
+        vidas_rana = director.persistentData.getKeyBut(persistentData.KEY_REMAINING_LIVES, 3)
 
         # Creamos el fondo
         self.fondo = Fondo('lava.jpeg')
