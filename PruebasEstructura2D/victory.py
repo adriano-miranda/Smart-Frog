@@ -141,7 +141,7 @@ class PantallaGUI:
 
 class PantallaInicialGUI(PantallaGUI):
     def __init__(self, victory, score):
-        PantallaGUI.__init__(self, victory, 'victory.jpeg')
+        PantallaGUI.__init__(self, victory, 'victory.png')
         # Creamos los botones y los metemos en la lista
         botonSalir = BotonSalir(self)
         botonFase2 = BotonFase2(self)

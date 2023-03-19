@@ -108,7 +108,7 @@ class PantallaGUI:
 
 class PantallaInicialGUI(PantallaGUI):
     def __init__(self, gameOver):
-        PantallaGUI.__init__(self, gameOver, 'gameOver.png')
+        PantallaGUI.__init__(self, gameOver, 'Derrota.png')
         # Creamos los botones y los metemos en la lista
         botonSalir = BotonSalir(self)
         self.elementosGUI.append(botonSalir)
