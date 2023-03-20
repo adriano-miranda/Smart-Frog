@@ -51,13 +51,13 @@ class BotonFase2(Boton):
     def __init__(self, pantalla):
         Boton.__init__(self, pantalla, 'next.png', (180,570))
     def accion(self):
-        self.pantalla.victory.salirPrograma()
+        self.pantalla.victory.ejecutarFase2()
 
 class BotonSalir(Boton):
     def __init__(self, pantalla):
         Boton.__init__(self, pantalla, 'exit.png', (450,570))
     def accion(self):
-        self.pantalla.victory.ejecutarFase2()
+        self.pantalla.victory.salirPrograma()
 
 # -------------------------------------------------
 # Clase TextoGUI y los distintos textos
@@ -148,15 +148,15 @@ class PantallaInicialGUI(PantallaGUI):
         self.elementosGUI.append(botonSalir)
         self.elementosGUI.append(botonFase2)
         # Creamos el texto y lo metemos en la lista
-        textoSalir = TextoSalir(self)
+        # textoSalir = TextoSalir(self)
         self.score = score
         textoPuntuacion = TextoPuntuacion(self, self.score)
         textoPuntuacion1 = TextoPuntuacion1(self)
-        textoFase2 = TextoFase2(self)
-        self.elementosGUI.append(textoSalir)
+        # textoFase2 = TextoFase2(self)
+        # self.elementosGUI.append(textoSalir)
         self.elementosGUI.append(textoPuntuacion)
         self.elementosGUI.append(textoPuntuacion1)
-        self.elementosGUI.append(textoFase2)
+        # self.elementosGUI.append(textoFase2)
 # -------------------------------------------------
 # Clase victory, la escena en sí
 

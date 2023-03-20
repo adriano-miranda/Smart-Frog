@@ -97,8 +97,8 @@ class Fase2(Escena):
         #plataforma final
         self.plataformaFinal= Plataforma(pygame.Rect(350, 30, 50, 50),'trofeo.png', 100, 100)
 
-        self.hud = HUD((0, 55), 'rectangulo_blanco.jpeg', 150, 50)
-        self.progress_bar = BarraCarga((1, 54), 'PasoBarra.png', 148, 48, self.jugador.max_Time)
+        self.hud = HUD((16, 56), 'rectangulo_blanco.jpeg', 148, 37)
+        self.progress_bar = BarraCarga((16, 50), 'PasoBarra.png', 148, 48, self.jugador.max_Time)
         #position: Tuple[int], archivoImagen, scaleX, scaleY
         self.hud_vidas = HUDVidas((0, 0), 'corazon1.png', 70, 50, 55, self.jugador.getLives())
 

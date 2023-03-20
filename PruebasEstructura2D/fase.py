@@ -62,7 +62,7 @@ class Fase(Escena):
         Escena.__init__(self, director)
 
         # Creamos el fondo
-        self.fondo = Fondo('water_tile.png')
+        self.fondo = Fondo('chip_background.jpg')
 
         # Que parte del fondo estamos visualizando
         self.scrollx = 0
@@ -94,8 +94,8 @@ class Fase(Escena):
         #plataforma final
         self.plataformaFinal= Plataforma(pygame.Rect(0, 0, 800, 100),'piedra.jpeg', 800, 100)
 
-        self.hud = HUD((0, 56), 'rectangulo_blanco.jpeg', 148, 37)
-        self.progress_bar = BarraCarga((1, 50), 'PasoBarra.png', 148, 48, self.jugador.max_Time)
+        self.hud = HUD((16, 56), 'rectangulo_blanco.jpeg', 148, 37)
+        self.progress_bar = BarraCarga((16, 50), 'PasoBarra.png', 148, 48, self.jugador.max_Time)
         #position: Tuple[int], archivoImagen, scaleX, scaleY
         self.hud_vidas = HUDVidas((0, 0), 'corazon1.png', 70, 50, 55, self.jugador.getLives())
 
