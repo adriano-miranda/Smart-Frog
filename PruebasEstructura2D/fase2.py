@@ -21,7 +21,7 @@ MAXIMO_Y_JUGADOR = ALTO_PANTALLA - MINIMO_Y_JUGADOR
 MINIMO_Y_SCROLL = 250
 MAXIMO_Y_SCROLL = ALTO_PANTALLA - MINIMO_Y_SCROLL
 
-POS_INI_JUGADOR = (380, 1370)
+POS_INI_JUGADOR = (380, 100)
 
 # -------------------------------------------------
 # Clase Fase
@@ -65,7 +65,7 @@ class Fase2(Escena):
         vidas_rana = director.persistentData.getKeyBut(persistentData.KEY_REMAINING_LIVES, 3)
 
         # Creamos el fondo
-        self.fondo = Fondo('lava.jpeg')
+        self.fondo = Fondo('lava.gif', 2000)
 
         # Que parte del fondo estamos visualizando
         self.scrollx = 0
@@ -82,20 +82,30 @@ class Fase2(Escena):
         # (MoverIzq->Derecha, moverArriba->Abajo, Ancho, Largo)
         #Escalado de la imagen debe ser igual que el largo y el ancho!
 
-        plataformaBase = Plataforma(pygame.Rect(0, 1200, 800, 200),'piedra.jpeg', 800, 200)
-        plataforma1 = Plataforma(pygame.Rect(250, 1050, 300, 100),'piedra.jpeg', 300, 100)
-        plataforma2 = Plataforma(pygame.Rect(150, 850, 500, 75),'piedra.jpeg', 500, 75)
-        plataforma3 = Plataforma(pygame.Rect(100, 660, 250, 55),'piedra.jpeg', 250, 55)
-        plataforma4 = Plataforma(pygame.Rect(450, 660, 250, 55),'piedra.jpeg', 250, 55)
-        plataforma5 = Plataforma(pygame.Rect(150, 500, 150, 45),'piedra.jpeg', 150, 45)
-        nenufar1 = Nenufar(pygame.Rect(150, 180, 100, 45))
-        nenufar2 = Nenufar(pygame.Rect(350, 180, 100, 45))
-        nenufar3 = Nenufar(pygame.Rect(550, 180, 100, 45))
-        nenufar4 = Nenufar(pygame.Rect(350, 500, 100, 45))
-        nenufar5 = Nenufar(pygame.Rect(350, 330, 100, 45))
-        self.dnenufar1 = DNenufar(pygame.Rect(700, 900, 50, 50))
+        plataformaBase = Plataforma(pygame.Rect(-50, 1800, 900, 300),'large_stone.png', 900, 260)
+        plataforma1 = Plataforma(pygame.Rect(60, 1600, 300, 100),'squared_stone.png', 300, 100)
+        plataforma2 = Plataforma(pygame.Rect(170, 1400, 300, 75),'squared_stone.png', 300, 75)
+        plataforma3 = Plataforma(pygame.Rect(200, 1230, 500, 75),'squared_stone.png', 500, 75)
+        plataforma4 = Plataforma(pygame.Rect(610, 980, 150, 150),'squared_stone.png', 150, 150)
+        plataforma5 = Plataforma(pygame.Rect(210, 860, 300, 100),'squared_stone.png', 300, 100)
+        plataforma6 = Plataforma(pygame.Rect(120, 460, 500, 100),'squared_stone.png', 500, 100)
+        plataforma7 = Plataforma(pygame.Rect(350, 320, 100, 100),'squared_stone.png', 100, 100)
+        plataforma8 = Plataforma(pygame.Rect(350, 190, 100, 100),'squared_stone.png', 100, 100)
+        plataforma9 = Plataforma(pygame.Rect(350, 60, 100, 100),'squared_stone.png', 100, 100)
+        self.roca1 = TPlatform(pygame.Rect(645, 1550, 50, 50), 'little_stone.png')
+        self.roca2 = TPlatform(pygame.Rect(600, 1670, 50, 50), 'little_stone.png')
+        self.roca3 = TPlatform(pygame.Rect(690, 1670, 50, 50), 'little_stone.png')
+        self.roca4 = TPlatform(pygame.Rect(550, 1410, 50, 50), 'little_stone.png')
+        self.roca5 = TPlatform(pygame.Rect(200, 1050, 50, 50), 'little_stone.png')
+        self.roca6 = TPlatform(pygame.Rect(50, 1050, 50, 50), 'little_stone.png')
+        self.roca7 = TPlatform(pygame.Rect(50, 890, 50, 50), 'little_stone.png')
+        self.roca8 = TPlatform(pygame.Rect(50, 670, 50, 50), 'little_stone.png')
+        self.roca9 = TPlatform(pygame.Rect(280, 670, 50, 50), 'little_stone.png')
+        self.roca10 = TPlatform(pygame.Rect(500, 670, 50, 50), 'little_stone.png')
+        self.roca11 = TPlatform(pygame.Rect(700, 670, 50, 50), 'little_stone.png')
+        self.roca12 = TPlatform(pygame.Rect(700, 480, 50, 50), 'little_stone.png')
         #plataforma final
-        self.plataformaFinal= Plataforma(pygame.Rect(350, 30, 50, 50),'trofeo.png', 100, 100)
+        self.plataformaFinal= Plataforma(pygame.Rect(0, 0, 800, 30),'Black.png', 800, 30)
 
         self.hud = HUD((16, 56), 'rectangulo_blanco.jpeg', 148, 37)
         self.progress_bar = BarraCarga((16, 50), 'PasoBarra.png', 148, 48, self.jugador.max_Time)
@@ -111,27 +121,42 @@ class Fase2(Escena):
         
 
         # El grupo de las plataformas
-        self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4, plataforma5, self.plataformaFinal, nenufar1, nenufar2, nenufar3, nenufar4, nenufar5)
-        self.grupoDNenufares = pygame.sprite.Group(self.dnenufar1)
+        self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4, plataforma5, plataforma6, plataforma7, plataforma8, plataforma9, self.plataformaFinal)
+        self.grupoRocas = pygame.sprite.Group(self.roca1, self.roca2, self.roca3, self.roca4, self.roca5, self.roca6, self.roca7, self.roca8, self.roca9, self.roca10, self.roca11, self.roca12)
 
         # Y los enemigos
-        enemigo1 = Pajaro(50, 750)
-        enemigo1.establecerPosicion((50, 1250))
-        enemigo2 = Calamar(50, 900, self.grupoPlataformas)
-        enemigo2.establecerPosicion((50, 900))
-        enemigo3 = Pajaro(50, 750)
-        enemigo3.establecerPosicion((50, 180))
+        fireball1 = FireBall(670, self.fondo.rect.left)
+        fireball1.establecerPosicion((0,1450))
+        fireball2 = FireBall(80, self.fondo.rect.right, True)
+        fireball2.establecerPosicion((80,520))
+
+        enemigo1 = Pajaro(20, 400)
+        enemigo1.establecerPosicion((20, 1600))
+        enemigo2 = Lizard(fireball1)
+        enemigo2.establecerPosicion((670, 1420))
+        enemigo3 = Pajaro(20, 390)
+        enemigo3.establecerPosicion((20, 1220))
+        enemigo4 = Pajaro(410, 780)
+        enemigo4.establecerPosicion((410, 1220))
+        enemigo5 = Lizard(fireball2, True)
+        enemigo5.establecerPosicion((30, 500))
+        enemigo6 = Pajaro(175, 625)
+        enemigo6.establecerPosicion((175, 280))
         # Creamos un grupo con los enemigostrofeo
-        self.grupoEnemigos = pygame.sprite.Group(enemigo1, enemigo2, enemigo3)
+        self.grupoEnemigos = pygame.sprite.Group(fireball1, fireball2, enemigo1, enemigo2, enemigo3, enemigo4, enemigo5, enemigo6)
         
         #Creo las moscas    rectangulo, image,scaleX, scaleY, score
-        mosca1 = Insecto(pygame.Rect(650, 660, 50, 50),'mosca.png', 50, 50, 100)
-        mosca2 = Insecto(pygame.Rect(150, 180, 50, 50),'mosca.png', 50, 50, 100)
+        mosca1 = Insecto(pygame.Rect(645, 1550, 50, 50),'mosca.png', 50, 50, 100)
+        mosca2 = Insecto(pygame.Rect(660, 1030, 50, 50),'mosca.png', 50, 50, 100)
+        mosca3 = Insecto(pygame.Rect(50, 1050, 50, 50),'mosca.png', 50, 50, 100)
+        mosca4 = Insecto(pygame.Rect(375, 90, 50, 50),'mosca.png', 50, 50, 100)
         
         #Creo hormigas
-        hormiga1 = Insecto(pygame.Rect(200, 1225, 25, 35),'hormiga.png', 35, 35, 50)       
+        hormiga1 = Insecto(pygame.Rect(560, 1410, 25, 35),'hormiga.png', 35, 35, 50)
+        hormiga2 = Insecto(pygame.Rect(190, 1630, 25, 35),'hormiga.png', 35, 35, 50)
+        hormiga3 = Insecto(pygame.Rect(710, 480, 25, 35),'hormiga.png', 35, 35, 50)
         
-        self.grupoInsectos = pygame.sprite.Group(mosca1, mosca2 ,hormiga1)
+        self.grupoInsectos = pygame.sprite.Group(mosca1, mosca2, mosca3, mosca4, hormiga1, hormiga2, hormiga3)
 
         # Creamos un grupo con los Sprites que se mueven
         #  En este caso, solo los personajes, pero podría haber más (proyectiles, etc.)
@@ -308,17 +333,17 @@ class Fase2(Escena):
         self.grupoHuds.update() # ADriano dice que falla aqui
         #self.grupoSpritesDinamicos.update(self.grupoInsectos, tiempo)
 
-        # actualizar estado nenufares
-        for nenufar in iter(self.grupoDNenufares):
-            nenufar.update(self.jugador)
+        # actualizar estado plataformas temporales
+        for elemento in iter(self.grupoRocas):
+            elemento.update(self.jugador)
 
-            # si nenufar está como no visible
-            if(not nenufar.visible):
-                self.grupoPlataformas.remove(nenufar)
-                self.grupoSprites.remove(nenufar)
-            elif(nenufar not in self.grupoPlataformas):
-                self.grupoPlataformas.add(nenufar)
-                self.grupoSprites = pygame.sprite.Group(nenufar, self.grupoSprites)
+            # si elemento está como no visible
+            if(not elemento.visible):
+                self.grupoPlataformas.remove(elemento)
+                self.grupoSprites.remove(elemento)
+            elif(elemento not in self.grupoPlataformas):
+                self.grupoPlataformas.add(elemento)
+                self.grupoSprites = pygame.sprite.Group(elemento, self.grupoSprites)
 
         
         # Dentro del update ya se comprueba que todos los movimientos son válidos
@@ -367,8 +392,9 @@ class Fase2(Escena):
 
         if self.isFinalPlatform(self.jugador):
             print('Estoy en la plataforma final')
+            self.director.persistentData.addKeyValue(persistentData.KEY_REMAINING_LIVES, self.jugador.getLives())
             #paso a la pantalla de victoria
-            #self.victory()
+            self.victory()
             pass
         #print("Estoy en la posicion: ",self.jugador.posicion )        
 

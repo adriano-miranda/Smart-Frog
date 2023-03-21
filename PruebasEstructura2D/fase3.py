@@ -29,6 +29,7 @@ POS_INI_JUGADOR = (380, 1250)
 class Fase3(Escena):
     def __init__(self, director):
         # cargamos sonidos
+        pygame.mixer.quit()
         pygame.mixer.pre_init(44100, 16, 2, 512)   # el archivo tiene que estar formateado con exactamente la misma
                                                     # frecuencia, bitrate y canales para que pueda abrirlo
         pygame.mixer.init()
@@ -93,7 +94,7 @@ class Fase3(Escena):
         nenufar3 = Nenufar(pygame.Rect(550, 180, 100, 45))
         nenufar4 = Nenufar(pygame.Rect(350, 500, 100, 45))
         nenufar5 = Nenufar(pygame.Rect(350, 330, 100, 45))
-        self.dnenufar1 = DNenufar(pygame.Rect(700, 900, 50, 50))
+        self.dnenufar1 = TPlatform(pygame.Rect(700, 900, 50, 50), 'dNenufar.png')
         #plataforma final
         self.plataformaFinal= Plataforma(pygame.Rect(350, 30, 50, 50),'trofeo.png', 100, 100)
 
@@ -308,17 +309,17 @@ class Fase3(Escena):
         self.grupoHuds.update() # ADriano dice que falla aqui
         #self.grupoSpritesDinamicos.update(self.grupoInsectos, tiempo)
 
-        # actualizar estado nenufares
-        for nenufar in iter(self.grupoDNenufares):
-            nenufar.update(self.jugador)
+        # actualizar estado plataformas temporales
+        for elemento in iter(self.grupoDNenufares):
+            elemento.update(self.jugador)
 
-            # si nenufar está como no visible
-            if(not nenufar.visible):
-                self.grupoPlataformas.remove(nenufar)
-                self.grupoSprites.remove(nenufar)
-            elif(nenufar not in self.grupoPlataformas):
-                self.grupoPlataformas.add(nenufar)
-                self.grupoSprites = pygame.sprite.Group(nenufar, self.grupoSprites)
+            # si elemento está como no visible
+            if(not elemento.visible):
+                self.grupoPlataformas.remove(elemento)
+                self.grupoSprites.remove(elemento)
+            elif(elemento not in self.grupoPlataformas):
+                self.grupoPlataformas.add(elemento)
+                self.grupoSprites = pygame.sprite.Group(elemento, self.grupoSprites)
 
         
         # Dentro del update ya se comprueba que todos los movimientos son válidos

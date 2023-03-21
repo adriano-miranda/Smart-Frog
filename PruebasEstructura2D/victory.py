@@ -6,6 +6,7 @@ from escena import *
 from gestorRecursos import *
 from personajes import *
 from fase2 import Fase2
+from fase3 import Fase3
 
 # -------------------------------------------------
 # Clase abstracta ElementoGUI
@@ -47,11 +48,16 @@ class Boton(ElementoGUI):
     def dibujar(self, pantalla):
         pantalla.blit(self.imagen, self.rect)
 
-class BotonFase2(Boton):
+class BotonSiguiente(Boton):
     def __init__(self, pantalla):
         Boton.__init__(self, pantalla, 'next.png', (180,570))
     def accion(self):
-        self.pantalla.victory.ejecutarFase2()
+        if(self.number == 2):
+            self.pantalla.victory.ejecutarFase2()
+        elif(self.number == 3):
+            self.pantalla.victory.ejecutarFase3()
+        else:
+            self.pantalla.victory.ejecutarFase2()
 
 class BotonSalir(Boton):
     def __init__(self, pantalla):
@@ -169,6 +175,8 @@ class Victory(Escena):
         self.listaPantallas = []
         #Puntuacion para el texto de puntuacion
         self.score = score
+
+        self.number = 0
         # Creamos las pantallas que vamos a tener
         #   y las metemos en la lista
         self.listaPantallas.append(PantallaInicialGUI(self, self.score))
@@ -208,6 +216,10 @@ class Victory(Escena):
     def ejecutarFase2(self):
         fase2 = Fase2(self.director)
         self.director.apilarEscena(fase2)
+
+    def ejecutarFase2(self):
+        fase3 = Fase3(self.director)
+        self.director.apilarEscena(fase3)
 
     def mostrarPantallaInicial(self):
         self.pantallaActual = 0

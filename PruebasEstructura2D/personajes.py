@@ -57,6 +57,12 @@ VELOCIDAD_CALAMAR = 0.1 # Pixeles por milisegundo
 RETARDO_ANIMACION_CALAMAR = 5 # updates que durará cada imagen del personaje
                              # debería de ser un valor distinto para cada postura
 
+VELOCIDAD_LIZARD = 0.1
+RETARDO_ANIMACION_LIZARD = 1
+
+VELOCIDAD_FIREBALL = 6
+RETARDO_ANIMACION_FIREBALL = 2
+
 
 # -------------------------------------------------
 # -------------------------------------------------
@@ -787,3 +793,96 @@ class Calamar(Enemigo):
         else:
             NoJugador.mover(self, QUIETO)
 
+# -------------------------------------------------
+# Clase Lizard
+class Lizard(Enemigo):
+    def __init__(self, fireBall, derecha=False):
+        # Invocamos al constructor de la clase padre con la configuracion de este personaje concreto
+        Enemigo.__init__(self,'lava_enemy.png','coordLava.txt', [13, 1], VELOCIDAD_LIZARD, RETARDO_ANIMACION_LIZARD);
+        self.fireBall = fireBall
+        self.derecha = derecha
+
+    def actualizarPostura(self):
+        self.retardoMovimiento -= 1
+        # Miramos si ha pasado el retardo para dibujar una nueva postura
+        if (self.retardoMovimiento < 0):
+            self.retardoMovimiento = self.retardoAnimacion
+            # Si ha pasado, actualizamos la postura
+            self.numImagenPostura += 1
+            if self.numImagenPostura >= len(self.coordenadasHoja[self.numPostura]):
+                self.numImagenPostura = 0;
+            if self.numImagenPostura < 0:
+                self.numImagenPostura = len(self.coordenadasHoja[self.numPostura])-1
+            self.image = self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura])
+
+            # Si esta mirando a la izquiera, cogemos la porcion de la hoja
+            if self.mirando == IZQUIERDA:
+                self.image = self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura])
+            #  Si no, si mira a la derecha, invertimos esa imagen
+            elif self.mirando == DERECHA:
+                self.image = pygame.transform.flip(self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura]), 1, 0)
+
+            self.image = pygame.transform.scale(self.image, (self.image.get_width()*2.5, self.image.get_height()*2.5))
+
+    # Aqui vendria la implementacion de la IA segun las posiciones de los jugadores
+    # La implementacion de la inteligencia segun este personaje particular
+    def mover_cpu(self, jugador):
+        if(self.derecha):
+            self.mirando = DERECHA
+            if (self.fireBall.posicion[0] >= 760):
+                self.numPostura = IZQUIERDA
+            else:
+                self.numPostura = DERECHA
+        else:
+            if (self.fireBall.posicion[0] <= 0):
+                self.numPostura = IZQUIERDA
+            else:
+                self.numPostura = DERECHA
+
+# -------------------------------------------------
+# Clase FireBall
+class FireBall(Enemigo):
+    def __init__(self, inicio, fin, derecha=False):
+        # Invocamos al constructor de la clase padre con la configuracion de este personaje concreto
+        Enemigo.__init__(self,'lava_enemy.png','coordFireBall.txt', [4], VELOCIDAD_FIREBALL, RETARDO_ANIMACION_FIREBALL);
+        self.rect = pygame.Rect(100,100,self.rect.width*1.5,self.rect.height*1.5)
+        self.inicio = inicio
+        self.fin = fin
+        self.derecha = derecha
+
+    def actualizarPostura(self):
+        self.retardoMovimiento -= 1
+        # Miramos si ha pasado el retardo para dibujar una nueva postura
+        if (self.retardoMovimiento < 0):
+            self.retardoMovimiento = self.retardoAnimacion
+            # Si ha pasado, actualizamos la postura
+            self.numImagenPostura += 1
+            if self.numImagenPostura >= len(self.coordenadasHoja[self.numPostura]):
+                self.numImagenPostura = 0;
+            if self.numImagenPostura < 0:
+                self.numImagenPostura = len(self.coordenadasHoja[self.numPostura])-1
+            self.image = self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura])
+
+            # Si esta mirando a la izquiera, cogemos la porcion de la hoja
+            if self.mirando == IZQUIERDA:
+                self.image = self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura])
+            #  Si no, si mira a la derecha, invertimos esa imagen
+            elif self.mirando == DERECHA:
+                self.image = pygame.transform.flip(self.hoja.subsurface(self.coordenadasHoja[self.numPostura][self.numImagenPostura]), 1, 0)
+
+            self.image = pygame.transform.scale(self.image, (self.image.get_width()*2, self.image.get_height()*2))
+
+    # Aqui vendria la implementacion de la IA segun las posiciones de los jugadores
+    # La implementacion de la inteligencia segun este personaje particular
+    def mover_cpu(self, jugador):
+        if(self.derecha):
+            self.mirando = DERECHA
+            if(self.rect.left >= self.fin):
+                self.posicion = (self.inicio, self.posicion[1])
+            else:
+                self.posicion = ((self.posicion[0] + VELOCIDAD_FIREBALL), self.posicion[1])
+        else:
+            if(self.rect.right <= self.fin):
+                self.posicion = (self.inicio, self.posicion[1])
+            else:
+                self.posicion = ((self.posicion[0] - VELOCIDAD_FIREBALL), self.posicion[1])

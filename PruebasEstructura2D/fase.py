@@ -22,7 +22,7 @@ MAXIMO_Y_JUGADOR = ALTO_PANTALLA - MINIMO_Y_JUGADOR
 MINIMO_Y_SCROLL = 250
 MAXIMO_Y_SCROLL = ALTO_PANTALLA - MINIMO_Y_SCROLL
 
-POS_INI_JUGADOR = (380, 1370)
+POS_INI_JUGADOR = (380, 250)
 
 # -------------------------------------------------
 # Clase Fase
@@ -62,7 +62,7 @@ class Fase(Escena):
         Escena.__init__(self, director)
 
         # Creamos el fondo
-        self.fondo = Fondo('chip_background.jpg')
+        self.fondo = Fondo('water_tile.png')
 
         # Que parte del fondo estamos visualizando
         self.scrollx = 0
@@ -90,9 +90,9 @@ class Fase(Escena):
         nenufar3 = Nenufar(pygame.Rect(550, 180, 100, 45))
         nenufar4 = Nenufar(pygame.Rect(350, 500, 100, 45))
         nenufar5 = Nenufar(pygame.Rect(350, 330, 100, 45))
-        self.dnenufar1 = DNenufar(pygame.Rect(700, 900, 50, 50))
+        self.dnenufar1 = TPlatform(pygame.Rect(700, 900, 50, 50), 'dNenufar.png')
         #plataforma final
-        self.plataformaFinal= Plataforma(pygame.Rect(0, 0, 800, 100),'piedra.jpeg', 800, 100)
+        self.plataformaFinal= Plataforma(pygame.Rect(-50, -50, 800, 100),'large_stone.png', 900, 200)
 
         self.hud = HUD((16, 56), 'rectangulo_blanco.jpeg', 148, 37)
         self.progress_bar = BarraCarga((16, 50), 'PasoBarra.png', 148, 48, self.jugador.max_Time)
@@ -305,17 +305,17 @@ class Fase(Escena):
         self.grupoHuds.update() # ADriano dice que falla aqui
         #self.grupoSpritesDinamicos.update(self.grupoInsectos, tiempo)
 
-        # actualizar estado nenufares
-        for nenufar in iter(self.grupoDNenufares):
-            nenufar.update(self.jugador)
+        # actualizar estado plataformas temporales
+        for elemento in iter(self.grupoDNenufares):
+            elemento.update(self.jugador)
 
-            # si nenufar está como no visible
-            if(not nenufar.visible):
-                self.grupoPlataformas.remove(nenufar)
-                self.grupoSprites.remove(nenufar)
-            elif(nenufar not in self.grupoPlataformas):
-                self.grupoPlataformas.add(nenufar)
-                self.grupoSprites = pygame.sprite.Group(nenufar, self.grupoSprites)
+            # si elemento está como no visible
+            if(not elemento.visible):
+                self.grupoPlataformas.remove(elemento)
+                self.grupoSprites.remove(elemento)
+            elif(elemento not in self.grupoPlataformas):
+                self.grupoPlataformas.add(elemento)
+                self.grupoSprites = pygame.sprite.Group(elemento, self.grupoSprites)
 
         
         # Dentro del update ya se comprueba que todos los movimientos son válidos
@@ -348,7 +348,6 @@ class Fase(Escena):
             print("ESTOY EN EL AGUA")
             self.jugador.resetAtPosition(POS_INI_JUGADOR)
             #self.jugador.establecerPosicion(POS_INI_JUGADOR)
-            self.jugador.damage()
 
         if(self.eatInsect(self.jugador,self.grupoInsectos) and  not self.jugador.isJumping):
             self.canal_reservado_2.play(self.croak)
