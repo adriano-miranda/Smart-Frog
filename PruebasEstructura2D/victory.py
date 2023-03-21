@@ -52,12 +52,7 @@ class BotonSiguiente(Boton):
     def __init__(self, pantalla):
         Boton.__init__(self, pantalla, 'next.png', (180,570))
     def accion(self):
-        if(self.number == 2):
-            self.pantalla.victory.ejecutarFase2()
-        elif(self.number == 3):
-            self.pantalla.victory.ejecutarFase3()
-        else:
-            self.pantalla.victory.ejecutarFase2()
+        self.pantalla.victory.ejecutarFase2()
 
 class BotonSalir(Boton):
     def __init__(self, pantalla):
@@ -150,7 +145,7 @@ class PantallaInicialGUI(PantallaGUI):
         PantallaGUI.__init__(self, victory, 'victory.png')
         # Creamos los botones y los metemos en la lista
         botonSalir = BotonSalir(self)
-        botonFase2 = BotonFase2(self)
+        botonFase2 = BotonSiguiente(self)
         self.elementosGUI.append(botonSalir)
         self.elementosGUI.append(botonFase2)
         # Creamos el texto y lo metemos en la lista
@@ -175,8 +170,6 @@ class Victory(Escena):
         self.listaPantallas = []
         #Puntuacion para el texto de puntuacion
         self.score = score
-
-        self.number = 0
         # Creamos las pantallas que vamos a tener
         #   y las metemos en la lista
         self.listaPantallas.append(PantallaInicialGUI(self, self.score))
@@ -217,7 +210,7 @@ class Victory(Escena):
         fase2 = Fase2(self.director)
         self.director.apilarEscena(fase2)
 
-    def ejecutarFase2(self):
+    def ejecutarFase3(self):
         fase3 = Fase3(self.director)
         self.director.apilarEscena(fase3)
 

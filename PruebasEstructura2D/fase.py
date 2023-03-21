@@ -22,7 +22,7 @@ MAXIMO_Y_JUGADOR = ALTO_PANTALLA - MINIMO_Y_JUGADOR
 MINIMO_Y_SCROLL = 250
 MAXIMO_Y_SCROLL = ALTO_PANTALLA - MINIMO_Y_SCROLL
 
-POS_INI_JUGADOR = (380, 250)
+POS_INI_JUGADOR = (380, 1370)
 
 # -------------------------------------------------
 # Clase Fase
@@ -92,7 +92,7 @@ class Fase(Escena):
         nenufar5 = Nenufar(pygame.Rect(350, 330, 100, 45))
         self.dnenufar1 = TPlatform(pygame.Rect(700, 900, 50, 50), 'dNenufar.png')
         #plataforma final
-        self.plataformaFinal= Plataforma(pygame.Rect(-50, -50, 800, 100),'large_stone.png', 900, 200)
+        self.plataformaFinal= Plataforma(pygame.Rect(-50, -50, 800, 150),'large_stone.png', 900, 200)
 
         self.hud = HUD((16, 56), 'rectangulo_blanco.jpeg', 148, 37)
         self.progress_bar = BarraCarga((16, 50), 'PasoBarra.png', 148, 48, self.jugador.max_Time)
