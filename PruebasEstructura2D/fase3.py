@@ -83,7 +83,7 @@ class Fase3(Escena):
         # (MoverIzq->Derecha, moverArriba->Abajo, Ancho, Largo)
         #Escalado de la imagen debe ser igual que el largo y el ancho!
 
-        plataformaBase = Plataforma(pygame.Rect(300, 1200, 200, 100),'stonePlatform2.png', 231, 217)
+        plataformaBase = Plataforma(pygame.Rect(300, 1200, 200, 100),'stonePlatform2_.png', 231, 217)
         plataforma1 = Plataforma(pygame.Rect(250, 1050, 300, 100),'stonePlatform1.png', 300, 100)
         plataforma2 = Plataforma(pygame.Rect(150, 850, 500, 75),'stonePlatform1.png', 500, 75)
         plataforma3 = Plataforma(pygame.Rect(100, 660, 250, 55),'stonePlatform1.png', 250, 55)
