@@ -403,7 +403,7 @@ class Fase2(Escena):
         self.director.cambiarEscena(gameOver)
 
     def victory(self):
-        victory = Victory(self.director, self.jugador.getScore())
+        victory = Victory(self.director, self.jugador.getScore(), 3)
         self.director.cambiarEscena(victory)            
 
     def dibujar(self, pantalla):

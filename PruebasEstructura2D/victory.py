@@ -49,10 +49,16 @@ class Boton(ElementoGUI):
         pantalla.blit(self.imagen, self.rect)
 
 class BotonSiguiente(Boton):
-    def __init__(self, pantalla):
+    def __init__(self, pantalla, nextScene):
         Boton.__init__(self, pantalla, 'next.png', (180,570))
+        self.nextScene = nextScene
     def accion(self):
-        self.pantalla.victory.ejecutarFase2()
+        if(self.nextScene == 2):
+            self.pantalla.victory.ejecutarFase2()
+        elif(self.nextScene == 3):
+            self.pantalla.victory.ejecutarFase3()
+        else:
+            self.pantalla.victory.mostrarPantallaInicial()
 
 class BotonSalir(Boton):
     def __init__(self, pantalla):
@@ -141,11 +147,11 @@ class PantallaGUI:
             elemento.dibujar(pantalla)
 
 class PantallaInicialGUI(PantallaGUI):
-    def __init__(self, victory, score):
+    def __init__(self, victory, score, nextScene):
         PantallaGUI.__init__(self, victory, 'victory.png')
         # Creamos los botones y los metemos en la lista
         botonSalir = BotonSalir(self)
-        botonFase2 = BotonSiguiente(self)
+        botonFase2 = BotonSiguiente(self, nextScene)
         self.elementosGUI.append(botonSalir)
         self.elementosGUI.append(botonFase2)
         # Creamos el texto y lo metemos en la lista
@@ -163,7 +169,7 @@ class PantallaInicialGUI(PantallaGUI):
 
 class Victory(Escena):
 
-    def __init__(self, director, score):
+    def __init__(self, director, score, nextScene):
         # Llamamos al constructor de la clase padre
         Escena.__init__(self, director);
         # Creamos la lista de pantallas
@@ -172,7 +178,7 @@ class Victory(Escena):
         self.score = score
         # Creamos las pantallas que vamos a tener
         #   y las metemos en la lista
-        self.listaPantallas.append(PantallaInicialGUI(self, self.score))
+        self.listaPantallas.append(PantallaInicialGUI(self, self.score, nextScene))
         # En que pantalla estamos actualmente
         self.mostrarPantallaInicial()
         

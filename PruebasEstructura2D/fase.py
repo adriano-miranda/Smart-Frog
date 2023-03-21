@@ -22,7 +22,7 @@ MAXIMO_Y_JUGADOR = ALTO_PANTALLA - MINIMO_Y_JUGADOR
 MINIMO_Y_SCROLL = 250
 MAXIMO_Y_SCROLL = ALTO_PANTALLA - MINIMO_Y_SCROLL
 
-POS_INI_JUGADOR = (380, 1370)
+POS_INI_JUGADOR = (380, 230)
 
 # -------------------------------------------------
 # Clase Fase
@@ -42,8 +42,8 @@ class Fase(Escena):
         self.canal_reservado_2 = pygame.mixer.Channel(2)
 
         # musiquita
-        pygame.mixer.music.load("sonidos/route11_-_hg_ss.ogg")
-        pygame.mixer.music.set_volume(0.2) # valores entre 0.0 y 1.0
+        pygame.mixer.music.load("sonidos/summers_-_earthbound.ogg")
+        pygame.mixer.music.set_volume(0.4) # valores entre 0.0 y 1.0
         pygame.mixer.music.play(-1) # el -1 hace que suene en bucle
 
 
@@ -376,7 +376,7 @@ class Fase(Escena):
         self.director.cambiarEscena(gameOver)
 
     def victory(self):
-        victory = Victory(self.director, self.jugador.getScore())
+        victory = Victory(self.director, self.jugador.getScore(),2)
         self.director.cambiarEscena(victory)            
 
     def dibujar(self, pantalla):
