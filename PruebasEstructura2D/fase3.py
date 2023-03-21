@@ -29,7 +29,6 @@ POS_INI_JUGADOR = (380, 1250)
 class Fase3(Escena):
     def __init__(self, director):
         # cargamos sonidos
-        pygame.mixer.quit()
         pygame.mixer.pre_init(44100, 16, 2, 512)   # el archivo tiene que estar formateado con exactamente la misma
                                                     # frecuencia, bitrate y canales para que pueda abrirlo
         pygame.mixer.init()
@@ -42,7 +41,7 @@ class Fase3(Escena):
         self.canal_reservado_2 = pygame.mixer.Channel(2)
 
         # musiquita
-        pygame.mixer.music.load("sonidos/death_mountain_twilight.ogg")
+        pygame.mixer.music.load("sonidos/grotte_-_skyward.ogg")
         pygame.mixer.music.set_volume(0.2) # valores entre 0.0 y 1.0
         pygame.mixer.music.play(-1) # el -1 hace que suene en bucle
 
