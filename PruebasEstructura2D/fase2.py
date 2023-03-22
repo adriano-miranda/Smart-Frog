@@ -4,6 +4,8 @@ from escena import *
 from personajes import *
 from plataformas import *
 from gameOver import GameOver
+from victory import Victory
+from fase3 import Fase3
 from hud import *
 from persistentData import *
 # -------------------------------------------------
@@ -42,11 +44,8 @@ class Fase2(Escena):
 
         # musiquita
         pygame.mixer.music.load("sonidos/death_mountain_twilight.ogg")
-        pygame.mixer.music.set_volume(0.2) # valores entre 0.0 y 1.0
+        pygame.mixer.music.set_volume(0.3) # valores entre 0.0 y 1.0
         pygame.mixer.music.play(-1) # el -1 hace que suene en bucle
-
-
-
 
         # Habria que pasarle como parámetro el número de fase, a partir del cual se cargue
         #  un fichero donde este la configuracion de esa fase en concreto, con cosas como
@@ -403,7 +402,7 @@ class Fase2(Escena):
         self.director.cambiarEscena(gameOver)
 
     def victory(self):
-        victory = Victory(self.director, self.jugador.getScore(), 3)
+        victory = Victory(self.director, self.jugador.getScore(), Fase3(self.director))
         self.director.cambiarEscena(victory)            
 
     def dibujar(self, pantalla):

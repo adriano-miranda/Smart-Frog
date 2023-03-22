@@ -5,6 +5,7 @@ from personajes import *
 from plataformas import *
 from gameOver import GameOver
 from victory import Victory
+from fase2  import Fase2
 from hud import *
 from persistentData import *
 # -------------------------------------------------
@@ -376,8 +377,8 @@ class Fase(Escena):
         self.director.cambiarEscena(gameOver)
 
     def victory(self):
-        victory = Victory(self.director, self.jugador.getScore(),2)
-        self.director.cambiarEscena(victory)            
+        victory = Victory(self.director, self.jugador.getScore(), Fase2(self.director))
+        self.director.cambiarEscena(victory)             
 
     def dibujar(self, pantalla):
         # Ponemos primero el fondo

@@ -5,8 +5,6 @@ from pygame.locals import *
 from escena import *
 from gestorRecursos import *
 from personajes import *
-from fase2 import Fase2
-from fase3 import Fase3
 
 # -------------------------------------------------
 # Clase abstracta ElementoGUI
@@ -49,16 +47,10 @@ class Boton(ElementoGUI):
         pantalla.blit(self.imagen, self.rect)
 
 class BotonSiguiente(Boton):
-    def __init__(self, pantalla, nextScene):
+    def __init__(self, pantalla):
         Boton.__init__(self, pantalla, 'next.png', (180,570))
-        self.nextScene = nextScene
     def accion(self):
-        if(self.nextScene == 2):
-            self.pantalla.victory.ejecutarFase2()
-        elif(self.nextScene == 3):
-            self.pantalla.victory.ejecutarFase3()
-        else:
-            self.pantalla.victory.mostrarPantallaInicial()
+        self.pantalla.victory.ejecutarSiguiente()
 
 class BotonSalir(Boton):
     def __init__(self, pantalla):
@@ -147,17 +139,16 @@ class PantallaGUI:
             elemento.dibujar(pantalla)
 
 class PantallaInicialGUI(PantallaGUI):
-    def __init__(self, victory, score, nextScene):
+    def __init__(self, victory, score):
         PantallaGUI.__init__(self, victory, 'victory.png')
         # Creamos los botones y los metemos en la lista
         botonSalir = BotonSalir(self)
-        botonFase2 = BotonSiguiente(self, nextScene)
+        botonFase2 = BotonSiguiente(self)
         self.elementosGUI.append(botonSalir)
         self.elementosGUI.append(botonFase2)
         # Creamos el texto y lo metemos en la lista
         # textoSalir = TextoSalir(self)
-        self.score = score
-        textoPuntuacion = TextoPuntuacion(self, self.score)
+        textoPuntuacion = TextoPuntuacion(self, score)
         textoPuntuacion1 = TextoPuntuacion1(self)
         # textoFase2 = TextoFase2(self)
         # self.elementosGUI.append(textoSalir)
@@ -169,16 +160,18 @@ class PantallaInicialGUI(PantallaGUI):
 
 class Victory(Escena):
 
-    def __init__(self, director, score, nextScene):
+    def __init__(self, director, score, sFase):
         # Llamamos al constructor de la clase padre
         Escena.__init__(self, director);
         # Creamos la lista de pantallas
         self.listaPantallas = []
         #Puntuacion para el texto de puntuacion
         self.score = score
+
+        self.sFase = sFase
         # Creamos las pantallas que vamos a tener
         #   y las metemos en la lista
-        self.listaPantallas.append(PantallaInicialGUI(self, self.score, nextScene))
+        self.listaPantallas.append(PantallaInicialGUI(self, self.score))
         # En que pantalla estamos actualmente
         self.mostrarPantallaInicial()
         
@@ -212,13 +205,8 @@ class Victory(Escena):
         fase = Fase(self.director)
         self.director.apilarEscena(fase)
 
-    def ejecutarFase2(self):
-        fase2 = Fase2(self.director)
-        self.director.apilarEscena(fase2)
-
-    def ejecutarFase3(self):
-        fase3 = Fase3(self.director)
-        self.director.apilarEscena(fase3)
+    def ejecutarSiguiente(self):
+        self.director.apilarEscena(self.sFase)
 
     def mostrarPantallaInicial(self):
         self.pantallaActual = 0

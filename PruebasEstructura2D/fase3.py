@@ -4,6 +4,8 @@ from escena import *
 from personajes import *
 from plataformas import *
 from gameOver import GameOver
+from victory import Victory
+from menu import Menu
 from hud import *
 from persistentData import *
 # -------------------------------------------------
@@ -32,7 +34,7 @@ class Fase3(Escena):
         pygame.mixer.pre_init(44100, 16, 2, 512)   # el archivo tiene que estar formateado con exactamente la misma
                                                     # frecuencia, bitrate y canales para que pueda abrirlo
         pygame.mixer.init()
-        self.caidaLava = GestorRecursos.CargarSonido("burnt_lava.ogg")
+        self.caida = GestorRecursos.CargarSonido("falling.ogg")
         self.croak = GestorRecursos.CargarSonido("croak.ogg")
         self.kaorc = GestorRecursos.CargarSonido("kaorc.ogg")
         pygame.mixer.set_reserved(4) # reservamos canales para efectos de sonido
@@ -42,7 +44,7 @@ class Fase3(Escena):
 
         # musiquita
         pygame.mixer.music.load("sonidos/grotte_-_skyward.ogg")
-        pygame.mixer.music.set_volume(0.2) # valores entre 0.0 y 1.0
+        pygame.mixer.music.set_volume(0.5) # valores entre 0.0 y 1.0
         pygame.mixer.music.play(-1) # el -1 hace que suene en bucle
 
 
@@ -346,7 +348,7 @@ class Fase3(Escena):
             self.jugador.damage()
         
         if(self.isOnWater(self.jugador,self.grupoPlataformas) and  not self.jugador.isJumping):
-            self.canal_reservado_0.play(self.caidaLava)
+            self.canal_reservado_0.play(self.caida)
             print("ESTOY EN EL AGUA")
             self.jugador.establecerPosicion(POS_INI_JUGADOR)
             self.jugador.damage()
@@ -377,8 +379,8 @@ class Fase3(Escena):
         self.director.cambiarEscena(gameOver)
 
     def victory(self):
-        victory = Victory(self.director, self.jugador.getScore())
-        self.director.cambiarEscena(victory)            
+        victory = Victory(self.director, self.jugador.getScore(), Menu(self.director))
+        self.director.cambiarEscena(victory)             
 
     def dibujar(self, pantalla):
         # Ponemos primero el fondo
