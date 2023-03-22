@@ -361,6 +361,13 @@ class Jugador(Personaje):
         self.notifyListeners(self.subscribers_lives, self.lives)
         return self.lives
 
+    def addLife(self):
+        "Le suma una vida al jugador, se lo notifica a los subscriptores y devuelve la cantidad a quien llama este método"
+        if self.lives < 3:
+            self.lives += 1
+            self.notifyListeners(self.subscribers_lives, self.lives)
+            return self.lives
+
 
     def isLoadingJump(self):
         "Está la rana preparándose para saltar?"

@@ -5,7 +5,7 @@ from personajes import *
 from plataformas import *
 from gameOver import GameOver
 from victory import Victory
-from menu import Menu
+from final import Final
 from hud import *
 from persistentData import *
 # -------------------------------------------------
@@ -358,6 +358,8 @@ class Fase3(Escena):
             print("COMIENDO INSECTO")
             insecto = pygame.sprite.spritecollideany(self.jugador, self.grupoInsectos)
             self.jugador.addScore(insecto.score)
+            if(self.jugador.lives <3):
+                self.jugador.lives += 1
             #self.jugador.score += insecto.score
             pygame.sprite.Sprite.kill(insecto)
             #print("PUNTUACION = ",self.jugador.score )
@@ -370,8 +372,7 @@ class Fase3(Escena):
         if self.isFinalPlatform(self.jugador):
             print('Estoy en la plataforma final')
             #paso a la pantalla de victoria
-            #self.victory()
-            pass
+            self.victory()
         #print("Estoy en la posicion: ",self.jugador.posicion )        
 
     def gameOver(self):
@@ -379,8 +380,8 @@ class Fase3(Escena):
         self.director.cambiarEscena(gameOver)
 
     def victory(self):
-        victory = Victory(self.director, self.jugador.getScore(), Menu(self.director))
-        self.director.cambiarEscena(victory)             
+        victory = Victory(self.director, self.jugador.getScore(), Final(self.director))
+        self.director.cambiarEscena(victory)
 
     def dibujar(self, pantalla):
         # Ponemos primero el fondo

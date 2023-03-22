@@ -355,6 +355,8 @@ class Fase(Escena):
             print("COMIENDO INSECTO")
             insecto = pygame.sprite.spritecollideany(self.jugador, self.grupoInsectos)
             self.jugador.addScore(insecto.score)
+            if(self.jugador.lives <3):
+                self.jugador.lives += 1
             #self.jugador.score += insecto.score
             pygame.sprite.Sprite.kill(insecto)
             #print("PUNTUACION = ",self.jugador.score )
