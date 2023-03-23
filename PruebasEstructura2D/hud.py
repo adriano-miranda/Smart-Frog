@@ -98,9 +98,9 @@ class HUDVidas(HUD):
                 self.removeLife()
                 return
         if grupo is None:
-            self.addLife(self.grupo, q)
+            self.addLife(self.grupo, q - self.remainingLives)
         else:
-            self.addLife(grupo, q)
+            self.addLife(grupo, q - self.remainingLives)
     
     def run(self, datos):
         aux = datos
