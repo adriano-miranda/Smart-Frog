@@ -1,4 +1,5 @@
 import pygame, escena
+from director import Director
 from pygame.locals import *
 from escena import *
 from personajes import *
@@ -29,7 +30,7 @@ POS_INI_JUGADOR = (380, 1980)
 # Clase Fase
 
 class Fase2(Escena):
-    def __init__(self, director):
+    def __init__(self, director:Director):
         # cargamos sonidos
         pygame.mixer.pre_init(44100, 16, 2, 512)   # el archivo tiene que estar formateado con exactamente la misma
                                                     # frecuencia, bitrate y canales para que pueda abrirlo
@@ -380,11 +381,8 @@ class Fase2(Escena):
             print("COMIENDO INSECTO")
             insecto = pygame.sprite.spritecollideany(self.jugador, self.grupoInsectos)
             self.jugador.addScore(insecto.score)
-            if(self.jugador.lives <3):
-                self.jugador.lives += 1
-            #self.jugador.score += insecto.score
+            self.jugador.addLife()
             pygame.sprite.Sprite.kill(insecto)
-            #print("PUNTUACION = ",self.jugador.score )
             print("PUNTUACION1 = ",str(self.jugador.getScore()))
                 
         if(self.jugador.lives ==0):

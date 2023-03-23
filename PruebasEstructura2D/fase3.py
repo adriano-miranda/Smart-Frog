@@ -1,4 +1,5 @@
 import pygame, escena
+from director import Director
 from pygame.locals import *
 from escena import *
 from personajes import *
@@ -29,7 +30,7 @@ POS_INI_JUGADOR = (380, 1250)
 # Clase Fase
 
 class Fase3(Escena):
-    def __init__(self, director):
+    def __init__(self, director: Director):
         # cargamos sonidos
         pygame.mixer.pre_init(44100, 16, 2, 512)   # el archivo tiene que estar formateado con exactamente la misma
                                                     # frecuencia, bitrate y canales para que pueda abrirlo
@@ -84,12 +85,12 @@ class Fase3(Escena):
         # (MoverIzq->Derecha, moverArriba->Abajo, Ancho, Largo)
         #Escalado de la imagen debe ser igual que el largo y el ancho!
 
-        plataformaBase = Plataforma(pygame.Rect(300, 1200, 200, 100),'stonePlatform2_.png', 231, 217)
-        plataforma1 = Plataforma(pygame.Rect(250, 1050, 300, 100),'stonePlatform1.png', 300, 100)
-        plataforma2 = Plataforma(pygame.Rect(150, 850, 500, 75),'stonePlatform1.png', 500, 75)
-        plataforma3 = Plataforma(pygame.Rect(100, 660, 250, 55),'stonePlatform1.png', 250, 55)
-        plataforma4 = Plataforma(pygame.Rect(450, 660, 250, 55),'stonePlatform1.png', 250, 55)
-        plataforma5 = Plataforma(pygame.Rect(150, 500, 150, 45),'stonePlatform1.png', 150, 45)
+        plataformaBase = Plataforma(pygame.Rect(300, 1200, 240, 150),'stonePlatform2_.png', 231, 217)
+        plataforma1 = Plataforma(pygame.Rect(250, 950, 300, 100),'stonePlatform1.png', 164, 152)
+        plataforma2 = Plataforma(pygame.Rect(150, 850, 300, 100),'stonePlatform1.png', 164, 152)
+        plataforma3 = Plataforma(pygame.Rect(100, 660, 300, 100),'stonePlatform1.png', 164, 152)
+        plataforma4 = Plataforma(pygame.Rect(450, 660, 300, 100),'stonePlatform1.png', 164, 152)
+        plataforma5 = Plataforma(pygame.Rect(150, 500, 300, 100),'stonePlatform1.png', 164, 152)
         nenufar1 = Nenufar(pygame.Rect(150, 180, 100, 45))
         nenufar2 = Nenufar(pygame.Rect(350, 180, 100, 45))
         nenufar3 = Nenufar(pygame.Rect(550, 180, 100, 45))
@@ -118,7 +119,7 @@ class Fase3(Escena):
 
         # Y los enemigos
         enemigo1 = Pajaro(50, 750)
-        enemigo1.establecerPosicion((50, 1250))
+        enemigo1.establecerPosicion((50, 1150))
         enemigo2 = Calamar(50, 900, self.grupoPlataformas)
         enemigo2.establecerPosicion((50, 900))
         enemigo3 = Pajaro(50, 750)
@@ -358,8 +359,7 @@ class Fase3(Escena):
             print("COMIENDO INSECTO")
             insecto = pygame.sprite.spritecollideany(self.jugador, self.grupoInsectos)
             self.jugador.addScore(insecto.score)
-            if(self.jugador.lives <3):
-                self.jugador.lives += 1
+            self.jugador.addLife()
             #self.jugador.score += insecto.score
             pygame.sprite.Sprite.kill(insecto)
             #print("PUNTUACION = ",self.jugador.score )

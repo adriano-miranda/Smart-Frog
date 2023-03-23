@@ -8,6 +8,7 @@ from victory import Victory
 from fase2  import Fase2
 from hud import *
 from persistentData import *
+from fase3 import *
 # -------------------------------------------------
 # -------------------------------------------------
 # Constantes
@@ -355,8 +356,7 @@ class Fase(Escena):
             print("COMIENDO INSECTO")
             insecto = pygame.sprite.spritecollideany(self.jugador, self.grupoInsectos)
             self.jugador.addScore(insecto.score)
-            if(self.jugador.lives <3):
-                self.jugador.lives += 1
+            self.jugador.addLife()
             #self.jugador.score += insecto.score
             pygame.sprite.Sprite.kill(insecto)
             #print("PUNTUACION = ",self.jugador.score )

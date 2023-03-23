@@ -2,6 +2,21 @@ from pygame import *
 from gestorRecursos import *
 from typing import Tuple
 
+class paqueteVidas():
+    '''Su utilidad es la de proporcionar información de una manera compacta al HUD de vidas y tiene los siguientes campos:
+      Quantity = cantidad de vidas a modificar
+      Operation = tipo de operación a realizar
+      Grupo = grupo a traves del cual se mostrarán las actualizaciones"
+    '''
+    QUITAR = 1
+    AÑADIR = 2
+
+    def __init__(self, quantity, operation, grupo = None) -> None:
+        self.q = quantity
+        self.operation = operation
+        self.group = grupo
+        
+
 class Listener(sprite.Sprite):
     def run(self, datos):
         pass
@@ -51,6 +66,7 @@ class HUDVidas(HUD):
     # PreCD: Se hace entre la llamada al constructor HUDVidas(...) y cualquier otra
     # Añade al grupo todas las vidas
     def addToGroup(self, grupo: sprite.Group):
+        self.grupo = grupo
         grupo.add(self.lives[:self.totalLives])
 
     # Remove one life
@@ -74,8 +90,33 @@ class HUDVidas(HUD):
     def show(self, grupo: sprite.Group):
         self.addLife(grupo, quantity=self.totalLives)
     
+    def setLives(self, q, grupo: sprite.Group = None):
+        if self.remainingLives == q:
+            return
+        if self.remainingLives > q: # Restar
+            for i in range(self.remainingLives - q):
+                self.removeLife()
+                return
+        if grupo is None:
+            self.addLife(self.grupo, q)
+        else:
+            self.addLife(grupo, q)
+    
     def run(self, datos):
-        self.removeLife()
+        aux = datos
+        if datos<0:
+            aux = 0
+        elif datos>self.totalLives:
+            aux = self.totalLives
+        self.setLives(aux)
+        # if type(datos) == type(paqueteVidas):
+        #     if(datos.operacion == paqueteVidas.AÑADIR):
+        #         if datos.group is None:
+        #             self.addLife(self.grupo, datos.quantity)
+        #         else:
+        #             self.addLife(datos.group, datos.quantity)
+        #     elif(datos.operacion == paqueteVidas.QUITAR):
+        #         
 
     
 

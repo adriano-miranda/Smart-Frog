@@ -5,6 +5,7 @@ from pygame.locals import *
 from escena import *
 from gestorRecursos import *
 from fase import Fase
+from fase3 import Fase3
 
 # -------------------------------------------------
 # Clase abstracta ElementoGUI
