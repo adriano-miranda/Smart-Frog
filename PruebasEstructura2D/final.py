@@ -106,13 +106,10 @@ class PantallaGUI:
 
 class PantallaInicialGUI(PantallaGUI):
     def __init__(self, gameOver):
-        PantallaGUI.__init__(self, gameOver, 'victory.jpeg')
+        PantallaGUI.__init__(self, gameOver, 'wip_final_win_3')
         # Creamos los botones y los metemos en la lista
         botonSalir = BotonSalir(self)
         self.elementosGUI.append(botonSalir)
-        # Creamos el texto y lo metemos en la lista
-        textoSalir = TextoSalir(self)
-        self.elementosGUI.append(textoSalir)
 
 # -------------------------------------------------
 # Clase gameOver, la escena en sí

@@ -70,8 +70,8 @@ class Fase(Escena):
         self.scrollx = 0
         self.scrolly = 0
 
-        vidas_rana = director.persistentData.getKeyBut(persistentData.KEY_DEFAULT_LIVES, 3)
-        score_rana = director.persistentData.getKeyBut(persistentData.KEY_DEFAULT_SCORE, 0)
+        vidas_rana = director.persistentData.getKey(persistentData.KEY_DEFAULT_LIVES)
+        score_rana = director.persistentData.getKey(persistentData.KEY_DEFAULT_SCORE)
 
         # Creamos los sprites de los jugadores
         self.jugador = Jugador(lives=vidas_rana, score=score_rana)
