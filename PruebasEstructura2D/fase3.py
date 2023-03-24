@@ -24,7 +24,7 @@ MAXIMO_Y_JUGADOR = ALTO_PANTALLA - MINIMO_Y_JUGADOR
 MINIMO_Y_SCROLL = 250
 MAXIMO_Y_SCROLL = ALTO_PANTALLA - MINIMO_Y_SCROLL
 
-POS_INI_JUGADOR = (380, 1250)
+POS_INI_JUGADOR = (380, 1350)
 
 # -------------------------------------------------
 # Clase Fase
@@ -65,7 +65,7 @@ class Fase3(Escena):
         Escena.__init__(self, director)
 
         # Recuperamos los datos persistentes que se desee saber
-        vidas_rana = director.persistentData.getKeyBut(persistentData.KEY_REMAINING_LIVES, 3)
+        vidas_rana = director.persistentData.getKeyBut(persistentData.KEY_REMAINING_LIVES, 10)
 
         # Creamos el fondo
         self.fondo = Fondo('Black.png')
@@ -85,18 +85,37 @@ class Fase3(Escena):
         # (MoverIzq->Derecha, moverArriba->Abajo, Ancho, Largo)
         #Escalado de la imagen debe ser igual que el largo y el ancho!
 
-        plataformaBase = Plataforma(pygame.Rect(300, 1200, 240, 150),'stonePlatform2_.png', 231, 217)
-        plataforma1 = Plataforma(pygame.Rect(250, 950, 300, 100),'stonePlatform1.png', 164, 152)
-        plataforma2 = Plataforma(pygame.Rect(150, 850, 300, 100),'stonePlatform1.png', 164, 152)
-        plataforma3 = Plataforma(pygame.Rect(100, 660, 300, 100),'stonePlatform1.png', 164, 152)
-        plataforma4 = Plataforma(pygame.Rect(450, 660, 300, 100),'stonePlatform1.png', 164, 152)
-        plataforma5 = Plataforma(pygame.Rect(150, 500, 300, 100),'stonePlatform1.png', 164, 152)
-        nenufar1 = Nenufar(pygame.Rect(150, 180, 100, 45))
-        nenufar2 = Nenufar(pygame.Rect(350, 180, 100, 45))
-        nenufar3 = Nenufar(pygame.Rect(550, 180, 100, 45))
-        nenufar4 = Nenufar(pygame.Rect(350, 500, 100, 45))
-        nenufar5 = Nenufar(pygame.Rect(350, 330, 100, 45))
-        self.dnenufar1 = TPlatform(pygame.Rect(700, 900, 50, 50), 'dNenufar.png')
+        # Multilicadores, comodos, de tamaño, que ademas respetan la proporcion
+        pBase = .75
+        pResto = 0.25
+        pPuente = .5
+        pPlataformaN = .5
+
+        plataformaBase = Plataforma(pygame.Rect(240, 1250, 393*pBase, 227*pBase),'piedraforma_1.png', 393*pBase, 227*pBase)
+        temp_platformLB = TPlatform(pygame.Rect(20, 1250, 400*pResto, 400*pResto),'piedraforma_2T.png', 300)
+        temp_platformRB = TPlatform(pygame.Rect(620, 1250, 400*pResto, 400*pResto),'piedraforma_2T.png', 240)
+        temp_platformR1 = TPlatform(pygame.Rect(620, 1050, 400*pResto, 400*pResto),'piedraforma_2T.png', 240)
+        temp_platformR2 = TPlatform(pygame.Rect(620, 800, 400*pResto, 400*pResto),'piedraforma_2T.png', 240)
+        temp_platformR3 = TPlatform(pygame.Rect(620, 650, 400*pResto, 400*pResto),'piedraforma_2T.png', 240)
+        temp_platformM1 = TPlatform(pygame.Rect(350, 1000, 400*pResto, 400*pResto),'piedraforma_2T.png', 600)
+        plataforma1 = Plataforma(pygame.Rect(250, 650, 393*pPlataformaN, 227*pPlataformaN),'piedraforma_1.png', 393*pPlataformaN, 227*pPlataformaN)
+        puente1 = Plataforma(pygame.Rect(300, 700, 237*pPuente, 284*pPuente), 'Puente.png', 237*pPuente, 284*pPuente)
+        temp_platformM2 = TPlatform(pygame.Rect(350, 440, 400*pResto, 400*pResto),'piedraforma_2T.png', 240)
+        temp_platformM3 = TPlatform(pygame.Rect(350, 260, 400*pResto, 400*pResto),'piedraforma_2T.png', 240)
+        plataforma2 = Plataforma(pygame.Rect(580, 240, 393*pPlataformaN, 227*pPlataformaN),'piedraforma_1.png', 393*pPlataformaN, 227*pPlataformaN)
+        plataforma3 = Plataforma(pygame.Rect(50, 240, 393*pPlataformaN, 227*pPlataformaN),'piedraforma_1.png', 393*pPlataformaN, 227*pPlataformaN)
+        
+        self.grupoTPlatforms = pygame.sprite.Group(
+            temp_platformLB,
+            temp_platformRB,
+            temp_platformR1,
+            temp_platformR2,
+            temp_platformR3,
+            temp_platformM1,
+            temp_platformM2,
+            temp_platformM3
+        )
+
         #plataforma final
         self.plataformaFinal= Plataforma(pygame.Rect(350, 30, 50, 50),'trofeo.png', 100, 100)
 
@@ -114,25 +133,29 @@ class Fase3(Escena):
         
 
         # El grupo de las plataformas
-        self.grupoPlataformas = pygame.sprite.Group(plataformaBase, plataforma1, plataforma2, plataforma3, plataforma4, plataforma5, self.plataformaFinal, nenufar1, nenufar2, nenufar3, nenufar4, nenufar5)
-        self.grupoDNenufares = pygame.sprite.Group(self.dnenufar1)
+        self.grupoPlataformas = pygame.sprite.Group(
+            plataformaBase,
+            plataforma1,            
+            plataforma2,            
+            plataforma3,            
+            self.plataformaFinal,
+            puente1
+            )
 
         # Y los enemigos
-        enemigo1 = Pajaro(50, 750)
+        enemigo1 = Pajaro(50, 600)
         enemigo1.establecerPosicion((50, 1150))
-        enemigo2 = Calamar(50, 900, self.grupoPlataformas)
-        enemigo2.establecerPosicion((50, 900))
         enemigo3 = Pajaro(50, 750)
         enemigo3.establecerPosicion((50, 180))
         # Creamos un grupo con los enemigostrofeo
-        self.grupoEnemigos = pygame.sprite.Group(enemigo1, enemigo2, enemigo3)
+        self.grupoEnemigos = pygame.sprite.Group(enemigo1, enemigo3)
         
         #Creo las moscas    rectangulo, image,scaleX, scaleY, score
-        mosca1 = Insecto(pygame.Rect(650, 660, 50, 50),'mosca.png', 50, 50, 100)
-        mosca2 = Insecto(pygame.Rect(150, 180, 50, 50),'mosca.png', 50, 50, 100)
+        mosca1 = Insecto(pygame.Rect(250, 700, 50, 50),'mosca.png', 50, 50, 100)
+        mosca2 = Insecto(pygame.Rect(150, 300, 50, 50),'mosca.png', 50, 50, 100)
         
         #Creo hormigas
-        hormiga1 = Insecto(pygame.Rect(200, 1225, 25, 35),'hormiga.png', 35, 35, 50)       
+        hormiga1 = Insecto(pygame.Rect(50, 1265, 25, 35),'hormiga.png', 35, 35, 50)       
         
         self.grupoInsectos = pygame.sprite.Group(mosca1, mosca2 ,hormiga1)
 
@@ -312,7 +335,7 @@ class Fase3(Escena):
         #self.grupoSpritesDinamicos.update(self.grupoInsectos, tiempo)
 
         # actualizar estado plataformas temporales
-        for elemento in iter(self.grupoDNenufares):
+        for elemento in iter(self.grupoTPlatforms):
             elemento.update(self.jugador)
 
             # si elemento está como no visible
