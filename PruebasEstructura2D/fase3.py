@@ -1,3 +1,4 @@
+from random import Random
 import pygame, escena
 from director import Director
 from pygame.locals import *
@@ -65,8 +66,9 @@ class Fase3(Escena):
         Escena.__init__(self, director)
 
         # Recuperamos los datos persistentes que se desee saber
-        vidas_rana = director.persistentData.getKeyBut(persistentData.KEY_REMAINING_LIVES, 10)
-
+        vidas_rana = director.persistentData.getKeyBut(persistentData.KEY_REMAINING_LIVES, 3)
+        score_rana = director.persistentData.getKeyBut(persistentData.KEY_SCORE_TOTAL, 0)
+        
         # Creamos el fondo
         self.fondo = Fondo('Black.png')
 
@@ -75,7 +77,7 @@ class Fase3(Escena):
         self.scrolly = 0
 
         # Creamos los sprites de los jugadores
-        self.jugador = Jugador(lives=vidas_rana)
+        self.jugador = Jugador(lives=vidas_rana, score=score_rana)
         self.grupoJugadores = pygame.sprite.Group(self.jugador)
 
         # Ponemos a los jugadores en sus posiciones iniciales
@@ -116,8 +118,14 @@ class Fase3(Escena):
             temp_platformM3
         )
 
+        # Array con las posiciones en las que podría estar el final, es aleatorio
+        posicionesFinales = [50, 350, 650]
+        randomizer = Random()
+        randomizer.seed(None)
+        posFinal = randomizer.choice(posicionesFinales)
+
         #plataforma final
-        self.plataformaFinal= Plataforma(pygame.Rect(350, 30, 50, 50),'trofeo.png', 100, 100)
+        self.plataformaFinal= Plataforma(pygame.Rect(posFinal, 30, 50, 50),'win.png', 100, 100)
 
         self.hud = HUD((16, 56), 'rectangulo_blanco.jpeg', 148, 37)
         self.progress_bar = BarraCarga((16, 50), 'PasoBarra.png', 148, 48, self.jugador.max_Time)
@@ -395,6 +403,7 @@ class Fase3(Escena):
         if self.isFinalPlatform(self.jugador):
             print('Estoy en la plataforma final')
             #paso a la pantalla de victoria
+            self.director.persistentData.addKeyValue(persistentData.KEY_SCORE_TOTAL, self.jugador.getScore())
             self.victory()
         #print("Estoy en la posicion: ",self.jugador.posicion )        
 

@@ -63,6 +63,7 @@ class Fase2(Escena):
 
         # Recuperamos los datos persistentes que se desee saber
         vidas_rana = director.persistentData.getKeyBut(persistentData.KEY_REMAINING_LIVES, 3)
+        score_rana = director.persistentData.getKeyBut(persistentData.KEY_SCORE_TOTAL, 0)
 
         # Creamos el fondo
         self.fondo = Fondo('lava.gif', 2000)
@@ -72,7 +73,7 @@ class Fase2(Escena):
         self.scrolly = 0
 
         # Creamos los sprites de los jugadores
-        self.jugador = Jugador(lives=vidas_rana)
+        self.jugador = Jugador(lives=vidas_rana, score= score_rana)
         self.grupoJugadores = pygame.sprite.Group(self.jugador)
 
         # Ponemos a los jugadores en sus posiciones iniciales
@@ -392,6 +393,7 @@ class Fase2(Escena):
         if self.isFinalPlatform(self.jugador):
             print('Estoy en la plataforma final')
             self.director.persistentData.addKeyValue(persistentData.KEY_REMAINING_LIVES, self.jugador.getLives())
+            self.director.persistentData.addKeyValue(persistentData.KEY_SCORE_TOTAL, self.jugador.getScore())
             #paso a la pantalla de victoria
             self.victory()
             pass

@@ -1,13 +1,18 @@
 class persistentData():
+    """Si la clase está inicializada, se puede confiar en que haya valores
+    por defecto, para las vidas, la versión del juego y la puntuación"""
 
     KEY_REMAINING_LIVES = "actual_lives"
     KEY_GAME_VERSION    = "version"
     KEY_DEFAULT_LIVES   = "default_lives"
+    KEY_DEFAULT_SCORE   = "default_score"
+    KEY_SCORE_TOTAL     = "total_score"
 
     def __init__(self) -> None:
         self.rae = {
             "version": "1.00",
             "defaultLives": 3,
+            "defaultScore": 0,
         }
 
     def getKeyBut(self, key, default):

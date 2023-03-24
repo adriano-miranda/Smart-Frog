@@ -70,8 +70,11 @@ class Fase(Escena):
         self.scrollx = 0
         self.scrolly = 0
 
+        vidas_rana = director.persistentData.getKeyBut(persistentData.KEY_DEFAULT_LIVES, 3)
+        score_rana = director.persistentData.getKeyBut(persistentData.KEY_DEFAULT_SCORE, 0)
+
         # Creamos los sprites de los jugadores
-        self.jugador = Jugador()
+        self.jugador = Jugador(lives=vidas_rana, score=score_rana)
         self.grupoJugadores = pygame.sprite.Group(self.jugador)
 
         # Ponemos a los jugadores en sus posiciones iniciales
@@ -370,6 +373,7 @@ class Fase(Escena):
             print('Estoy en la plataforma final')
             # Guardo los datos de las vidas en el almacén de persistencia
             self.director.persistentData.addKeyValue(persistentData.KEY_REMAINING_LIVES, self.jugador.getLives())
+            self.director.persistentData.addKeyValue(persistentData.KEY_SCORE_TOTAL, self.jugador.getScore())
             #paso a la pantalla de victoria
             self.victory()
         #print("Estoy en la posicion: ",self.jugador.posicion )        

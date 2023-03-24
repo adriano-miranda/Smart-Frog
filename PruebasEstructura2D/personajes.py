@@ -382,7 +382,7 @@ class Jugador(Personaje):
         return self.isJumping
     
 
-    def notifyListeners(self, listenerList: list[Listener], dato):
+    def notifyListeners(self, listenerList: List[Listener], dato):
         "Notificar a los listeners de una lista específica de listeners"
         for listerine in listenerList:
             listerine.run(dato)
