@@ -6,6 +6,21 @@ from escena import *
 from gestorRecursos import *
 from personajes import *
 
+# Colores
+WHITE = (255,255,255)
+GREEN = (0,255,0)
+RED = (255,0,0)
+BLUE = (0,0,255)
+BLACK = (0,0,0)
+FUCHSIA = (255, 0, 255)
+GRAY = (128, 128, 128)
+LIME = (0, 128, 0)
+MAROON = (128, 0, 0)
+NAVYBLUE = (0, 0, 128)
+OLIVE = (128, 128, 0)
+PURPLE = (128, 0, 128)
+TEAL = (0,128,128)
+
 # -------------------------------------------------
 # Clase abstracta ElementoGUI
 
@@ -79,7 +94,7 @@ class TextoPuntuacion1(TextoGUI):
         # La fuente la debería cargar el estor de recursos
         fuente = pygame.font.SysFont('arial', 26)
         puntuacion = "PUNTUACION: " 
-        TextoGUI.__init__(self, pantalla, fuente, (0, 0, 0), puntuacion , (100, 500))
+        TextoGUI.__init__(self, pantalla, fuente, WHITE, puntuacion , (100, 500))
 
 class TextoPuntuacion(TextoGUI):
     def __init__(self, pantalla, score):
@@ -88,7 +103,7 @@ class TextoPuntuacion(TextoGUI):
         fuente = pygame.font.SysFont('arial', 26)
         self.score = score
         puntuacion = str(self.score) 
-        TextoGUI.__init__(self, pantalla, fuente, (0, 0, 0), puntuacion , (300, 500))
+        TextoGUI.__init__(self, pantalla, fuente, WHITE, puntuacion , (300, 500))
 
 class TextoSalir(TextoGUI):
     def __init__(self, pantalla):
