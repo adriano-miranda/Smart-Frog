@@ -143,9 +143,9 @@ class Fase3(Escena):
             )
 
         # Y los enemigos
-        enemigo1 = Pajaro(50, 600)
+        enemigo1 = Murciegalo((380, 1100))
         enemigo1.establecerPosicion((50, 1150))
-        enemigo3 = Pajaro(50, 750)
+        enemigo3 = Murciegalo((50, 750))
         enemigo3.establecerPosicion((50, 180))
         # Creamos un grupo con los enemigostrofeo
         self.grupoEnemigos = pygame.sprite.Group(enemigo1, enemigo3)
