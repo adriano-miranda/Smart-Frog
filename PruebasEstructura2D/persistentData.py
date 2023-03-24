@@ -11,8 +11,8 @@ class persistentData():
     def __init__(self) -> None:
         self.rae = {
             "version": "1.00",
-            "defaultLives": 3,
-            "defaultScore": 0,
+            "default_lives": 3,
+            "default_score": 0,
         }
 
     def getKeyBut(self, key, default):
